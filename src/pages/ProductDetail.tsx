@@ -55,7 +55,7 @@ const ProductDetail = () => {
               <div className="aspect-square rounded-lg overflow-hidden">
                 <img
                   src={getImageForProduct(product)}
-                  alt={product.name}
+                  alt={product.nameEn}
                   className="h-full w-full object-cover"
                 />
               </div>
@@ -64,14 +64,14 @@ const ProductDetail = () => {
             {/* Product Info */}
             <div>
               <div className="flex items-start justify-between gap-4 mb-4">
-                <h1 className="text-4xl font-bold">{product.name}</h1>
+                <h1 className="text-4xl font-bold">{product.nameEn}</h1>
                 <Badge variant="secondary" className="text-2xl py-2 px-4">
                   ${product.price}
                 </Badge>
               </div>
               
               <p className="text-xl text-muted-foreground mb-6">
-                {product.shortBenefit}
+                {product.shortBenefitEn}
               </p>
 
               <div className="space-y-4 mb-8">
@@ -104,12 +104,12 @@ const ProductDetail = () => {
           <div className="max-w-4xl mx-auto mb-16">
             <h2 className="text-3xl font-bold mb-6">Σχετικά με το Πρόγραμμα</h2>
             <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-              {product.description}
+              {product.descriptionEn}
             </p>
 
             <h3 className="text-2xl font-bold mb-4">Τι Περιλαμβάνεται:</h3>
             <div className="grid md:grid-cols-2 gap-4 mb-8">
-              {product.deliverables.map((item, index) => (
+              {product.deliverablesEn.map((item, index) => (
                 <div key={index} className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
                   <span>{item}</span>
@@ -120,7 +120,7 @@ const ProductDetail = () => {
             <Card className="bg-muted/30">
               <CardContent className="pt-6">
                 <h3 className="font-bold text-lg mb-2">Για ποιόν είναι αυτό το πρόγραμμα;</h3>
-                <p className="text-muted-foreground">{product.targetAudience}</p>
+                <p className="text-muted-foreground">{product.targetAudienceEn}</p>
               </CardContent>
             </Card>
           </div>

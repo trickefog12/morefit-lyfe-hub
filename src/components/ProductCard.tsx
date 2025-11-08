@@ -33,7 +33,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       <div className="relative aspect-square overflow-hidden bg-muted">
         <img
           src={getImageForProduct(product)}
-          alt={product.name}
+          alt={product.nameEn}
           className="h-full w-full object-cover transition-transform group-hover:scale-105"
         />
         <Badge className="absolute top-3 right-3 bg-primary/90 backdrop-blur-sm">
@@ -42,12 +42,12 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       </div>
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-lg leading-tight">{product.name}</CardTitle>
+          <CardTitle className="text-lg leading-tight">{product.nameEn}</CardTitle>
           <Icon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
         </div>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-muted-foreground line-clamp-2">{product.shortBenefit}</p>
+        <p className="text-sm text-muted-foreground line-clamp-2">{product.shortBenefitEn}</p>
         <p className="text-xs text-muted-foreground mt-2">{product.duration}</p>
       </CardContent>
       <CardFooter>
