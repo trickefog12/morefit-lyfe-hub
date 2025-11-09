@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      products: {
+        Row: {
+          active: boolean
+          category: string
+          created_at: string
+          description_el: string | null
+          description_en: string | null
+          format: string
+          image_url: string | null
+          name_el: string
+          name_en: string
+          price: number
+          sku: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          category: string
+          created_at?: string
+          description_el?: string | null
+          description_en?: string | null
+          format: string
+          image_url?: string | null
+          name_el: string
+          name_en: string
+          price: number
+          sku: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          description_el?: string | null
+          description_en?: string | null
+          format?: string
+          image_url?: string | null
+          name_el?: string
+          name_en?: string
+          price?: number
+          sku?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -37,6 +82,57 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      purchases: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          download_token: string | null
+          id: string
+          product_sku: string
+          purchased_at: string
+          status: string
+          stripe_payment_intent_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_paid: number
+          created_at?: string
+          download_token?: string | null
+          id?: string
+          product_sku: string
+          purchased_at?: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          download_token?: string | null
+          id?: string
+          product_sku?: string
+          purchased_at?: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_purchases_product_sku"
+            columns: ["product_sku"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["sku"]
+          },
+          {
+            foreignKeyName: "purchases_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
