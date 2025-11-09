@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { Menu, X, Languages } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import logoIcon from "@/assets/logo-icon.png";
-import logoText from "@/assets/logo-text.png";
+import logoIcon from "@/assets/logo-icon.jpeg";
+import logoText from "@/assets/logo-text.jpeg";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
