@@ -1,207 +1,219 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle, Sparkles } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Check, Zap } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { signupSchema, loginSchema, type SignupInput, type LoginInput } from "@/lib/validations";
+import { useAuth } from "@/hooks/useAuth";
+import { useEffect, useState } from "react";
 
 const SignUp = () => {
+  const navigate = useNavigate();
+  const { user, signUp, signIn, loading } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const signupForm = useForm<SignupInput>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      password: "",
+      gdprConsent: false,
+    },
+  });
+
+  const loginForm = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  useEffect(() => {
+    if (user && !loading) {
+      navigate("/");
+    }
+  }, [user, loading, navigate]);
+
+  const onSignup = async (data: SignupInput) => {
+    setIsSubmitting(true);
+    try {
+      const { error } = await signUp(data.email, data.password, data.fullName);
+      if (!error) {
+        navigate("/");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const onLogin = async (data: LoginInput) => {
+    setIsSubmitting(true);
+    try {
+      const { error } = await signIn(data.email, data.password);
+      if (!error) {
+        navigate("/");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       
       <main className="flex-1 py-16">
         <div className="container mx-auto px-4 lg:px-8">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <h1 className="text-4xl font-bold mb-4">Γίνε Μέλος του MoreFitLyfe</h1>
+              <h1 className="text-4xl font-bold mb-4">Join MoreFitLyfe</h1>
               <p className="text-lg text-muted-foreground">
-                Ξεκίνα το ταξίδι μεταμόρφωσής σου σήμερα
+                Start your transformation journey today
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8 mb-12">
-              {/* Free Account */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-primary" />
-                    Δωρεάν Λογαριασμός
-                  </CardTitle>
-                  <CardDescription>
-                    Πρόσβαση σε βασικό περιεχόμενο και updates
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3 mb-6">
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
-                      <span className="text-sm">Newsletter με tips & tricks</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
-                      <span className="text-sm">Πρόσβαση σε δωρεάν resources</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
-                      <span className="text-sm">Early bird offers για νέα προγράμματα</span>
-                    </li>
-                  </ul>
-                  <p className="text-2xl font-bold mb-4">$0/μήνα</p>
-                </CardContent>
-              </Card>
-
-              {/* Premium Membership */}
-              <Card className="border-primary border-2 relative overflow-hidden">
-                <div className="absolute top-4 right-4">
-                  <Sparkles className="h-6 w-6 text-primary" />
-                </div>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    Premium Membership
-                  </CardTitle>
-                  <CardDescription>
-                    Πλήρης πρόσβαση σε όλο το premium περιεχόμενο
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3 mb-6">
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
-                      <span className="text-sm">Όλα τα benefits του δωρεάν</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
-                      <span className="text-sm">Αποκλειστικά video tutorials</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
-                      <span className="text-sm">Live Q&A sessions μηνιαία</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
-                      <span className="text-sm">Πρόσβαση σε members-only community</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
-                      <span className="text-sm">20% έκπτωση σε όλα τα προγράμματα</span>
-                    </li>
-                  </ul>
-                  <p className="text-2xl font-bold mb-4">$29/μήνα</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Sign Up Form */}
-            <Card className="max-w-2xl mx-auto">
-              <CardHeader>
-                <CardTitle>Δημιούργησε Λογαριασμό</CardTitle>
-                <CardDescription>
-                  Συμπλήρωσε τα στοιχεία σου για να ξεκινήσεις
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="free" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-8">
-                    <TabsTrigger value="free">Δωρεάν</TabsTrigger>
-                    <TabsTrigger value="premium">Premium</TabsTrigger>
+            <Card className="max-w-md mx-auto">
+              <CardContent className="pt-6">
+                <Tabs defaultValue="signup" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-6">
+                    <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                    <TabsTrigger value="login">Log In</TabsTrigger>
                   </TabsList>
-                  
-                  <TabsContent value="free">
-                    <form className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="firstName">Όνομα *</Label>
-                          <Input id="firstName" placeholder="Το όνομά σου" required />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="lastName">Επώνυμο *</Label>
-                          <Input id="lastName" placeholder="Το επώνυμό σου" required />
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email *</Label>
-                        <Input id="email" type="email" placeholder="email@example.com" required />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="password">Κωδικός *</Label>
-                        <Input id="password" type="password" placeholder="••••••••" required />
-                      </div>
 
-                      <div className="flex items-start space-x-2">
-                        <Checkbox id="gdpr" required />
-                        <Label htmlFor="gdpr" className="text-sm leading-tight cursor-pointer">
-                          Συμφωνώ με την επεξεργασία των προσωπικών μου δεδομένων σύμφωνα με το GDPR *
-                        </Label>
-                      </div>
-
-                      <Button type="submit" className="w-full bg-primary hover:bg-primary-glow" size="lg">
-                        Δημιουργία Δωρεάν Λογαριασμού
-                      </Button>
-                    </form>
+                  <TabsContent value="signup">
+                    <Form {...signupForm}>
+                      <form onSubmit={signupForm.handleSubmit(onSignup)} className="space-y-4">
+                        <FormField
+                          control={signupForm.control}
+                          name="fullName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Full Name</FormLabel>
+                              <FormControl>
+                                <Input placeholder="John Doe" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={signupForm.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Email</FormLabel>
+                              <FormControl>
+                                <Input type="email" placeholder="john@example.com" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={signupForm.control}
+                          name="password"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Password</FormLabel>
+                              <FormControl>
+                                <Input type="password" placeholder="••••••••" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={signupForm.control}
+                          name="gdprConsent"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-2 space-y-0">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel className="text-sm text-muted-foreground font-normal">
+                                  I agree to the{" "}
+                                  <Link to="/privacy" className="text-primary hover:underline">
+                                    Privacy Policy
+                                  </Link>{" "}
+                                  and{" "}
+                                  <Link to="/terms" className="text-primary hover:underline">
+                                    Terms of Service
+                                  </Link>
+                                </FormLabel>
+                                <FormMessage />
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                        <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+                          {isSubmitting ? "Creating Account..." : "Create Account"}
+                        </Button>
+                      </form>
+                    </Form>
                   </TabsContent>
-                  
-                  <TabsContent value="premium">
-                    <form className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="firstName-premium">Όνομα *</Label>
-                          <Input id="firstName-premium" placeholder="Το όνομά σου" required />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="lastName-premium">Επώνυμο *</Label>
-                          <Input id="lastName-premium" placeholder="Το επώνυμό σου" required />
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="email-premium">Email *</Label>
-                        <Input id="email-premium" type="email" placeholder="email@example.com" required />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="password-premium">Κωδικός *</Label>
-                        <Input id="password-premium" type="password" placeholder="••••••••" required />
-                      </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="weight">Βάρος (kg)</Label>
-                        <Input id="weight" type="number" placeholder="70" />
-                      </div>
-
-                      <div className="flex items-start space-x-2">
-                        <Checkbox id="gdpr-premium" required />
-                        <Label htmlFor="gdpr-premium" className="text-sm leading-tight cursor-pointer">
-                          Συμφωνώ με την επεξεργασία των προσωπικών μου δεδομένων σύμφωνα με το GDPR *
-                        </Label>
-                      </div>
-
-                      <div className="p-4 bg-primary/10 rounded-lg border border-primary">
-                        <p className="text-sm mb-2">
-                          Θα χρεωθείς <span className="font-bold text-primary">$29/μήνα</span> μετά από δωρεάν δοκιμή 7 ημερών
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Μπορείς να ακυρώσεις ανά πάσα στιγμή από τις ρυθμίσεις του λογαριασμού σου
-                        </p>
-                      </div>
-
-                      <Button type="submit" className="w-full bg-primary hover:bg-primary-glow" size="lg">
-                        Ξεκίνα Δωρεάν Δοκιμή
-                      </Button>
-                    </form>
+                  <TabsContent value="login">
+                    <Form {...loginForm}>
+                      <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
+                        <FormField
+                          control={loginForm.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Email</FormLabel>
+                              <FormControl>
+                                <Input type="email" placeholder="john@example.com" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={loginForm.control}
+                          name="password"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Password</FormLabel>
+                              <FormControl>
+                                <Input type="password" placeholder="••••••••" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+                          {isSubmitting ? "Logging in..." : "Log In"}
+                        </Button>
+                      </form>
+                    </Form>
                   </TabsContent>
                 </Tabs>
 
                 <p className="text-center text-sm text-muted-foreground mt-6">
-                  Έχεις ήδη λογαριασμό?{" "}
-                  <a href="#" className="text-primary hover:underline">
-                    Σύνδεση
-                  </a>
+                  <Link to="/" className="text-primary hover:underline font-medium">
+                    Back to Home
+                  </Link>
                 </p>
               </CardContent>
             </Card>

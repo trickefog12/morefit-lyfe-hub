@@ -1,14 +1,17 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X, Languages } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X, Languages, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/hooks/useAuth";
 import logoIcon from "@/assets/logo-icon.jpeg";
 import logoText from "@/assets/logo-text.jpeg";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { language, toggleLanguage, t } = useLanguage();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -39,11 +42,34 @@ export const Header = () => {
             <Languages className="h-4 w-4" />
             {language === "el" ? "EN" : "ΕΛ"}
           </Button>
-          <Link to="/signup">
-            <Button variant="default" size="sm" className="bg-primary hover:bg-primary-glow">
-              {t("signup")}
-            </Button>
-          </Link>
+          {user ? (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2"
+                onClick={() => navigate("/signup")}
+              >
+                <User className="h-4 w-4" />
+                {user.email}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={signOut}
+                className="gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </Button>
+            </div>
+          ) : (
+            <Link to="/signup">
+              <Button variant="default" size="sm" className="bg-primary hover:bg-primary-glow">
+                {t("signup")}
+              </Button>
+            </Link>
+          )}
         </nav>
 
         {/* Mobile Menu Button */}
@@ -93,11 +119,40 @@ export const Header = () => {
               <Languages className="h-4 w-4" />
               {language === "el" ? "Switch to English" : "Αλλαγή σε Ελληνικά"}
             </Button>
-            <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
-              <Button variant="default" size="sm" className="w-full bg-primary hover:bg-primary-glow">
-                {t("signup")}
-              </Button>
-            </Link>
+            {user ? (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    navigate("/signup");
+                    setIsMenuOpen(false);
+                  }}
+                  className="gap-2 justify-start"
+                >
+                  <User className="h-4 w-4" />
+                  {user.email}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    signOut();
+                    setIsMenuOpen(false);
+                  }}
+                  className="gap-2 justify-start w-full"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
+                <Button variant="default" size="sm" className="w-full bg-primary hover:bg-primary-glow">
+                  {t("signup")}
+                </Button>
+              </Link>
+            )}
           </nav>
         </div>
       )}
