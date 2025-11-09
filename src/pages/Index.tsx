@@ -6,10 +6,12 @@ import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { products } from "@/data/products";
 import { CheckCircle, Star, TrendingUp, Users } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import heroDesktop from "@/assets/hero-desktop.jpg";
 import heroMobile from "@/assets/hero-mobile.jpg";
 
 const Index = () => {
+  const { t } = useLanguage();
   const featuredProducts = products.slice(0, 3);
 
   return (
@@ -35,22 +37,22 @@ const Index = () => {
         <div className="container relative z-10 mx-auto px-4 lg:px-8 py-20">
           <div className="max-w-2xl">
             <h1 className="text-4xl md:text-6xl font-bold text-primary-foreground mb-6 leading-tight">
-              MoreFitLyfe
+              {t("hero_title")}
               <br />
-              <span className="text-primary">Γίνε η καλύτερη έκδοση του εαυτού σου.</span>
+              <span className="text-primary">{t("hero_subtitle")}</span>
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/90 mb-8 max-w-xl">
-              Προγράμματα δύναμης, εξατομικευμένα διαιτολόγια και υποστήριξη για πραγματική μεταμόρφωση.
+              {t("hero_description")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link to="/programs">
                 <Button size="lg" className="bg-primary hover:bg-primary-glow text-lg px-8">
-                  Αγόρασε τώρα
+                  {t("buy_now")}
                 </Button>
               </Link>
               <Link to="/signup">
                 <Button size="lg" variant="outline" className="text-lg px-8 bg-background/10 backdrop-blur-sm border-primary-foreground text-primary-foreground hover:bg-background/20">
-                  Γίνε μέλος
+                  {t("become_member")}
                 </Button>
               </Link>
             </div>
@@ -62,15 +64,15 @@ const Index = () => {
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Γεια, είμαι η Stefania!</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">{t("about_title")}</h2>
             <p className="text-lg text-muted-foreground mb-4">
-              Ως πιστοποιημένη προπονήτρια δύναμης και διατροφής, έχω βοηθήσει εκατοντάδες ανθρώπους να ανακαλύψουν τη δύναμή τους - όχι μόνο στο γυμναστήριο, αλλά και στη ζωή τους.
+              {t("about_p1")}
             </p>
             <p className="text-lg text-muted-foreground mb-4">
-              Η φιλοσοφία μου είναι απλή: η δύναμη χτίζεται με συνέπεια, υποστήριξη και τη σωστή καθοδήγηση. Δεν πρόκειται για ακραίες δίαιτες ή απρόσιτους στόχους - πρόκειται για βιώσιμη μεταμόρφωση που διαρκεί.
+              {t("about_p2")}
             </p>
             <p className="text-lg text-muted-foreground">
-              Ό,τι κι αν είναι ο στόχος σου - να χάσεις λίπος, να χτίσεις μυς, να γίνεις πιο δυνατός/ή - είμαι εδώ για να σε υποστηρίξω σε κάθε βήμα.
+              {t("about_p3")}
             </p>
           </div>
         </div>
@@ -80,9 +82,9 @@ const Index = () => {
       <section className="py-20">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Δημοφιλή Προγράμματα</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("featured_title")}</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Επέλεξε το πρόγραμμα που ταιριάζει στους στόχους σου και ξεκίνα τη μεταμόρφωσή σου σήμερα.
+              {t("featured_description")}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -93,7 +95,7 @@ const Index = () => {
           <div className="text-center">
             <Link to="/programs">
               <Button size="lg" variant="outline">
-                Δες Όλα τα Προγράμματα
+                {t("view_all_programs")}
               </Button>
             </Link>
           </div>
@@ -104,9 +106,9 @@ const Index = () => {
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Πώς Λειτουργεί</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("how_it_works")}</h2>
             <p className="text-lg text-muted-foreground">
-              Τρία απλά βήματα για να ξεκινήσεις το ταξίδι σου
+              {t("how_it_works_subtitle")}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -117,9 +119,9 @@ const Index = () => {
                     <TrendingUp className="h-8 w-8 text-primary" />
                   </div>
                 </div>
-                <h3 className="text-xl font-bold mb-3">1. Αξιολόγηση</h3>
+                <h3 className="text-xl font-bold mb-3">{t("step1_title")}</h3>
                 <p className="text-muted-foreground">
-                  Επίλεξε το πρόγραμμα που ταιριάζει στους στόχους και το επίπεδό σου.
+                  {t("step1_description")}
                 </p>
               </CardContent>
             </Card>
@@ -130,9 +132,9 @@ const Index = () => {
                     <Users className="h-8 w-8 text-primary" />
                   </div>
                 </div>
-                <h3 className="text-xl font-bold mb-3">2. Προπόνηση</h3>
+                <h3 className="text-xl font-bold mb-3">{t("step2_title")}</h3>
                 <p className="text-muted-foreground">
-                  Ακολούθησε το δομημένο πρόγραμμα με σαφείς οδηγίες και υποστήριξη.
+                  {t("step2_description")}
                 </p>
               </CardContent>
             </Card>
@@ -143,9 +145,9 @@ const Index = () => {
                     <CheckCircle className="h-8 w-8 text-primary" />
                   </div>
                 </div>
-                <h3 className="text-xl font-bold mb-3">3. Μεταμόρφωση</h3>
+                <h3 className="text-xl font-bold mb-3">{t("step3_title")}</h3>
                 <p className="text-muted-foreground">
-                  Δες πραγματικά αποτελέσματα και γίνε η καλύτερη έκδοση του εαυτού σου.
+                  {t("step3_description")}
                 </p>
               </CardContent>
             </Card>
@@ -157,7 +159,7 @@ const Index = () => {
       <section className="py-20">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Τι Λένε οι Πελάτες μου</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("testimonials_title")}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <Card>
@@ -168,9 +170,9 @@ const Index = () => {
                   ))}
                 </div>
                 <p className="text-muted-foreground mb-4">
-                  "Το πρόγραμμα powerlifting με βοήθησε να πετύχω PR σε όλα τα lifts! Η Stefania ξέρει τι κάνει."
+                  "{t("testimonial1")}"
                 </p>
-                <p className="font-semibold">— Μαρία Κ.</p>
+                <p className="font-semibold">{t("testimonial1_author")}</p>
               </CardContent>
             </Card>
             <Card>
@@ -181,9 +183,9 @@ const Index = () => {
                   ))}
                 </div>
                 <p className="text-muted-foreground mb-4">
-                  "Το transformation program άλλαξε τη ζωή μου. Έχασα 12 κιλά και αισθάνομαι απίστευτα!"
+                  "{t("testimonial2")}"
                 </p>
-                <p className="font-semibold">— Ελένη Π.</p>
+                <p className="font-semibold">{t("testimonial2_author")}</p>
               </CardContent>
             </Card>
             <Card>
@@ -194,9 +196,9 @@ const Index = () => {
                   ))}
                 </div>
                 <p className="text-muted-foreground mb-4">
-                  "Καλύτερη επένδυση που έκανα! Τα προγράμματα είναι σαφή και αποτελεσματικά."
+                  "{t("testimonial3")}"
                 </p>
-                <p className="font-semibold">— Γιώργος Μ.</p>
+                <p className="font-semibold">{t("testimonial3_author")}</p>
               </CardContent>
             </Card>
           </div>
@@ -207,14 +209,14 @@ const Index = () => {
       <section className="py-20 bg-gradient-to-r from-primary to-primary-glow">
         <div className="container mx-auto px-4 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-6">
-            Έτοιμος/η να Ξεκινήσεις;
+            {t("cta_title")}
           </h2>
           <p className="text-lg text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
-            Μην περιμένεις άλλο. Το ταξίδι προς την καλύτερη έκδοση του εαυτού σου ξεκινά σήμερα.
+            {t("cta_description")}
           </p>
           <Link to="/programs">
             <Button size="lg" variant="secondary" className="text-lg px-8">
-              Δες τα Προγράμματα
+              {t("view_programs")}
             </Button>
           </Link>
         </div>

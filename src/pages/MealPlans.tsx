@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -10,6 +11,7 @@ import { CheckCircle } from "lucide-react";
 import mealGuide from "@/assets/meal-guide.jpg";
 
 const MealPlans = () => {
+  const { t } = useLanguage();
   const [weight, setWeight] = useState<string>("");
   const [activity, setActivity] = useState<string>("");
 
@@ -42,10 +44,10 @@ const MealPlans = () => {
           <div className="container relative z-10 mx-auto px-4 lg:px-8">
             <div className="max-w-2xl">
               <h1 className="text-4xl md:text-5xl font-bold text-primary-foreground mb-4">
-                Meal Plans & Διατροφή
+                {t("meal_plans_title")}
               </h1>
               <p className="text-lg text-primary-foreground/90">
-                Εξατομικευμένα διατροφολόγια βασισμένα στο βάρος και το επίπεδο δραστηριότητάς σου.
+                {t("meal_plans_subtitle")}
               </p>
             </div>
           </div>
@@ -57,32 +59,32 @@ const MealPlans = () => {
             <div className="max-w-4xl mx-auto">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-2xl">Βρες το Ιδανικό σου Meal Plan</CardTitle>
+                  <CardTitle className="text-2xl">{t("find_ideal_plan")}</CardTitle>
                   <p className="text-muted-foreground">
-                    Επέλεξε το βάρος και το επίπεδο δραστηριότητάς σου για να δεις το προτεινόμενο πλάνο και τιμή.
+                    {t("find_ideal_plan_description")}
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-8">
                   {/* Weight Selection */}
                   <div className="space-y-4">
-                    <Label className="text-base font-semibold">Βάρος Σώματος</Label>
+                    <Label className="text-base font-semibold">{t("body_weight")}</Label>
                     <RadioGroup value={weight} onValueChange={setWeight}>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="light" id="light" />
                         <Label htmlFor="light" className="cursor-pointer">
-                          Κάτω από 60kg
+                          {t("under_60kg")}
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="medium" id="medium" />
                         <Label htmlFor="medium" className="cursor-pointer">
-                          60-80kg
+                          {t("weight_60_80kg")}
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="heavy" id="heavy" />
                         <Label htmlFor="heavy" className="cursor-pointer">
-                          Πάνω από 80kg
+                          {t("over_80kg")}
                         </Label>
                       </div>
                     </RadioGroup>
@@ -91,16 +93,16 @@ const MealPlans = () => {
                   {/* Activity Selection */}
                   <div className="space-y-4">
                     <Label htmlFor="activity" className="text-base font-semibold">
-                      Επίπεδο Δραστηριότητας
+                      {t("activity_level")}
                     </Label>
                     <Select value={activity} onValueChange={setActivity}>
                       <SelectTrigger id="activity">
-                        <SelectValue placeholder="Επέλεξε επίπεδο δραστηριότητας" />
+                        <SelectValue placeholder={t("select_activity")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="sedentary">Καθιστική (1-2 προπονήσεις/εβδ.)</SelectItem>
-                        <SelectItem value="moderate">Μέτρια (3-4 προπονήσεις/εβδ.)</SelectItem>
-                        <SelectItem value="high">Υψηλή (5+ προπονήσεις/εβδ.)</SelectItem>
+                        <SelectItem value="sedentary">{t("sedentary")}</SelectItem>
+                        <SelectItem value="moderate">{t("moderate")}</SelectItem>
+                        <SelectItem value="high">{t("high")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -111,35 +113,35 @@ const MealPlans = () => {
                       <div className="flex items-start gap-3 mb-4">
                         <CheckCircle className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
                         <div>
-                          <h3 className="font-bold text-xl mb-2">Προτεινόμενο Πλάνο</h3>
+                          <h3 className="font-bold text-xl mb-2">{t("recommended_plan")}</h3>
                           <p className="text-muted-foreground mb-4">
-                            Βάσει των επιλογών σου, προτείνουμε ένα εξατομικευμένο meal plan που περιλαμβάνει:
+                            {t("recommended_plan_description")}
                           </p>
                           <ul className="space-y-2 mb-4">
                             <li className="flex items-center gap-2">
                               <CheckCircle className="h-4 w-4 text-primary" />
-                              <span>Καθημερινές θερμίδες & macros</span>
+                              <span>{t("daily_calories")}</span>
                             </li>
                             <li className="flex items-center gap-2">
                               <CheckCircle className="h-4 w-4 text-primary" />
-                              <span>Συνταγές και meal prep tips</span>
+                              <span>{t("recipes_tips")}</span>
                             </li>
                             <li className="flex items-center gap-2">
                               <CheckCircle className="h-4 w-4 text-primary" />
-                              <span>Grocery lists</span>
+                              <span>{t("grocery_lists")}</span>
                             </li>
                             <li className="flex items-center gap-2">
                               <CheckCircle className="h-4 w-4 text-primary" />
-                              <span>Εναλλακτικές επιλογές για κάθε γεύμα</span>
+                              <span>{t("meal_alternatives")}</span>
                             </li>
                           </ul>
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="text-sm text-muted-foreground">Προτεινόμενη Τιμή</p>
+                              <p className="text-sm text-muted-foreground">{t("recommended_price")}</p>
                               <p className="text-3xl font-bold text-primary">${recommendedPrice}</p>
                             </div>
                             <Button size="lg" className="bg-primary hover:bg-primary-glow">
-                              Αγόρασε Τώρα
+                              {t("buy_now_btn")}
                             </Button>
                           </div>
                         </div>
@@ -160,33 +162,33 @@ const MealPlans = () => {
                 <div className="flex flex-col md:flex-row gap-8 items-center">
                   <div className="flex-1">
                     <h2 className="text-2xl font-bold mb-4">
-                      Ψάχνεις για Ολοκληρωμένο Πακέτο;
+                      {t("looking_for_package")}
                     </h2>
                     <p className="text-muted-foreground mb-4">
-                      Το <span className="font-semibold">12-Week Transformation Program</span> περιλαμβάνει ήδη εξατομικευμένο meal guide μαζί με το πλήρες πρόγραμμα προπόνησης και υποστήριξη!
+                      {t("transformation_description")}
                     </p>
                     <ul className="space-y-2 mb-6">
                       <li className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-primary" />
-                        <span>12 εβδομάδες προπόνησης</span>
+                        <span>{t("weeks_training")}</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-primary" />
-                        <span>Custom meal plan βάσει των στόχων σου</span>
+                        <span>{t("custom_meal_plan")}</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-primary" />
-                        <span>Monthly check-ins</span>
+                        <span>{t("monthly_checkins")}</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-primary" />
-                        <span>Email support</span>
+                        <span>{t("email_support")}</span>
                       </li>
                     </ul>
                     <div className="flex items-center gap-4">
                       <span className="text-3xl font-bold text-primary">$199</span>
                       <Button size="lg" className="bg-secondary hover:bg-secondary/90">
-                        Μάθε Περισσότερα
+                        {t("learn_more")}
                       </Button>
                     </div>
                   </div>
