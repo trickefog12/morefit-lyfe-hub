@@ -4,14 +4,19 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { lazy, Suspense } from "react";
+
+// Eager load home page for instant display
 import Index from "./pages/Index";
-import Programs from "./pages/Programs";
-import ProductDetail from "./pages/ProductDetail";
-import MealPlans from "./pages/MealPlans";
-import SignUp from "./pages/SignUp";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import NotFound from "./pages/NotFound";
+
+// Lazy load all other routes to reduce initial bundle size
+const Programs = lazy(() => import("./pages/Programs"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const MealPlans = lazy(() => import("./pages/MealPlans"));
+const SignUp = lazy(() => import("./pages/SignUp"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
@@ -22,17 +27,21 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/programs" element={<Programs />} />
-            <Route path="/programs/:sku" element={<ProductDetail />} />
-            <Route path="/meal-plans" element={<MealPlans />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/programs" element={<Programs />} />
+              <Route path="/programs/:sku" element={<ProductDetail />} />
+              <Route path="/meal-plans" element={<MealPlans />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </TooltipProvider>
       </BrowserRouter>
     </LanguageProvider>
