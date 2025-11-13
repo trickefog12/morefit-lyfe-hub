@@ -50,12 +50,12 @@ export const Footer = () => {
             </p>
             <div className="flex gap-4">
               <a
-                href="https://www.instagram.com/mariastefaniameraklis/"
+                href="https://www.instagram.com/mariastefaniameraklis?igsh=eG93bjdjcDNoZGQ1"
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => {
                   e.stopPropagation();
-                  window.open('https://www.instagram.com/mariastefaniameraklis/', '_blank', 'noopener,noreferrer');
+                  window.open('https://www.instagram.com/mariastefaniameraklis?igsh=eG93bjdjcDNoZGQ1', '_blank', 'noopener,noreferrer');
                 }}
                 className="text-muted-foreground hover:text-primary transition-colors cursor-pointer"
                 aria-label="Visit our Instagram page"
