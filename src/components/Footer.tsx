@@ -50,11 +50,15 @@ export const Footer = () => {
             </p>
             <div className="flex gap-4">
               <a
-                href="https://www.instagram.com/mariastefaniameraklis"
+                href="https://www.instagram.com/mariastefaniameraklis/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors"
-                aria-label="Instagram"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open('https://www.instagram.com/mariastefaniameraklis/', '_blank', 'noopener,noreferrer');
+                }}
+                className="text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                aria-label="Visit our Instagram page"
               >
                 <Instagram className="h-5 w-5" />
               </a>
@@ -62,8 +66,12 @@ export const Footer = () => {
                 href="https://www.tiktok.com/@maria.meraklis"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors"
-                aria-label="TikTok"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open('https://www.tiktok.com/@maria.meraklis', '_blank', 'noopener,noreferrer');
+                }}
+                className="text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                aria-label="Visit our TikTok page"
               >
                 <Music className="h-5 w-5" />
               </a>
