@@ -16,6 +16,7 @@ const MealPlans = lazy(() => import("./pages/MealPlans"));
 const SignUp = lazy(() => import("./pages/SignUp"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
+const TestWebhook = lazy(() => import("./pages/TestWebhook"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/signup" element={<SignUp />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
+              <Route path="/test-webhook" element={<TestWebhook />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
