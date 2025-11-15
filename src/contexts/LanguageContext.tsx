@@ -60,6 +60,18 @@ const translations = {
     cta_description: "Μην περιμένεις άλλο. Το ταξίδι προς την καλύτερη έκδοση του εαυτού σου ξεκινά σήμερα.",
     view_programs: "Δες τα Προγράμματα",
     
+    // Reviews Section
+    loading_reviews: "Φόρτωση αξιολογήσεων...",
+    no_reviews_yet: "Δεν υπάρχουν αξιολογήσεις ακόμα. Γίνετε ο πρώτος που θα αφήσει μία!",
+    leave_review: "Αφήστε μια Αξιολόγηση",
+    rating: "Βαθμολογία",
+    your_review: "Η Αξιολόγησή Σας",
+    share_experience: "Μοιραστείτε την εμπειρία σας...",
+    submit_review: "Υποβολή Αξιολόγησης",
+    submitting: "Υποβάλλεται...",
+    sign_in_to_review: "Παρακαλώ συνδεθείτε για να αφήσετε αξιολόγηση",
+    anonymous: "Ανώνυμος",
+    
     // Programs Page
     programs_hero_title: "Τα Προγράμματά μου",
     programs_hero_subtitle: "Επαγγελματικά σχεδιασμένα προγράμματα για κάθε επίπεδο και στόχο. Από powerlifting και υπερτροφία μέχρι κινητικότητα και on-the-go workouts.",
@@ -164,6 +176,18 @@ const translations = {
     cta_title: "Ready to Start?",
     cta_description: "Don't wait any longer. Your journey to becoming the best version of yourself starts today.",
     view_programs: "View Programs",
+    
+    // Reviews Section
+    loading_reviews: "Loading reviews...",
+    no_reviews_yet: "No reviews yet. Be the first to leave one!",
+    leave_review: "Leave a Review",
+    rating: "Rating",
+    your_review: "Your Review",
+    share_experience: "Share your experience...",
+    submit_review: "Submit Review",
+    submitting: "Submitting...",
+    sign_in_to_review: "Please sign in to leave a review",
+    anonymous: "Anonymous",
     
     // Programs Page
     programs_hero_title: "My Programs",

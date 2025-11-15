@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -19,6 +20,7 @@ type ReviewInput = z.infer<typeof reviewSchema>;
 
 export function ReviewForm() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [hoveredRating, setHoveredRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -60,7 +62,7 @@ export function ReviewForm() {
   if (!user) {
     return (
       <div className="text-center p-6 bg-muted/50 rounded-lg">
-        <p className="text-muted-foreground">Please sign in to leave a review</p>
+        <p className="text-muted-foreground">{t("sign_in_to_review")}</p>
       </div>
     );
   }
@@ -73,7 +75,7 @@ export function ReviewForm() {
           name="rating"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Rating</FormLabel>
+              <FormLabel>{t("rating")}</FormLabel>
               <FormControl>
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map((star) => (
@@ -106,10 +108,10 @@ export function ReviewForm() {
           name="comment"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Your Review</FormLabel>
+              <FormLabel>{t("your_review")}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Share your experience..."
+                  placeholder={t("share_experience")}
                   className="min-h-[100px]"
                   {...field}
                 />
@@ -120,7 +122,7 @@ export function ReviewForm() {
         />
 
         <Button type="submit" disabled={isSubmitting || !selectedRating}>
-          {isSubmitting ? "Submitting..." : "Submit Review"}
+          {isSubmitting ? t("submitting") : t("submit_review")}
         </Button>
       </form>
     </Form>
