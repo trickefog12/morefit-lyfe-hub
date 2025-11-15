@@ -119,14 +119,40 @@ const translations = {
     email_support: "Email support",
     learn_more: "Μάθε Περισσότερα",
     
+    // Product Detail Page
+    product_not_found: "Το προϊόν δεν βρέθηκε",
+    back_to_programs: "Επιστροφή στα Προγράμματα",
+    back_to_programs_link: "Πίσω στα Προγράμματα",
+    duration_label: "Διάρκεια:",
+    format_label: "Μορφή:",
+    buy_now_price: "Αγόρασε Τώρα",
+    secure_payment: "Ασφαλής πληρωμή μέσω Stripe • Άμεση παράδοση",
+    about_program: "Σχετικά με το Πρόγραμμα",
+    whats_included: "Τι Περιλαμβάνεται:",
+    who_is_this_for: "Για ποιόν είναι αυτό το πρόγραμμα;",
+    faq_title_detail: "Συχνές Ερωτήσεις",
+    faq_detail_q1: "Πώς θα λάβω το πρόγραμμα;",
+    faq_detail_a1: "Αμέσως μετά την αγορά, θα λάβεις ένα email με link για να κατεβάσεις το πρόγραμμά σου. Μπορείς επίσης να το βρεις στην περιοχή \"Οι Αγορές μου\" στον λογαριασμό σου.",
+    faq_detail_q2: "Χρειάζομαι προηγούμενη εμπειρία;",
+    faq_detail_a2: "Κάθε πρόγραμμα έχει σαφείς οδηγίες και προσαρμόζεται στο επίπεδό σου. Αν είσαι αρχάριος/α, ξεκίνα με τα προγράμματα που προτείνονται για αρχάριους.",
+    faq_detail_q3: "Μπορώ να ζητήσω επιστροφή χρημάτων;",
+    faq_detail_a3: "Λόγω του ψηφιακού χαρακτήρα των προϊόντων, δεν προσφέρουμε επιστροφές. Αν έχεις οποιαδήποτε απορία πριν την αγορά, μη διστάσεις να επικοινωνήσεις μαζί μου!",
+    faq_detail_q4: "Έχω επιπλέον υποστήριξη;",
+    faq_detail_a4: "Ναι! Μπορείς να στείλεις email στο morefitlyfe@gmail.com για γενικές ερωτήσεις. Για εξατομικευμένη υποστήριξη, κλείσε μια 1:1 coaching session.",
+    what_clients_say: "Τι Λένε οι Πελάτες",
+    
+    // Meal Plans Coming Soon
+    coming_soon: "Σύντομα Διαθέσιμο",
+    coming_soon_description: "Τα εξατομικευμένα meal plans θα είναι σύντομα διαθέσιμα. Μείνε συντονισμένος/η!",
+    
     // Footer
     footer_description: "Γίνε η καλύτερη έκδοση του εαυτού σου με προγράμματα δύναμης και εξατομικευμένη υποστήριξη.",
     footer_by: "by M. Stefania Meraklis",
     quick_links: "Γρήγοροι Σύνδεσμοι",
     contact: "Επικοινωνία",
-    all_rights: "All rights reserved.",
-    privacy_policy: "Privacy Policy",
-    terms_of_service: "Terms of Service",
+    all_rights: "Όλα τα δικαιώματα κατοχυρωμένα.",
+    privacy_policy: "Πολιτική Απορρήτου",
+    terms_of_service: "Όροι Χρήσης",
   },
   en: {
     // Navigation
@@ -235,6 +261,32 @@ const translations = {
     monthly_checkins: "Monthly check-ins",
     email_support: "Email support",
     learn_more: "Learn More",
+    
+    // Product Detail Page
+    product_not_found: "Product not found",
+    back_to_programs: "Back to Programs",
+    back_to_programs_link: "Back to Programs",
+    duration_label: "Duration:",
+    format_label: "Format:",
+    buy_now_price: "Buy Now",
+    secure_payment: "Secure payment via Stripe • Instant delivery",
+    about_program: "About the Program",
+    whats_included: "What's Included:",
+    who_is_this_for: "Who is this program for?",
+    faq_title_detail: "Frequently Asked Questions",
+    faq_detail_q1: "How will I receive the program?",
+    faq_detail_a1: "Right after purchase, you'll receive an email with a link to download your program. You can also find it in your \"My Purchases\" area in your account.",
+    faq_detail_q2: "Do I need previous experience?",
+    faq_detail_a2: "Each program has clear instructions and adapts to your level. If you're a beginner, start with programs recommended for beginners.",
+    faq_detail_q3: "Can I request a refund?",
+    faq_detail_a3: "Due to the digital nature of the products, we don't offer refunds. If you have any questions before purchasing, don't hesitate to contact me!",
+    faq_detail_q4: "Do I get additional support?",
+    faq_detail_a4: "Yes! You can send an email to morefitlyfe@gmail.com for general questions. For personalized support, book a 1:1 coaching session.",
+    what_clients_say: "What Clients Say",
+    
+    // Meal Plans Coming Soon
+    coming_soon: "Coming Soon",
+    coming_soon_description: "Personalized meal plans will be available soon. Stay tuned!",
     
     // Footer
     footer_description: "Become the best version of yourself with strength programs and personalized support.",
