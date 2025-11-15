@@ -10,6 +10,7 @@ import { ArrowLeft, CheckCircle, Star } from "lucide-react";
 import programStrength from "@/assets/program-strength.jpg";
 import mealGuide from "@/assets/meal-guide.jpg";
 import coachingSession from "@/assets/coaching-session.jpg";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const getImageForProduct = (product: any) => {
   if (product.category === "transformation") return mealGuide;
@@ -19,6 +20,7 @@ const getImageForProduct = (product: any) => {
 
 const ProductDetail = () => {
   const { sku } = useParams();
+  const { language, t } = useLanguage();
   const product = products.find((p) => p.sku === sku);
 
   if (!product) {
@@ -27,9 +29,9 @@ const ProductDetail = () => {
         <Header />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <h1 className="text-4xl font-bold mb-4">Το προϊόν δεν βρέθηκε</h1>
+            <h1 className="text-4xl font-bold mb-4">{t("product_not_found")}</h1>
             <Link to="/programs">
-              <Button>Επιστροφή στα Προγράμματα</Button>
+              <Button>{t("back_to_programs")}</Button>
             </Link>
           </div>
         </main>
@@ -37,6 +39,13 @@ const ProductDetail = () => {
       </div>
     );
   }
+
+  // Get language-specific content
+  const productName = language === "en" ? product.nameEn : product.name;
+  const productBenefit = language === "en" ? product.shortBenefitEn : product.shortBenefit;
+  const productDescription = language === "en" ? product.descriptionEn : product.description;
+  const productDeliverables = language === "en" ? product.deliverablesEn : product.deliverables;
+  const productTargetAudience = language === "en" ? product.targetAudienceEn : product.targetAudience;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -46,7 +55,7 @@ const ProductDetail = () => {
         <div className="container mx-auto px-4 lg:px-8">
           <Link to="/programs" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8">
             <ArrowLeft className="h-4 w-4" />
-            Πίσω στα Προγράμματα
+            {t("back_to_programs_link")}
           </Link>
 
           <div className="grid md:grid-cols-2 gap-12 mb-16">
@@ -55,7 +64,7 @@ const ProductDetail = () => {
               <div className="aspect-square rounded-lg overflow-hidden">
                 <img
                   src={getImageForProduct(product)}
-                  alt={product.nameEn}
+                  alt={productName}
                   className="h-full w-full object-cover"
                 />
               </div>
@@ -64,23 +73,23 @@ const ProductDetail = () => {
             {/* Product Info */}
             <div>
               <div className="flex items-start justify-between gap-4 mb-4">
-                <h1 className="text-4xl font-bold">{product.nameEn}</h1>
+                <h1 className="text-4xl font-bold">{productName}</h1>
                 <Badge variant="secondary" className="text-2xl py-2 px-4">
                   ${product.price}
                 </Badge>
               </div>
               
               <p className="text-xl text-muted-foreground mb-6">
-                {product.shortBenefitEn}
+                {productBenefit}
               </p>
 
               <div className="space-y-4 mb-8">
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="font-semibold">Διάρκεια:</span>
+                  <span className="font-semibold">{t("duration_label")}</span>
                   <span className="text-muted-foreground">{product.duration}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="font-semibold">Μορφή:</span>
+                  <span className="font-semibold">{t("format_label")}</span>
                   <Badge variant="outline">
                     {product.format === "pdf" && "PDF Download"}
                     {product.format === "video" && "Video Course"}
@@ -91,25 +100,25 @@ const ProductDetail = () => {
               </div>
 
               <Button size="lg" className="w-full md:w-auto bg-primary hover:bg-primary-glow text-lg px-12 mb-4">
-                Αγόρασε Τώρα - ${product.price}
+                {t("buy_now_price")} - ${product.price}
               </Button>
 
               <p className="text-sm text-muted-foreground">
-                Ασφαλής πληρωμή μέσω Stripe • Άμεση παράδοση
+                {t("secure_payment")}
               </p>
             </div>
           </div>
 
           {/* Description */}
           <div className="max-w-4xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold mb-6">Σχετικά με το Πρόγραμμα</h2>
+            <h2 className="text-3xl font-bold mb-6">{t("about_program")}</h2>
             <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-              {product.descriptionEn}
+              {productDescription}
             </p>
 
-            <h3 className="text-2xl font-bold mb-4">Τι Περιλαμβάνεται:</h3>
+            <h3 className="text-2xl font-bold mb-4">{t("whats_included")}</h3>
             <div className="grid md:grid-cols-2 gap-4 mb-8">
-              {product.deliverablesEn.map((item, index) => (
+              {productDeliverables.map((item, index) => (
                 <div key={index} className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
                   <span>{item}</span>
@@ -119,38 +128,38 @@ const ProductDetail = () => {
 
             <Card className="bg-muted/30">
               <CardContent className="pt-6">
-                <h3 className="font-bold text-lg mb-2">Για ποιόν είναι αυτό το πρόγραμμα;</h3>
-                <p className="text-muted-foreground">{product.targetAudienceEn}</p>
+                <h3 className="font-bold text-lg mb-2">{t("who_is_this_for")}</h3>
+                <p className="text-muted-foreground">{productTargetAudience}</p>
               </CardContent>
             </Card>
           </div>
 
           {/* FAQ */}
           <div className="max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold mb-6 text-center">Συχνές Ερωτήσεις</h2>
+            <h2 className="text-3xl font-bold mb-6 text-center">{t("faq_title_detail")}</h2>
             <Accordion type="single" collapsible>
               <AccordionItem value="item-1">
-                <AccordionTrigger>Πώς θα λάβω το πρόγραμμα;</AccordionTrigger>
+                <AccordionTrigger>{t("faq_detail_q1")}</AccordionTrigger>
                 <AccordionContent>
-                  Αμέσως μετά την αγορά, θα λάβεις ένα email με link για να κατεβάσεις το πρόγραμμά σου. Μπορείς επίσης να το βρεις στην περιοχή "Οι Αγορές μου" στον λογαριασμό σου.
+                  {t("faq_detail_a1")}
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-2">
-                <AccordionTrigger>Χρειάζομαι προηγούμενη εμπειρία;</AccordionTrigger>
+                <AccordionTrigger>{t("faq_detail_q2")}</AccordionTrigger>
                 <AccordionContent>
-                  Κάθε πρόγραμμα έχει σαφείς οδηγίες και προσαρμόζεται στο επίπεδό σου. Αν είσαι αρχάριος/α, ξεκίνα με τα προγράμματα που προτείνονται για αρχάριους.
+                  {t("faq_detail_a2")}
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-3">
-                <AccordionTrigger>Μπορώ να ζητήσω επιστροφή χρημάτων;</AccordionTrigger>
+                <AccordionTrigger>{t("faq_detail_q3")}</AccordionTrigger>
                 <AccordionContent>
-                  Λόγω του ψηφιακού χαρακτήρα των προϊόντων, δεν προσφέρουμε επιστροφές. Αν έχεις οποιαδήποτε απορία πριν την αγορά, μη διστάσεις να επικοινωνήσεις μαζί μου!
+                  {t("faq_detail_a3")}
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-4">
-                <AccordionTrigger>Έχω επιπλέον υποστήριξη;</AccordionTrigger>
+                <AccordionTrigger>{t("faq_detail_q4")}</AccordionTrigger>
                 <AccordionContent>
-                  Ναι! Μπορείς να στείλεις email στο morefitlyfe@gmail.com για γενικές ερωτήσεις. Για εξατομικευμένη υποστήριξη, κλείσε μια 1:1 coaching session.
+                  {t("faq_detail_a4")}
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -158,7 +167,7 @@ const ProductDetail = () => {
 
           {/* Testimonials */}
           <div className="max-w-5xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold mb-8 text-center">Τι Λένε οι Πελάτες</h2>
+            <h2 className="text-3xl font-bold mb-8 text-center">{t("what_clients_say")}</h2>
             <div className="grid md:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
                 <Card key={i}>
