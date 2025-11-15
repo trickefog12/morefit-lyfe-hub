@@ -167,7 +167,7 @@ const Index = () => {
           
           {/* Display Reviews */}
           {isLoading ? (
-            <div className="text-center text-muted-foreground">Loading reviews...</div>
+            <div className="text-center text-muted-foreground">{t("loading_reviews")}</div>
           ) : reviews && reviews.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
               {reviews.slice(0, 6).map((review) => (
@@ -187,7 +187,7 @@ const Index = () => {
                     </div>
                     <p className="text-muted-foreground mb-4">"{review.comment}"</p>
                     <p className="font-semibold">
-                      {review.profiles?.full_name || "Anonymous"}
+                      {review.profiles?.full_name || t("anonymous")}
                     </p>
                   </CardContent>
                 </Card>
@@ -195,13 +195,13 @@ const Index = () => {
             </div>
           ) : (
             <div className="text-center text-muted-foreground mb-16">
-              No reviews yet. Be the first to leave one!
+              {t("no_reviews_yet")}
             </div>
           )}
 
           {/* Review Form */}
           <div className="max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold mb-6 text-center">Leave a Review</h3>
+            <h3 className="text-2xl font-bold mb-6 text-center">{t("leave_review")}</h3>
             <Card>
               <CardContent className="pt-6">
                 <ReviewForm />
