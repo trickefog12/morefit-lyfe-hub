@@ -4,15 +4,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
+import { ReviewForm } from "@/components/ReviewForm";
 import { products } from "@/data/products";
 import { CheckCircle, Star, TrendingUp, Users } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useReviews } from "@/hooks/useReviews";
 import heroDesktop from "@/assets/hero-desktop.jpg";
 import heroMobile from "@/assets/hero-mobile.jpg";
 
 const Index = () => {
   const { t } = useLanguage();
   const featuredProducts = products.slice(0, 3);
+  const { data: reviews, isLoading } = useReviews();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -155,50 +158,53 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-20">
+      {/* Customer Reviews */}
+      <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("testimonials_title")}</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          
+          {/* Display Reviews */}
+          {isLoading ? (
+            <div className="text-center text-muted-foreground">Loading reviews...</div>
+          ) : reviews && reviews.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
+              {reviews.slice(0, 6).map((review) => (
+                <Card key={review.id}>
+                  <CardContent className="pt-8">
+                    <div className="flex gap-1 mb-4">
+                      {[...Array(5)].map((_, i) => (
+                        <Star 
+                          key={i} 
+                          className={`h-5 w-5 ${
+                            i < review.rating 
+                              ? "fill-secondary text-secondary" 
+                              : "text-muted-foreground"
+                          }`} 
+                        />
+                      ))}
+                    </div>
+                    <p className="text-muted-foreground mb-4">"{review.comment}"</p>
+                    <p className="font-semibold">
+                      {review.profiles?.full_name || "Anonymous"}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-muted-foreground mb-16">
+              No reviews yet. Be the first to leave one!
+            </div>
+          )}
+
+          {/* Review Form */}
+          <div className="max-w-2xl mx-auto">
+            <h3 className="text-2xl font-bold mb-6 text-center">Leave a Review</h3>
             <Card>
-              <CardContent className="pt-8">
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 fill-secondary text-secondary" />
-                  ))}
-                </div>
-                <p className="text-muted-foreground mb-4">
-                  "{t("testimonial1")}"
-                </p>
-                <p className="font-semibold">{t("testimonial1_author")}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-8">
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 fill-secondary text-secondary" />
-                  ))}
-                </div>
-                <p className="text-muted-foreground mb-4">
-                  "{t("testimonial2")}"
-                </p>
-                <p className="font-semibold">{t("testimonial2_author")}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-8">
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 fill-secondary text-secondary" />
-                  ))}
-                </div>
-                <p className="text-muted-foreground mb-4">
-                  "{t("testimonial3")}"
-                </p>
-                <p className="font-semibold">{t("testimonial3_author")}</p>
+              <CardContent className="pt-6">
+                <ReviewForm />
               </CardContent>
             </Card>
           </div>
