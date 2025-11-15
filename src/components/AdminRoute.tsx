@@ -10,29 +10,30 @@ interface AdminRouteProps {
 export const AdminRoute = ({ children }: AdminRouteProps) => {
   const { user, loading } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     const checkAdminStatus = async () => {
-      if (user) {
-        const { data, error } = await supabase.rpc('has_role', {
-          _user_id: user.id,
-          _role: 'admin'
-        });
-        
-        if (!error) {
-          setIsAdmin(data || false);
-        } else {
-          setIsAdmin(false);
-        }
-      } else {
+      if (!user) {
         setIsAdmin(false);
+        setChecking(false);
+        return;
       }
+
+      setChecking(true);
+      const { data, error } = await supabase.rpc('has_role', {
+        _user_id: user.id,
+        _role: 'admin'
+      });
+      
+      setIsAdmin(error ? false : (data || false));
+      setChecking(false);
     };
 
     checkAdminStatus();
   }, [user]);
 
-  if (loading || isAdmin === null) {
+  if (loading || checking) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-lg">Loading...</div>
