@@ -14,8 +14,6 @@ const corsHeaders = {
 
 interface CheckoutRequest {
   productSku: string;
-  successUrl: string;
-  cancelUrl: string;
 }
 
 serve(async (req) => {
@@ -55,15 +53,20 @@ serve(async (req) => {
     }
 
     // Parse and validate request
-    const { productSku, successUrl, cancelUrl }: CheckoutRequest = await req.json();
+    const { productSku }: CheckoutRequest = await req.json();
     
-    if (!productSku || !successUrl || !cancelUrl) {
-      console.error("Missing required fields", { productSku, successUrl, cancelUrl });
+    if (!productSku) {
+      console.error("Missing required field: productSku");
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    // Construct URLs server-side to prevent open redirect attacks
+    const origin = req.headers.get("origin") || Deno.env.get("SUPABASE_URL")?.replace('/rest/v1', '') || "http://localhost:5173";
+    const successUrl = `${origin}/purchase-success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${origin}/purchase-cancelled`;
 
     // Fetch product details from database (never trust client data)
     const { data: product, error: productError } = await supabase
