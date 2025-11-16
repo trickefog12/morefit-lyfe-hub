@@ -1,17 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, Languages, LogOut, User } from "lucide-react";
+import { Menu, X, Languages, LogOut, User, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import logoIcon from "@/assets/logo-icon.jpeg";
 import logoText from "@/assets/logo-text.jpeg";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { language, toggleLanguage, t } = useLanguage();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user) {
+        setIsAdmin(false);
+        return;
+      }
+
+      const { data } = await supabase.rpc('has_role', {
+        _user_id: user.id,
+        _role: 'admin'
+      });
+      
+      setIsAdmin(data || false);
+    };
+
+    checkAdminStatus();
+  }, [user]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -44,6 +64,17 @@ export const Header = () => {
           </Button>
           {user ? (
             <div className="flex items-center gap-2">
+              {isAdmin && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => navigate("/admin")}
+                >
+                  <Shield className="h-4 w-4" />
+                  Admin
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
@@ -121,6 +152,20 @@ export const Header = () => {
             </Button>
             {user ? (
               <>
+                {isAdmin && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      navigate("/admin");
+                      setIsMenuOpen(false);
+                    }}
+                    className="gap-2 justify-start w-full"
+                  >
+                    <Shield className="h-4 w-4" />
+                    Admin Dashboard
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="sm"
