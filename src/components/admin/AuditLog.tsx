@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -47,6 +47,7 @@ interface AuditLog {
 }
 
 export const AuditLog = () => {
+  const queryClient = useQueryClient();
   const [actionTypeFilter, setActionTypeFilter] = useState<string>("all");
   const [adminEmailFilter, setAdminEmailFilter] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
@@ -115,6 +116,30 @@ export const AuditLog = () => {
   const logs = logsData?.logs;
   const totalCount = logsData?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+  // Subscribe to real-time changes
+  useEffect(() => {
+    const channel = supabase
+      .channel('audit-logs-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'audit_logs'
+        },
+        (payload) => {
+          console.log('Audit log change detected:', payload);
+          // Invalidate queries to refetch data
+          queryClient.invalidateQueries({ queryKey: ['audit-logs'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const clearFilters = () => {
     setActionTypeFilter("all");
