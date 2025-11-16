@@ -7,6 +7,17 @@ import { format } from "date-fns";
 import { RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   Table,
   TableBody,
   TableCell,
@@ -115,15 +126,33 @@ export const UserManagement = () => {
                   {format(new Date(user.created_at), 'MMM dd, yyyy')}
                 </TableCell>
                 <TableCell>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => resetLimitMutation.mutate(user.id)}
-                    disabled={resetLimitMutation.isPending}
-                  >
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    Reset Download Limit
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={resetLimitMutation.isPending}
+                      >
+                        <RefreshCw className="h-4 w-4 mr-2" />
+                        Reset Download Limit
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Reset Download Limit?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will clear all download history for {user.full_name || user.email} 
+                          and allow them to download files again. This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => resetLimitMutation.mutate(user.id)}>
+                          Reset Limit
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </TableCell>
               </TableRow>
             ))}
