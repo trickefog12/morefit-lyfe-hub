@@ -107,6 +107,19 @@ export const DownloadLimitManager = () => {
         .insert(insertData);
       
       if (error) throw error;
+
+      // Log the admin action
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          admin_id: user.id,
+          admin_email: user.email || "unknown",
+          action_type: "create_download_limit",
+          target_user_id: limitType === "user" ? selectedUser : null,
+          target_role: limitType === "role" ? selectedRole as any : null,
+          details: { daily_limit: limitValue }
+        });
+      }
     },
     onSuccess: () => {
       toast.success("Download limit created successfully");
@@ -122,12 +135,35 @@ export const DownloadLimitManager = () => {
 
   const deleteLimitMutation = useMutation({
     mutationFn: async (limitId: string) => {
+      // Get limit details before deleting
+      const { data: limitData } = await supabase
+        .from('download_limits')
+        .select('user_id, role, daily_limit, profiles:user_id(email)')
+        .eq('id', limitId)
+        .single();
+
       const { error } = await supabase
         .from('download_limits')
         .delete()
         .eq('id', limitId);
       
       if (error) throw error;
+
+      // Log the admin action
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && limitData) {
+        await supabase.from('audit_logs').insert({
+          admin_id: user.id,
+          admin_email: user.email || "unknown",
+          action_type: "delete_download_limit",
+          target_user_id: limitData.user_id,
+          target_role: limitData.role as any,
+          details: { 
+            daily_limit: limitData.daily_limit,
+            target_email: (limitData.profiles as any)?.email
+          }
+        });
+      }
     },
     onSuccess: () => {
       toast.success("Download limit deleted successfully");
