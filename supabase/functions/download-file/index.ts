@@ -6,6 +6,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Rate limiting configuration
+const MAX_DOWNLOADS_PER_DAY = 10;
+const RATE_LIMIT_WINDOW_HOURS = 24;
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -64,6 +68,40 @@ serve(async (req) => {
     }
 
     console.log("Download request from user:", user.id, "for token:", token);
+
+    // Check rate limiting - count downloads in the last 24 hours
+    const rateLimitCutoff = new Date();
+    rateLimitCutoff.setHours(rateLimitCutoff.getHours() - RATE_LIMIT_WINDOW_HOURS);
+
+    const { data: recentDownloads, error: rateLimitError } = await supabaseClient
+      .from("analytics_events")
+      .select("id", { count: "exact" })
+      .eq("user_id", user.id)
+      .eq("event_type", "download")
+      .gte("created_at", rateLimitCutoff.toISOString());
+
+    if (rateLimitError) {
+      console.error("Rate limit check error:", rateLimitError);
+    } else if (recentDownloads && recentDownloads.length >= MAX_DOWNLOADS_PER_DAY) {
+      console.log(`Rate limit exceeded for user ${user.id}: ${recentDownloads.length} downloads in last ${RATE_LIMIT_WINDOW_HOURS}h`);
+      return new Response(
+        JSON.stringify({ 
+          error: "Rate limit exceeded",
+          message: `You have reached the maximum of ${MAX_DOWNLOADS_PER_DAY} downloads per day. Please try again later.`,
+          retryAfter: RATE_LIMIT_WINDOW_HOURS * 3600,
+        }),
+        { 
+          status: 429,
+          headers: { 
+            ...corsHeaders, 
+            "Content-Type": "application/json",
+            "Retry-After": String(RATE_LIMIT_WINDOW_HOURS * 3600),
+          }
+        }
+      );
+    }
+
+    console.log(`User ${user.id} has ${recentDownloads?.length || 0} downloads in last ${RATE_LIMIT_WINDOW_HOURS}h`);
 
     // Validate the download token and check if user owns this purchase
     const { data: purchase, error: purchaseError } = await supabaseClient
