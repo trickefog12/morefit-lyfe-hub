@@ -71,16 +71,66 @@ export default function MyPurchases() {
     enabled: !!user,
   });
 
-  const handleDownload = (token: string, productName: string) => {
-    // In a production app, this would navigate to a download endpoint
-    // For now, we'll show the download token
-    toast({
-      title: "Download Ready",
-      description: `Your download token: ${token}`,
-    });
-    
-    // Open download URL (you can customize this based on your storage setup)
-    window.open(`/api/download/${token}`, "_blank");
+  const handleDownload = async (token: string, productName: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in again to download.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Preparing Download",
+        description: "Your file is being retrieved...",
+      });
+
+      // Construct the download URL with auth token
+      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
+      const downloadUrl = `${projectUrl}/functions/v1/download-file/${token}`;
+      
+      // Create a temporary link and trigger download
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `${productName}.pdf`;
+      
+      // Add authorization header by fetching the file
+      const response = await fetch(downloadUrl, {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Download failed');
+      }
+
+      // Create blob and trigger download
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      link.href = blobUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+
+      toast({
+        title: "Download Complete",
+        description: `${productName} has been downloaded successfully.`,
+      });
+    } catch (error: any) {
+      console.error("Download error:", error);
+      toast({
+        title: "Download Failed",
+        description: error.message || "Unable to download file. Please contact support if the issue persists.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (authLoading || isLoading) {

@@ -9,7 +9,8 @@ import { ReviewModeration } from "@/components/admin/ReviewModeration";
 import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
 import { UserManagement } from "@/components/admin/UserManagement";
 import { RevenueReports } from "@/components/admin/RevenueReports";
-import { ShoppingBag, DollarSign, Star, Users, BarChart, Package } from "lucide-react";
+import { FileUpload } from "@/components/admin/FileUpload";
+import { ShoppingBag, DollarSign, Star, Users, BarChart, Package, Upload } from "lucide-react";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -25,7 +26,7 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7">
             <TabsTrigger value="overview" className="gap-2">
               <BarChart className="h-4 w-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -37,6 +38,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="purchases" className="gap-2">
               <ShoppingBag className="h-4 w-4" />
               <span className="hidden sm:inline">Purchases</span>
+            </TabsTrigger>
+            <TabsTrigger value="files" className="gap-2">
+              <Upload className="h-4 w-4" />
+              <span className="hidden sm:inline">Files</span>
             </TabsTrigger>
             <TabsTrigger value="reviews" className="gap-2">
               <Star className="h-4 w-4" />
@@ -111,6 +116,11 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="purchases">
+            <PurchaseList />
+          </TabsContent>
+
+          <TabsContent value="files" className="space-y-6">
+            <FileUpload />
             <PurchaseList />
           </TabsContent>
 
