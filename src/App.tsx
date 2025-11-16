@@ -22,6 +22,7 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const TestWebhook = lazy(() => import("./pages/TestWebhook"));
 const MobileFeatures = lazy(() => import("./pages/MobileFeatures"));
+const HapticDemo = lazy(() => import("./pages/HapticDemo"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -53,6 +54,7 @@ const AppContent = () => {
           <Route path="/terms" element={<Terms />} />
           <Route path="/test-webhook" element={<TestWebhook />} />
           <Route path="/mobile-features" element={<MobileFeatures />} />
+          <Route path="/haptic-demo" element={<HapticDemo />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
