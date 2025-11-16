@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -29,6 +29,25 @@ export const NotificationPanel = () => {
   const [dateRangeFilter, setDateRangeFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const queryClient = useQueryClient();
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Keyboard shortcut listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+K or Cmd+K
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setOpen(true);
+        // Focus search input after a short delay to ensure the panel is open
+        setTimeout(() => {
+          searchInputRef.current?.focus();
+        }, 100);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const { data: allActions } = useQuery({
     queryKey: ['notification-history'],
@@ -119,6 +138,10 @@ export const NotificationPanel = () => {
       const now = new Date().toISOString();
       setLastViewedTime(now);
       localStorage.setItem('lastViewedNotifications', now);
+      // Focus search input when opening
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
     }
   };
 
@@ -197,7 +220,7 @@ export const NotificationPanel = () => {
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="relative">
+        <Button variant="outline" size="icon" className="relative" title="Notifications (Ctrl+K)">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
             <Badge 
@@ -211,10 +234,17 @@ export const NotificationPanel = () => {
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>Notification History</SheetTitle>
-          <SheetDescription>
-            Filter and review recent admin actions
-          </SheetDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <SheetTitle>Notification History</SheetTitle>
+              <SheetDescription>
+                Filter and review recent admin actions
+              </SheetDescription>
+            </div>
+            <kbd className="pointer-events-none hidden h-6 select-none items-center gap-1 rounded border bg-muted px-2 font-mono text-xs font-medium opacity-100 sm:flex">
+              <span className="text-xs">⌘</span>K
+            </kbd>
+          </div>
         </SheetHeader>
 
         {/* Filters */}
@@ -224,6 +254,7 @@ export const NotificationPanel = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
+                ref={searchInputRef}
                 placeholder="Search by email or action..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
