@@ -2,24 +2,26 @@
 
 ## App Icons Configuration
 
-### Automatic Icon Generation (Recommended)
+### Automatic Icon & Splash Screen Generation (Recommended)
 
 After pulling the project from GitHub, you can use Capacitor's asset generation tool:
 
 1. Place your app icon at `public/app-icon.png` (1024x1024px, already generated)
-2. Install the asset generator:
+2. Place your splash screen at `public/splash.png` (1920x1920px, already generated)
+3. Install the asset generator:
    ```bash
    npm install -g @capacitor/assets
    ```
-3. Generate all required icon sizes:
+4. Generate all required icon and splash screen sizes:
    ```bash
-   npx capacitor-assets generate --iconBackgroundColor '#FF6B35' --iconBackgroundColorDark '#F7931E'
+   npx capacitor-assets generate --iconBackgroundColor '#FF6B35' --iconBackgroundColorDark '#F7931E' --splashBackgroundColor '#FF6B35'
    ```
 
 This will automatically create:
 - iOS app icons in all required sizes
 - Android adaptive icons with proper backgrounds
-- Splash screens for both platforms
+- Splash screens for both platforms in all required sizes
+- Dark mode variants
 
 ### Manual Icon Setup (Alternative)
 
@@ -45,6 +47,28 @@ Place icons in `android/app/src/main/res/`:
 - mipmap-xhdpi/ic_launcher.png (96x96)
 - mipmap-xxhdpi/ic_launcher.png (144x144)
 - mipmap-xxxhdpi/ic_launcher.png (192x192)
+
+## Splash Screen Configuration
+
+A branded splash screen has been configured with:
+- 2-second display duration
+- Smooth fade-out animation (500ms)
+- Orange gradient background matching brand colors
+- Automatic hiding after app initialization
+- Full-screen immersive mode on Android
+
+The splash screen will automatically show when the app launches and hide once initialization is complete.
+
+### Customizing Splash Screen Timing
+
+To adjust the splash screen display duration, edit `capacitor.config.ts`:
+```typescript
+SplashScreen: {
+  launchShowDuration: 2000, // Change this value (milliseconds)
+  launchFadeOutDuration: 500, // Fade animation duration
+  // ... other options
+}
+```
 
 ## Permissions Configuration
 
