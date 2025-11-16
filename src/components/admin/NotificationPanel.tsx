@@ -28,8 +28,11 @@ export const NotificationPanel = () => {
   const [actionTypeFilter, setActionTypeFilter] = useState<string>("all");
   const [dateRangeFilter, setDateRangeFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
+  const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const notificationRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Keyboard shortcut listener
   useEffect(() => {
@@ -49,11 +52,53 @@ export const NotificationPanel = () => {
         e.preventDefault();
         setOpen(false);
       }
+
+      // Arrow navigation and Enter (when panel is open and not focused on search)
+      if (open && document.activeElement !== searchInputRef.current) {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          setSelectedIndex(prev => {
+            const next = prev + 1;
+            // Scroll into view
+            setTimeout(() => {
+              notificationRefs.current[next]?.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'nearest' 
+              });
+            }, 0);
+            return next;
+          });
+        }
+        
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          setSelectedIndex(prev => {
+            const next = prev > 0 ? prev - 1 : 0;
+            // Scroll into view
+            setTimeout(() => {
+              notificationRefs.current[next]?.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'nearest' 
+              });
+            }, 0);
+            return next;
+          });
+        }
+        
+        if (e.key === 'Enter' && selectedIndex >= 0) {
+          e.preventDefault();
+          // Toggle will be handled via the ID from the selected notification
+          const notificationEl = notificationRefs.current[selectedIndex];
+          if (notificationEl) {
+            notificationEl.click();
+          }
+        }
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [open]);
+  }, [open, selectedIndex]);
 
   const { data: allActions } = useQuery({
     queryKey: ['notification-history'],
@@ -148,7 +193,22 @@ export const NotificationPanel = () => {
       setTimeout(() => {
         searchInputRef.current?.focus();
       }, 100);
+    } else {
+      // Reset selection when closing
+      setSelectedIndex(-1);
     }
+  };
+
+  const toggleExpanded = (id: string) => {
+    setExpandedNotifications(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
   };
 
   const unreadCount = allActions?.filter(
@@ -160,6 +220,7 @@ export const NotificationPanel = () => {
     setActionTypeFilter("all");
     setDateRangeFilter("all");
     setSearchTerm("");
+    setSelectedIndex(-1);
   };
 
   const hasActiveFilters = severityFilter !== "all" || actionTypeFilter !== "all" || dateRangeFilter !== "all" || searchTerm.trim() !== "";
@@ -250,6 +311,9 @@ export const NotificationPanel = () => {
             <div className="flex items-center gap-2">
               <kbd className="pointer-events-none hidden h-6 select-none items-center gap-1 rounded border bg-muted px-2 font-mono text-xs font-medium opacity-100 sm:flex">
                 <span className="text-xs">⌘</span>K
+              </kbd>
+              <kbd className="pointer-events-none hidden h-6 select-none items-center gap-1 rounded border bg-muted px-2 font-mono text-xs font-medium opacity-100 sm:flex">
+                ↑↓
               </kbd>
               <kbd className="pointer-events-none hidden h-6 select-none items-center gap-1 rounded border bg-muted px-2 font-mono text-xs font-medium opacity-100 sm:flex">
                 ESC
@@ -350,18 +414,23 @@ export const NotificationPanel = () => {
         <ScrollArea className="h-[calc(100vh-450px)] mt-4">
           <div className="space-y-4 pr-4">
             {recentActions && recentActions.length > 0 ? (
-              recentActions.map((action) => {
+              recentActions.map((action, index) => {
                 const severity = getActionSeverity(action.action_type);
                 const IconComponent = getSeverityIcon(severity);
                 const iconColor = getSeverityColor(severity);
                 const isUnread = new Date(action.created_at) > new Date(lastViewedTime);
+                const isExpanded = expandedNotifications.has(action.id);
+                const isSelected = selectedIndex === index;
 
                 return (
                   <div
                     key={action.id}
-                    className={`flex gap-3 p-3 rounded-lg border transition-colors ${
+                    ref={el => notificationRefs.current[index] = el}
+                    className={`flex gap-3 p-3 rounded-lg border transition-all cursor-pointer ${
                       isUnread ? 'bg-accent/50 border-accent' : 'bg-background'
-                    }`}
+                    } ${isSelected ? 'ring-2 ring-primary shadow-md' : ''} hover:border-primary/50`}
+                    onClick={() => toggleExpanded(action.id)}
+                    tabIndex={0}
                   >
                     <div className={`flex-shrink-0 mt-1 ${iconColor}`}>
                       <IconComponent className="h-5 w-5" />
@@ -376,15 +445,32 @@ export const NotificationPanel = () => {
                             by {action.admin_email}
                           </p>
                         </div>
-                        {isUnread && (
-                          <Badge variant="secondary" className="text-xs">
-                            New
-                          </Badge>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {isUnread && (
+                            <Badge variant="secondary" className="text-xs">
+                              New
+                            </Badge>
+                          )}
+                          {isSelected && (
+                            <kbd className="hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
+                              ↵
+                            </kbd>
+                          )}
+                        </div>
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">
                         {format(new Date(action.created_at), "MMM d, yyyy 'at' h:mm a")}
                       </p>
+                      
+                      {/* Expanded details */}
+                      {isExpanded && action.details && (
+                        <div className="mt-3 p-2 rounded bg-muted/50 border text-xs">
+                          <p className="font-medium mb-1">Details:</p>
+                          <pre className="whitespace-pre-wrap break-words font-mono">
+                            {JSON.stringify(action.details, null, 2)}
+                          </pre>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
