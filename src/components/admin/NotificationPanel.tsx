@@ -34,7 +34,7 @@ export const NotificationPanel = () => {
   // Keyboard shortcut listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+K or Cmd+K
+      // Ctrl+K or Cmd+K to open
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
         setOpen(true);
@@ -43,11 +43,17 @@ export const NotificationPanel = () => {
           searchInputRef.current?.focus();
         }, 100);
       }
+      
+      // Escape to close (when panel is open)
+      if (e.key === 'Escape' && open) {
+        e.preventDefault();
+        setOpen(false);
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [open]);
 
   const { data: allActions } = useQuery({
     queryKey: ['notification-history'],
@@ -241,9 +247,14 @@ export const NotificationPanel = () => {
                 Filter and review recent admin actions
               </SheetDescription>
             </div>
-            <kbd className="pointer-events-none hidden h-6 select-none items-center gap-1 rounded border bg-muted px-2 font-mono text-xs font-medium opacity-100 sm:flex">
-              <span className="text-xs">⌘</span>K
-            </kbd>
+            <div className="flex items-center gap-2">
+              <kbd className="pointer-events-none hidden h-6 select-none items-center gap-1 rounded border bg-muted px-2 font-mono text-xs font-medium opacity-100 sm:flex">
+                <span className="text-xs">⌘</span>K
+              </kbd>
+              <kbd className="pointer-events-none hidden h-6 select-none items-center gap-1 rounded border bg-muted px-2 font-mono text-xs font-medium opacity-100 sm:flex">
+                ESC
+              </kbd>
+            </div>
           </div>
         </SheetHeader>
 
