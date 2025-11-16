@@ -34,6 +34,8 @@ interface User {
   user_roles: Array<{
     role: string;
   }>;
+  download_count: number;
+  last_download_at: string | null;
 }
 
 export const UserManagement = () => {
@@ -50,7 +52,7 @@ export const UserManagement = () => {
       
       if (profilesError) throw profilesError;
       
-      // Then get user roles for each profile
+      // Then get user roles and download stats for each profile
       const usersWithRoles = await Promise.all(
         profilesData.map(async (profile) => {
           const { data: rolesData } = await supabase
@@ -58,9 +60,19 @@ export const UserManagement = () => {
             .select('role')
             .eq('user_id', profile.id);
           
+          // Get download statistics
+          const { data: downloadStats } = await supabase
+            .from('analytics_events')
+            .select('created_at')
+            .eq('user_id', profile.id)
+            .eq('event_type', 'download')
+            .order('created_at', { ascending: false });
+          
           return {
             ...profile,
-            user_roles: rolesData || []
+            user_roles: rolesData || [],
+            download_count: downloadStats?.length || 0,
+            last_download_at: downloadStats?.[0]?.created_at || null
           };
         })
       );
@@ -104,6 +116,8 @@ export const UserManagement = () => {
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
+              <TableHead>Downloads</TableHead>
+              <TableHead>Last Download</TableHead>
               <TableHead>Registered</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -121,6 +135,14 @@ export const UserManagement = () => {
                       {role.role}
                     </Badge>
                   ))}
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline">{user.download_count}</Badge>
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {user.last_download_at 
+                    ? format(new Date(user.last_download_at), 'MMM dd, yyyy HH:mm')
+                    : 'Never'}
                 </TableCell>
                 <TableCell>
                   {format(new Date(user.created_at), 'MMM dd, yyyy')}
