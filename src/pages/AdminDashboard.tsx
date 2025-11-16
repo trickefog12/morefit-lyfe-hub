@@ -8,10 +8,11 @@ import { PurchaseList } from "@/components/admin/PurchaseList";
 import { ReviewModeration } from "@/components/admin/ReviewModeration";
 import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
 import { DownloadAnalytics } from "@/components/admin/DownloadAnalytics";
+import { DownloadLimitManager } from "@/components/admin/DownloadLimitManager";
 import { UserManagement } from "@/components/admin/UserManagement";
 import { RevenueReports } from "@/components/admin/RevenueReports";
 import { FileUpload } from "@/components/admin/FileUpload";
-import { ShoppingBag, DollarSign, Star, Users, BarChart, Package, Upload } from "lucide-react";
+import { ShoppingBag, DollarSign, Star, Users, BarChart, Package, Upload, Settings } from "lucide-react";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -27,7 +28,7 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-8">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-9">
             <TabsTrigger value="overview" className="gap-2">
               <BarChart className="h-4 w-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -59,6 +60,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="downloads" className="gap-2">
               <BarChart className="h-4 w-4" />
               <span className="hidden sm:inline">Downloads</span>
+            </TabsTrigger>
+            <TabsTrigger value="limits" className="gap-2">
+              <Settings className="h-4 w-4" />
+              <span className="hidden sm:inline">Limits</span>
             </TabsTrigger>
           </TabsList>
 
@@ -143,6 +148,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="downloads">
             <DownloadAnalytics />
+          </TabsContent>
+
+          <TabsContent value="limits">
+            <DownloadLimitManager />
           </TabsContent>
         </Tabs>
       </main>

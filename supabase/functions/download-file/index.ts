@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 // Rate limiting configuration
-const MAX_DOWNLOADS_PER_DAY = 10;
+const DEFAULT_MAX_DOWNLOADS_PER_DAY = 10;
 const RATE_LIMIT_WINDOW_HOURS = 24;
 
 serve(async (req) => {
@@ -69,6 +69,44 @@ serve(async (req) => {
 
     console.log("Download request from user:", user.id, "for token:", token);
 
+    // Get custom download limit for this user (priority: user-specific > role-based > default)
+    let maxDownloads = DEFAULT_MAX_DOWNLOADS_PER_DAY;
+    
+    // Check for user-specific limit
+    const { data: userLimit } = await supabaseClient
+      .from("download_limits")
+      .select("daily_limit")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    
+    if (userLimit) {
+      maxDownloads = userLimit.daily_limit;
+      console.log(`User-specific limit found: ${maxDownloads}`);
+    } else {
+      // Check for role-based limit
+      const { data: userRoles } = await supabaseClient
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id);
+      
+      if (userRoles && userRoles.length > 0) {
+        // Check if any of the user's roles have a custom limit
+        for (const { role } of userRoles) {
+          const { data: roleLimit } = await supabaseClient
+            .from("download_limits")
+            .select("daily_limit")
+            .eq("role", role)
+            .maybeSingle();
+          
+          if (roleLimit) {
+            maxDownloads = roleLimit.daily_limit;
+            console.log(`Role-based limit found for ${role}: ${maxDownloads}`);
+            break;
+          }
+        }
+      }
+    }
+
     // Check rate limiting - count downloads in the last 24 hours
     const rateLimitCutoff = new Date();
     rateLimitCutoff.setHours(rateLimitCutoff.getHours() - RATE_LIMIT_WINDOW_HOURS);
@@ -82,12 +120,12 @@ serve(async (req) => {
 
     if (rateLimitError) {
       console.error("Rate limit check error:", rateLimitError);
-    } else if (recentDownloads && recentDownloads.length >= MAX_DOWNLOADS_PER_DAY) {
-      console.log(`Rate limit exceeded for user ${user.id}: ${recentDownloads.length} downloads in last ${RATE_LIMIT_WINDOW_HOURS}h`);
+    } else if (recentDownloads && recentDownloads.length >= maxDownloads) {
+      console.log(`Rate limit exceeded for user ${user.id}: ${recentDownloads.length} downloads in last ${RATE_LIMIT_WINDOW_HOURS}h (limit: ${maxDownloads})`);
       return new Response(
         JSON.stringify({ 
           error: "Rate limit exceeded",
-          message: `You have reached the maximum of ${MAX_DOWNLOADS_PER_DAY} downloads per day. Please try again later.`,
+          message: `You have reached the maximum of ${maxDownloads} downloads per day. Please try again later.`,
           retryAfter: RATE_LIMIT_WINDOW_HOURS * 3600,
         }),
         { 
@@ -101,7 +139,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`User ${user.id} has ${recentDownloads?.length || 0} downloads in last ${RATE_LIMIT_WINDOW_HOURS}h`);
+    console.log(`User ${user.id} has ${recentDownloads?.length || 0}/${maxDownloads} downloads in last ${RATE_LIMIT_WINDOW_HOURS}h`);
 
     // Validate the download token and check if user owns this purchase
     const { data: purchase, error: purchaseError } = await supabaseClient
