@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import { Shield, TrendingUp, Activity } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { toast } from "@/hooks/use-toast";
 
 interface AuditLog {
   id: string;
@@ -86,6 +87,16 @@ export const AdminActivityWidget = () => {
         },
         (payload) => {
           console.log('Activity widget - audit log change detected:', payload);
+          
+          // Show toast notification for new actions
+          if (payload.eventType === 'INSERT' && payload.new) {
+            const action = payload.new as AuditLog;
+            toast({
+              title: "New Admin Action",
+              description: `${action.admin_email} performed: ${getActionLabel(action.action_type)}`,
+            });
+          }
+          
           // Invalidate queries to refetch stats
           queryClient.invalidateQueries({ queryKey: ['admin-activity-stats'] });
         }
