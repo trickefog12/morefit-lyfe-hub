@@ -119,6 +119,26 @@ export const DownloadLimitManager = () => {
           target_role: limitType === "role" ? selectedRole as any : null,
           details: { daily_limit: limitValue }
         });
+
+        // Get target info for notification
+        let targetInfo = "";
+        if (limitType === "user") {
+          const targetUser = users?.find(u => u.id === selectedUser);
+          targetInfo = `User: ${targetUser?.email || 'Unknown'}`;
+        } else {
+          targetInfo = `Role: ${selectedRole.toUpperCase()}`;
+        }
+
+        // Send notification email in the background
+        supabase.functions.invoke('send-admin-notification', {
+          body: {
+            actionType: 'create_download_limit',
+            actionLabel: 'Create Download Limit',
+            performedBy: user.email || 'Unknown Admin',
+            target: targetInfo,
+            details: `Daily limit set to ${limitValue} downloads`,
+          }
+        });
       }
     },
     onSuccess: () => {
@@ -161,6 +181,22 @@ export const DownloadLimitManager = () => {
           details: { 
             daily_limit: limitData.daily_limit,
             target_email: (limitData.profiles as any)?.email
+          }
+        });
+
+        // Prepare target info for notification
+        const targetInfo = limitData.user_id 
+          ? `User: ${(limitData.profiles as any)?.email || 'Unknown'}`
+          : `Role: ${limitData.role?.toUpperCase()}`;
+
+        // Send notification email in the background
+        supabase.functions.invoke('send-admin-notification', {
+          body: {
+            actionType: 'delete_download_limit',
+            actionLabel: 'Delete Download Limit',
+            performedBy: user.email || 'Unknown Admin',
+            target: targetInfo,
+            details: `Removed custom limit of ${limitData.daily_limit} downloads/day`,
           }
         });
       }

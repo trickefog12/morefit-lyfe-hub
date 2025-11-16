@@ -122,6 +122,23 @@ serve(async (req) => {
         },
       });
 
+    // Send notification email in the background (don't await)
+    supabaseClient.functions.invoke('send-admin-notification', {
+      body: {
+        actionType: 'reset_download_limit',
+        actionLabel: 'Reset Download Limit',
+        performedBy: user.email || 'Unknown Admin',
+        target: `User: ${targetProfile?.email || 'Unknown'}`,
+        details: 'Download limit has been reset to 0',
+      }
+    }).then(({ error: notifError }) => {
+      if (notifError) {
+        console.error('Failed to send notification:', notifError);
+      } else {
+        console.log('Notification sent successfully');
+      }
+    });
+
     return new Response(
       JSON.stringify({ 
         success: true,
