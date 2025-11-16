@@ -102,16 +102,23 @@ serve(async (req) => {
 
     console.log(`Successfully reset download limit for user ${targetUserId}`);
 
-    // Log the admin action
+    // Get target user email
+    const { data: targetProfile } = await supabaseClient
+      .from("profiles")
+      .select("email")
+      .eq("id", targetUserId)
+      .single();
+
+    // Log the admin action to audit_logs
     await supabaseClient
-      .from("analytics_events")
+      .from("audit_logs")
       .insert({
-        user_id: user.id,
-        event_type: "admin_action",
-        event_name: "reset_download_limit",
-        properties: {
-          target_user_id: targetUserId,
-          action: "reset_download_limit",
+        admin_id: user.id,
+        admin_email: user.email || "unknown",
+        action_type: "reset_download_limit",
+        target_user_id: targetUserId,
+        details: {
+          target_email: targetProfile?.email || "unknown",
         },
       });
 

@@ -89,6 +89,39 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_logs: {
+        Row: {
+          action_type: string
+          admin_email: string
+          admin_id: string
+          created_at: string
+          details: Json | null
+          id: string
+          target_role: Database["public"]["Enums"]["app_role"] | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          admin_email: string
+          admin_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_role?: Database["public"]["Enums"]["app_role"] | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          admin_email?: string
+          admin_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_role?: Database["public"]["Enums"]["app_role"] | null
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
       download_limits: {
         Row: {
           created_at: string | null
