@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Bell, AlertCircle, CheckCircle, AlertTriangle, Info, X, Search } from "lucide-react";
+import { Bell, AlertCircle, CheckCircle, AlertTriangle, Info, X, Search, CheckCheck } from "lucide-react";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 
 interface AuditLog {
@@ -54,6 +54,12 @@ export const NotificationPanel = () => {
       if (e.key === 'Escape' && open) {
         e.preventDefault();
         setOpen(false);
+      }
+
+      // Ctrl+Shift+M or Cmd+Shift+M to mark all as read
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'M') {
+        e.preventDefault();
+        markAllAsRead();
       }
 
       // Arrow navigation and Enter (when panel is open and not focused on search)
@@ -214,6 +220,12 @@ export const NotificationPanel = () => {
     });
   };
 
+  const markAllAsRead = () => {
+    const now = new Date().toISOString();
+    setLastViewedTime(now);
+    localStorage.setItem('lastViewedNotifications', now);
+  };
+
   const unreadCount = allActions?.filter(
     action => new Date(action.created_at) > new Date(lastViewedTime)
   ).length || 0;
@@ -323,6 +335,25 @@ export const NotificationPanel = () => {
               </kbd>
             </div>
           </div>
+          
+          {/* Mark all as read button */}
+          {unreadCount > 0 && (
+            <div className="mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={markAllAsRead}
+                className="w-full"
+                title="Mark all as read (Ctrl+Shift+M)"
+              >
+                <CheckCheck className="h-4 w-4 mr-2" />
+                Mark All as Read ({unreadCount})
+                <kbd className="ml-auto hidden select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
+                  <span className="text-xs">⌘</span>⇧M
+                </kbd>
+              </Button>
+            </div>
+          )}
         </SheetHeader>
 
         {/* Filters */}
