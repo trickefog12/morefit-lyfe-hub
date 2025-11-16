@@ -8,6 +8,7 @@ import { SplashScreenManager } from "@/components/SplashScreen";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { useDeepLinking } from "@/hooks/useDeepLinking";
 import { useStatusBar } from "@/hooks/useStatusBar";
+import { usePageViewTracking } from "@/hooks/useAnalytics";
 import { lazy, Suspense } from "react";
 
 // Eager load home page for instant display
@@ -29,6 +30,7 @@ const queryClient = new QueryClient();
 
 const AppContent = () => {
   useDeepLinking();
+  usePageViewTracking(); // Auto-track page views
   
   // Configure status bar with brand colors
   useStatusBar({
