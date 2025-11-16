@@ -21,8 +21,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { format } from "date-fns";
-import { Shield, Trash2, Plus, Filter, X, Download, FileText } from "lucide-react";
+import { Shield, Trash2, Plus, Filter, X, Download, FileText, ChevronLeft, ChevronRight } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -42,49 +51,77 @@ export const AuditLog = () => {
   const [adminEmailFilter, setAdminEmailFilter] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 25;
 
-  const { data: logs, isLoading } = useQuery({
-    queryKey: ['audit-logs', actionTypeFilter, adminEmailFilter, startDate, endDate],
+  const { data: logsData, isLoading } = useQuery({
+    queryKey: ['audit-logs', actionTypeFilter, adminEmailFilter, startDate, endDate, currentPage],
     queryFn: async () => {
-      let query = supabase
+      // Build base query for counting
+      let countQuery = supabase
+        .from('audit_logs')
+        .select('*', { count: 'exact', head: true });
+      
+      // Apply filters to count query
+      if (actionTypeFilter !== "all") {
+        countQuery = countQuery.eq('action_type', actionTypeFilter);
+      }
+      if (adminEmailFilter) {
+        countQuery = countQuery.ilike('admin_email', `%${adminEmailFilter}%`);
+      }
+      if (startDate) {
+        countQuery = countQuery.gte('created_at', new Date(startDate).toISOString());
+      }
+      if (endDate) {
+        const endDateTime = new Date(endDate);
+        endDateTime.setDate(endDateTime.getDate() + 1);
+        countQuery = countQuery.lt('created_at', endDateTime.toISOString());
+      }
+
+      // Get total count
+      const { count, error: countError } = await countQuery;
+      if (countError) throw countError;
+
+      // Build data query with pagination
+      let dataQuery = supabase
         .from('audit_logs')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(100);
+        .range((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage - 1);
       
-      // Apply action type filter
+      // Apply filters to data query
       if (actionTypeFilter !== "all") {
-        query = query.eq('action_type', actionTypeFilter);
+        dataQuery = dataQuery.eq('action_type', actionTypeFilter);
       }
-
-      // Apply admin email filter
       if (adminEmailFilter) {
-        query = query.ilike('admin_email', `%${adminEmailFilter}%`);
+        dataQuery = dataQuery.ilike('admin_email', `%${adminEmailFilter}%`);
       }
-
-      // Apply date range filters
       if (startDate) {
-        query = query.gte('created_at', new Date(startDate).toISOString());
+        dataQuery = dataQuery.gte('created_at', new Date(startDate).toISOString());
       }
       if (endDate) {
-        // Add 1 day to include the entire end date
         const endDateTime = new Date(endDate);
         endDateTime.setDate(endDateTime.getDate() + 1);
-        query = query.lt('created_at', endDateTime.toISOString());
+        dataQuery = dataQuery.lt('created_at', endDateTime.toISOString());
       }
       
-      const { data, error } = await query;
+      const { data, error } = await dataQuery;
       
       if (error) throw error;
-      return data as AuditLog[];
+      return { logs: data as AuditLog[], totalCount: count || 0 };
     }
   });
+
+  const logs = logsData?.logs;
+  const totalCount = logsData?.totalCount || 0;
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
 
   const clearFilters = () => {
     setActionTypeFilter("all");
     setAdminEmailFilter("");
     setStartDate("");
     setEndDate("");
+    setCurrentPage(1);
   };
 
   const hasActiveFilters = actionTypeFilter !== "all" || adminEmailFilter || startDate || endDate;
@@ -380,6 +417,60 @@ export const AuditLog = () => {
               {hasActiveFilters 
                 ? "No audit logs match the selected filters."
                 : "No audit logs found. Admin actions will appear here."}
+            </div>
+          )}
+
+          {logs && logs.length > 0 && totalPages > 1 && (
+            <div className="mt-4 flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalCount)} of {totalCount} entries
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Previous
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(pageNum)}
+                        className="w-10"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>
