@@ -13,6 +13,7 @@ import { UserManagement } from "@/components/admin/UserManagement";
 import { RevenueReports } from "@/components/admin/RevenueReports";
 import { FileUpload } from "@/components/admin/FileUpload";
 import { AuditLog } from "@/components/admin/AuditLog";
+import { AdminActivityWidget } from "@/components/admin/AdminActivityWidget";
 import { ShoppingBag, DollarSign, Star, Users, BarChart, Package, Upload, Settings, Shield } from "lucide-react";
 
 const AdminDashboard = () => {
@@ -115,15 +116,19 @@ const AdminDashboard = () => {
               </Card>
             </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Analytics Overview</CardTitle>
-                <CardDescription>View detailed analytics in the tabs above</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <AnalyticsDashboard />
-              </CardContent>
-            </Card>
+            <div className="grid gap-6 md:grid-cols-2">
+              <AdminActivityWidget />
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Analytics Overview</CardTitle>
+                  <CardDescription>View detailed analytics in the tabs above</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <AnalyticsDashboard />
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="products">
