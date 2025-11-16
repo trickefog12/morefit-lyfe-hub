@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SplashScreenManager } from "@/components/SplashScreen";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
+import { AdminRoute } from "@/components/AdminRoute";
 import { useDeepLinking } from "@/hooks/useDeepLinking";
 import { useStatusBar } from "@/hooks/useStatusBar";
 import { usePageViewTracking } from "@/hooks/useAnalytics";
@@ -24,6 +25,7 @@ const Terms = lazy(() => import("./pages/Terms"));
 const TestWebhook = lazy(() => import("./pages/TestWebhook"));
 const MobileFeatures = lazy(() => import("./pages/MobileFeatures"));
 const HapticDemo = lazy(() => import("./pages/HapticDemo"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -57,6 +59,7 @@ const AppContent = () => {
           <Route path="/test-webhook" element={<TestWebhook />} />
           <Route path="/mobile-features" element={<MobileFeatures />} />
           <Route path="/haptic-demo" element={<HapticDemo />} />
+          <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
