@@ -22,7 +22,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
-import { Shield, Trash2, Plus, Filter, X } from "lucide-react";
+import { Shield, Trash2, Plus, Filter, X, Download, FileText } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 interface AuditLog {
   id: string;
@@ -126,6 +128,104 @@ export const AuditLog = () => {
     }
   };
 
+  const exportToCSV = () => {
+    if (!logs || logs.length === 0) {
+      return;
+    }
+
+    // Prepare CSV headers
+    const headers = ["Timestamp", "Admin Email", "Action Type", "Target", "Details"];
+    
+    // Prepare CSV rows
+    const rows = logs.map(log => {
+      const timestamp = format(new Date(log.created_at), "MMM d, yyyy h:mm a");
+      const target = log.target_user_id 
+        ? `User: ${log.details?.target_email || "Unknown"}`
+        : log.target_role 
+        ? `Role: ${log.target_role.toUpperCase()}`
+        : "-";
+      const details = log.details?.daily_limit 
+        ? `Limit: ${log.details.daily_limit} downloads/day`
+        : "-";
+      
+      return [timestamp, log.admin_email, getActionLabel(log.action_type), target, details];
+    });
+
+    // Create CSV content
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
+    ].join("\n");
+
+    // Create download link
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `audit-logs-${format(new Date(), "yyyy-MM-dd")}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportToPDF = () => {
+    if (!logs || logs.length === 0) {
+      return;
+    }
+
+    const doc = new jsPDF();
+    
+    // Add title
+    doc.setFontSize(18);
+    doc.text("Admin Audit Log", 14, 22);
+    
+    // Add export date
+    doc.setFontSize(11);
+    doc.text(`Generated: ${format(new Date(), "MMM d, yyyy h:mm a")}`, 14, 30);
+    
+    // Add filter info if any
+    if (hasActiveFilters) {
+      let filterText = "Filters: ";
+      const filters = [];
+      if (actionTypeFilter !== "all") filters.push(`Action: ${getActionLabel(actionTypeFilter)}`);
+      if (adminEmailFilter) filters.push(`Email: ${adminEmailFilter}`);
+      if (startDate) filters.push(`From: ${format(new Date(startDate), "MMM d, yyyy")}`);
+      if (endDate) filters.push(`To: ${format(new Date(endDate), "MMM d, yyyy")}`);
+      filterText += filters.join(", ");
+      doc.setFontSize(9);
+      doc.text(filterText, 14, 36);
+    }
+
+    // Prepare table data
+    const tableData = logs.map(log => {
+      const timestamp = format(new Date(log.created_at), "MMM d, yyyy h:mm a");
+      const target = log.target_user_id 
+        ? `User: ${log.details?.target_email || "Unknown"}`
+        : log.target_role 
+        ? `Role: ${log.target_role.toUpperCase()}`
+        : "-";
+      const details = log.details?.daily_limit 
+        ? `${log.details.daily_limit} downloads/day`
+        : "-";
+      
+      return [timestamp, log.admin_email, getActionLabel(log.action_type), target, details];
+    });
+
+    // Add table
+    autoTable(doc, {
+      startY: hasActiveFilters ? 40 : 35,
+      head: [["Timestamp", "Admin", "Action", "Target", "Details"]],
+      body: tableData,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [71, 85, 105] },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+    });
+
+    // Save PDF
+    doc.save(`audit-logs-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+  };
+
   if (isLoading) {
     return <div className="text-center py-8">Loading audit logs...</div>;
   }
@@ -197,11 +297,27 @@ export const AuditLog = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Admin Audit Log</CardTitle>
-          <CardDescription>
-            Track all administrative actions including download limit resets and custom limit changes
-            {logs && ` (${logs.length} ${logs.length === 1 ? 'entry' : 'entries'})`}
-          </CardDescription>
+          <div className="flex items-start justify-between">
+            <div>
+              <CardTitle>Admin Audit Log</CardTitle>
+              <CardDescription>
+                Track all administrative actions including download limit resets and custom limit changes
+                {logs && ` (${logs.length} ${logs.length === 1 ? 'entry' : 'entries'})`}
+              </CardDescription>
+            </div>
+            {logs && logs.length > 0 && (
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={exportToCSV}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Export CSV
+                </Button>
+                <Button variant="outline" size="sm" onClick={exportToPDF}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export PDF
+                </Button>
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
