@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { SplashScreenManager } from "@/components/SplashScreen";
 import { lazy, Suspense } from "react";
 
 // Eager load home page for instant display
@@ -27,6 +28,7 @@ const App = () => (
     <LanguageProvider>
       <BrowserRouter>
         <TooltipProvider>
+          <SplashScreenManager />
           <Toaster />
           <Sonner />
           <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
