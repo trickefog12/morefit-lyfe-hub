@@ -1,8 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -23,6 +26,8 @@ interface User {
 }
 
 export const UserManagement = () => {
+  const queryClient = useQueryClient();
+
   const { data: users, isLoading } = useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => {
@@ -53,6 +58,24 @@ export const UserManagement = () => {
     }
   });
 
+  const resetLimitMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const { data, error } = await supabase.functions.invoke('reset-download-limit', {
+        body: { targetUserId: userId }
+      });
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      toast.success("Download limit reset successfully");
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to reset download limit");
+    }
+  });
+
   if (isLoading) {
     return <div className="text-center py-8">Loading users...</div>;
   }
@@ -71,6 +94,7 @@ export const UserManagement = () => {
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Registered</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -89,6 +113,17 @@ export const UserManagement = () => {
                 </TableCell>
                 <TableCell>
                   {format(new Date(user.created_at), 'MMM dd, yyyy')}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => resetLimitMutation.mutate(user.id)}
+                    disabled={resetLimitMutation.isPending}
+                  >
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Reset Download Limit
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
