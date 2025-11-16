@@ -32,6 +32,9 @@ export const NotificationPanel = () => {
   const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const severityFilterRef = useRef<HTMLButtonElement>(null);
+  const dateRangeFilterRef = useRef<HTMLButtonElement>(null);
+  const actionTypeFilterRef = useRef<HTMLButtonElement>(null);
   const notificationRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Keyboard shortcut listener
@@ -325,15 +328,17 @@ export const NotificationPanel = () => {
         {/* Filters */}
         <div className="space-y-4 mt-6 pb-4 border-b">
           <div className="space-y-2">
-            <Label className="text-xs">Search</Label>
+            <Label htmlFor="search-notifications" className="text-xs">Search</Label>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
+                id="search-notifications"
                 ref={searchInputRef}
                 placeholder="Search by email or action..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9 h-9"
+                autoComplete="off"
               />
               {searchTerm && (
                 <Button
@@ -341,6 +346,8 @@ export const NotificationPanel = () => {
                   size="sm"
                   className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
                   onClick={() => setSearchTerm("")}
+                  tabIndex={0}
+                  aria-label="Clear search"
                 >
                   <X className="h-3 w-3" />
                 </Button>
@@ -350,9 +357,9 @@ export const NotificationPanel = () => {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label className="text-xs">Severity</Label>
+              <Label htmlFor="severity-filter" className="text-xs">Severity</Label>
               <Select value={severityFilter} onValueChange={setSeverityFilter}>
-                <SelectTrigger className="h-9">
+                <SelectTrigger id="severity-filter" className="h-9">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -366,9 +373,9 @@ export const NotificationPanel = () => {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs">Date Range</Label>
+              <Label htmlFor="date-range-filter" className="text-xs">Date Range</Label>
               <Select value={dateRangeFilter} onValueChange={setDateRangeFilter}>
-                <SelectTrigger className="h-9">
+                <SelectTrigger id="date-range-filter" className="h-9">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -382,9 +389,9 @@ export const NotificationPanel = () => {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs">Action Type</Label>
+            <Label htmlFor="action-type-filter" className="text-xs">Action Type</Label>
             <Select value={actionTypeFilter} onValueChange={setActionTypeFilter}>
-              <SelectTrigger className="h-9">
+              <SelectTrigger id="action-type-filter" className="h-9">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -404,6 +411,7 @@ export const NotificationPanel = () => {
               size="sm"
               onClick={clearFilters}
               className="w-full"
+              tabIndex={0}
             >
               <X className="h-4 w-4 mr-2" />
               Clear Filters
@@ -426,11 +434,20 @@ export const NotificationPanel = () => {
                   <div
                     key={action.id}
                     ref={el => notificationRefs.current[index] = el}
-                    className={`flex gap-3 p-3 rounded-lg border transition-all cursor-pointer ${
+                    className={`flex gap-3 p-3 rounded-lg border transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                       isUnread ? 'bg-accent/50 border-accent' : 'bg-background'
                     } ${isSelected ? 'ring-2 ring-primary shadow-md' : ''} hover:border-primary/50`}
                     onClick={() => toggleExpanded(action.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleExpanded(action.id);
+                      }
+                    }}
                     tabIndex={0}
+                    role="button"
+                    aria-expanded={isExpanded}
+                    aria-label={`${getActionLabel(action.action_type)} by ${action.admin_email}`}
                   >
                     <div className={`flex-shrink-0 mt-1 ${iconColor}`}>
                       <IconComponent className="h-5 w-5" />
