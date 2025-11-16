@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Bell, AlertCircle, CheckCircle, AlertTriangle, Info, X } from "lucide-react";
+import { Bell, AlertCircle, CheckCircle, AlertTriangle, Info, X, Search } from "lucide-react";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
 
 interface AuditLog {
@@ -27,6 +27,7 @@ export const NotificationPanel = () => {
   const [severityFilter, setSeverityFilter] = useState<string>("all");
   const [actionTypeFilter, setActionTypeFilter] = useState<string>("all");
   const [dateRangeFilter, setDateRangeFilter] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const queryClient = useQueryClient();
 
   const { data: allActions } = useQuery({
@@ -45,6 +46,19 @@ export const NotificationPanel = () => {
 
   // Apply filters
   const recentActions = allActions?.filter(action => {
+    // Search filter
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase();
+      const matchesEmail = action.admin_email.toLowerCase().includes(searchLower);
+      const matchesAction = getActionLabel(action.action_type).toLowerCase().includes(searchLower);
+      const matchesDetails = action.details && 
+        JSON.stringify(action.details).toLowerCase().includes(searchLower);
+      
+      if (!matchesEmail && !matchesAction && !matchesDetails) {
+        return false;
+      }
+    }
+
     // Date range filter
     if (dateRangeFilter !== "all") {
       const actionDate = new Date(action.created_at);
@@ -116,9 +130,10 @@ export const NotificationPanel = () => {
     setSeverityFilter("all");
     setActionTypeFilter("all");
     setDateRangeFilter("all");
+    setSearchTerm("");
   };
 
-  const hasActiveFilters = severityFilter !== "all" || actionTypeFilter !== "all" || dateRangeFilter !== "all";
+  const hasActiveFilters = severityFilter !== "all" || actionTypeFilter !== "all" || dateRangeFilter !== "all" || searchTerm.trim() !== "";
 
   // Get unique action types for filter
   const uniqueActionTypes = Array.from(new Set(allActions?.map(a => a.action_type) || []));
@@ -204,6 +219,29 @@ export const NotificationPanel = () => {
 
         {/* Filters */}
         <div className="space-y-4 mt-6 pb-4 border-b">
+          <div className="space-y-2">
+            <Label className="text-xs">Search</Label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by email or action..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9 h-9"
+              />
+              {searchTerm && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+                  onClick={() => setSearchTerm("")}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label className="text-xs">Severity</Label>
@@ -267,7 +305,7 @@ export const NotificationPanel = () => {
           )}
         </div>
 
-        <ScrollArea className="h-[calc(100vh-380px)] mt-4">
+        <ScrollArea className="h-[calc(100vh-450px)] mt-4">
           <div className="space-y-4 pr-4">
             {recentActions && recentActions.length > 0 ? (
               recentActions.map((action) => {
