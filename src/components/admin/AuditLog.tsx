@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -130,6 +131,16 @@ export const AuditLog = () => {
         },
         (payload) => {
           console.log('Audit log change detected:', payload);
+          
+          // Show toast notification for new actions
+          if (payload.eventType === 'INSERT' && payload.new) {
+            const log = payload.new as AuditLog;
+            toast({
+              title: "New Admin Action",
+              description: `${log.admin_email} performed: ${getActionLabel(log.action_type)}`,
+            });
+          }
+          
           // Invalidate queries to refetch data
           queryClient.invalidateQueries({ queryKey: ['audit-logs'] });
         }
