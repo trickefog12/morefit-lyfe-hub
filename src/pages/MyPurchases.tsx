@@ -107,6 +107,13 @@ export default function MyPurchases() {
 
       if (!response.ok) {
         const error = await response.json();
+        
+        // Handle rate limiting specifically
+        if (response.status === 429) {
+          const retryAfterHours = Math.ceil((error.retryAfter || 86400) / 3600);
+          throw new Error(`Rate limit exceeded. You can download again in ${retryAfterHours} hours.`);
+        }
+        
         throw new Error(error.message || 'Download failed');
       }
 
