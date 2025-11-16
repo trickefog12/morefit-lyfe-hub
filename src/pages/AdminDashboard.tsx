@@ -16,6 +16,7 @@ import { AuditLog } from "@/components/admin/AuditLog";
 import { AdminActivityWidget } from "@/components/admin/AdminActivityWidget";
 import { NotificationSettings } from "@/components/admin/NotificationSettings";
 import { ShoppingBag, DollarSign, Star, Users, BarChart, Package, Upload, Settings, Shield } from "lucide-react";
+import { NotificationPanel } from "@/components/admin/NotificationPanel";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -25,9 +26,12 @@ const AdminDashboard = () => {
       <Header />
       
       <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage your business operations and track performance</p>
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
+            <p className="text-muted-foreground">Manage your business operations and track performance</p>
+          </div>
+          <NotificationPanel />
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
