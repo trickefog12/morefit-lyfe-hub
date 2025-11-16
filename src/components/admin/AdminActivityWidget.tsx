@@ -91,9 +91,11 @@ export const AdminActivityWidget = () => {
           // Show toast notification for new actions
           if (payload.eventType === 'INSERT' && payload.new) {
             const action = payload.new as AuditLog;
+            const severity = getActionSeverity(action.action_type);
             toast({
               title: "New Admin Action",
               description: `${action.admin_email} performed: ${getActionLabel(action.action_type)}`,
+              variant: severity,
             });
           }
           
@@ -118,6 +120,23 @@ export const AdminActivityWidget = () => {
         return 'Delete Limit';
       default:
         return actionType;
+    }
+  };
+
+  const getActionSeverity = (actionType: string): "default" | "destructive" | "success" | "warning" => {
+    switch (actionType) {
+      case 'delete_download_limit':
+      case 'delete_user':
+      case 'revoke_access':
+        return 'destructive';
+      case 'reset_download_limit':
+      case 'modify_limit':
+        return 'warning';
+      case 'create_download_limit':
+      case 'grant_access':
+        return 'success';
+      default:
+        return 'default';
     }
   };
 
