@@ -20,6 +20,7 @@ const Programs = lazy(() => import("./pages/Programs"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const MealPlans = lazy(() => import("./pages/MealPlans"));
 const SignUp = lazy(() => import("./pages/SignUp"));
+const MyPurchases = lazy(() => import("./pages/MyPurchases"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const TestWebhook = lazy(() => import("./pages/TestWebhook"));
@@ -54,6 +55,7 @@ const AppContent = () => {
           <Route path="/programs/:sku" element={<ProductDetail />} />
           <Route path="/meal-plans" element={<MealPlans />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/my-purchases" element={<MyPurchases />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/test-webhook" element={<TestWebhook />} />

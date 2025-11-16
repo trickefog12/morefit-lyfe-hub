@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, Languages, LogOut, User, Shield } from "lucide-react";
+import { Menu, X, Languages, LogOut, User, Shield, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
@@ -64,6 +64,15 @@ export const Header = () => {
           </Button>
           {user ? (
             <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2"
+                onClick={() => navigate("/my-purchases")}
+              >
+                <ShoppingBag className="h-4 w-4" />
+                My Purchases
+              </Button>
               {isAdmin && (
                 <Button
                   variant="outline"
@@ -152,6 +161,18 @@ export const Header = () => {
             </Button>
             {user ? (
               <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    navigate("/my-purchases");
+                    setIsMenuOpen(false);
+                  }}
+                  className="gap-2 justify-start w-full"
+                >
+                  <ShoppingBag className="h-4 w-4" />
+                  My Purchases
+                </Button>
                 {isAdmin && (
                   <Button
                     variant="outline"
