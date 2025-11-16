@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SplashScreenManager } from "@/components/SplashScreen";
+import { useDeepLinking } from "@/hooks/useDeepLinking";
 import { lazy, Suspense } from "react";
 
 // Eager load home page for instant display
@@ -23,31 +24,41 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
+const AppContent = () => {
+  useDeepLinking();
+  
+  return (
+    <>
+      <Toaster />
+      <Sonner />
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>}>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/programs" element={<Programs />} />
+          <Route path="/programs/:sku" element={<ProductDetail />} />
+          <Route path="/meal-plans" element={<MealPlans />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/test-webhook" element={<TestWebhook />} />
+          <Route path="/mobile-features" element={<MobileFeatures />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+    </>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
       <BrowserRouter>
         <TooltipProvider>
           <SplashScreenManager />
-          <Toaster />
-          <Sonner />
-          <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          </div>}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/programs" element={<Programs />} />
-              <Route path="/programs/:sku" element={<ProductDetail />} />
-              <Route path="/meal-plans" element={<MealPlans />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/test-webhook" element={<TestWebhook />} />
-              <Route path="/mobile-features" element={<MobileFeatures />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
+          <AppContent />
         </TooltipProvider>
       </BrowserRouter>
     </LanguageProvider>

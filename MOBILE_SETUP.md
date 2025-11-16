@@ -151,9 +151,15 @@ These features only work on physical devices or emulators, not in web preview.
 2. Generate signed APK or App Bundle
 3. Upload to Google Play Console
 
-## Troubleshooting
+### Troubleshooting
 
-### Permissions Not Working
+#### Deep Links Not Working
+- Make sure you've run `npx cap sync` after configuration changes
+- Test using the commands in `DEEP_LINKING.md`
+- Verify the URL scheme matches in both configuration and test URLs
+- Uninstall and reinstall the app to reset URL handlers
+
+#### Permissions Not Working
 - Make sure you've run `npx cap sync` after configuration changes
 - Check that permission descriptions are present in Info.plist (iOS) or AndroidManifest.xml (Android)
 - Uninstall and reinstall the app to reset permission prompts
