@@ -14,6 +14,7 @@ import { RevenueReports } from "@/components/admin/RevenueReports";
 import { FileUpload } from "@/components/admin/FileUpload";
 import { AuditLog } from "@/components/admin/AuditLog";
 import { AdminActivityWidget } from "@/components/admin/AdminActivityWidget";
+import { NotificationSettings } from "@/components/admin/NotificationSettings";
 import { ShoppingBag, DollarSign, Star, Users, BarChart, Package, Upload, Settings, Shield } from "lucide-react";
 
 const AdminDashboard = () => {
@@ -161,7 +162,10 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="limits">
-            <DownloadLimitManager />
+            <div className="space-y-6">
+              <DownloadLimitManager />
+              <NotificationSettings />
+            </div>
           </TabsContent>
 
           <TabsContent value="audit">
