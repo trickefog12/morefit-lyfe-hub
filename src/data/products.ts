@@ -51,6 +51,38 @@ export const products: Product[] = [
     image: "/assets/program-strength.jpg"
   },
   {
+    sku: "MFL-COACH",
+    name: "1:1 Online Coaching Session",
+    nameEn: "1:1 Online Coaching Session",
+    price: 45,
+    shortBenefit: "Προσωπική καθοδήγηση από έμπειρη coach",
+    shortBenefitEn: "Personal guidance from experienced coach",
+    description: "Μια ωριαία συνεδρία 1:1 coaching μαζί μου! Θα αναλύσουμε τους στόχους σου, θα δημιουργήσουμε στρατηγική, και θα απαντήσω σε όλες τις ερωτήσεις σου. Ιδανικό για εξατομικευμένη καθοδήγηση.",
+    descriptionEn: "A one-hour 1:1 coaching session with me! We'll analyze your goals, create a strategy, and I'll answer all your questions. Perfect for personalized guidance.",
+    deliverables: [
+      "60 λεπτά live video call",
+      "Ανάλυση στόχων και προκλήσεων",
+      "Εξατομικευμένες συμβουλές",
+      "Form check (αν χρειάζεται)",
+      "Action plan",
+      "Follow-up email με notes"
+    ],
+    deliverablesEn: [
+      "60-minute live video call",
+      "Goals and challenges analysis",
+      "Personalized advice",
+      "Form check (if needed)",
+      "Action plan",
+      "Follow-up email with notes"
+    ],
+    targetAudience: "Όποιος θέλει προσωπική καθοδήγηση για συγκεκριμένα ζητήματα.",
+    targetAudienceEn: "Anyone wanting personal guidance for specific issues.",
+    duration: "60 λεπτά / 60 minutes",
+    format: "coach",
+    category: "coaching",
+    image: "/assets/coaching-session.jpg"
+  },
+  {
     sku: "MFL-PL2",
     name: "Πρόγραμμα Δύναμης & Υπερτροφίας 12 Εβδομάδων",
     nameEn: "12-Week Strength & Hypertrophy Program",
@@ -147,40 +179,6 @@ export const products: Product[] = [
     image: "/assets/program-strength.jpg"
   },
   {
-    sku: "MFL-TRF",
-    name: "Πρόγραμμα Μεταμόρφωσης 12 Εβδομάδων με Διατροφή",
-    nameEn: "12-Week Transformation Program with Custom Meal Guide",
-    price: 199,
-    shortBenefit: "Ολοκληρωμένη μεταμόρφωση σώματος & νοοτροπίας",
-    shortBenefitEn: "Complete body & mindset transformation",
-    description: "Το πιο ολοκληρωμένο πακέτο μας! Ένα 12-εβδομαδιαίο πρόγραμμα που συνδυάζει προπόνηση, εξατομικευμένο διατροφολόγιο και συνεχή υποστήριξη για πραγματική και διαρκή μεταμόρφωση. Μετά την αγορά θα συμπληρώσεις ένα ερωτηματολόγιο για να δημιουργηθεί το προσωπικό σου meal plan.",
-    descriptionEn: "Our most comprehensive package! A 12-week program that combines training, personalized meal planning, and ongoing support for real and lasting transformation. After purchase, you'll complete a questionnaire to create your custom meal plan.",
-    deliverables: [
-      "12 εβδομάδες δομημένης προπόνησης",
-      "Εξατομικευμένο meal plan βάσει των στόχων σου",
-      "Καθημερινοί διατροφικοί στόχοι",
-      "1 check-in call/μήνα",
-      "Email υποστήριξη",
-      "Tracking tools",
-      "Συμβουλές για sustainable results"
-    ],
-    deliverablesEn: [
-      "12 weeks of structured training",
-      "Custom meal plan based on your goals",
-      "Daily nutrition targets",
-      "1 check-in call per month",
-      "Email support",
-      "Tracking tools",
-      "Tips for sustainable results"
-    ],
-    targetAudience: "Για όσους είναι σοβαροί με τη μεταμόρφωσή τους και θέλουν ολοκληρωμένη υποστήριξη.",
-    targetAudienceEn: "For those serious about their transformation and want comprehensive support.",
-    duration: "12 εβδομάδες / 12 weeks",
-    format: "custom",
-    category: "transformation",
-    image: "/assets/meal-guide.jpg"
-  },
-  {
     sku: "MFL-MOB",
     name: "Πρόγραμμα Κινητικότητας για Γραφειακούς",
     nameEn: "Mobility Program for Desk Workers",
@@ -211,37 +209,5 @@ export const products: Product[] = [
     format: "pdf",
     category: "mobility",
     image: "/assets/program-strength.jpg"
-  },
-  {
-    sku: "MFL-COACH",
-    name: "1:1 Online Coaching Session",
-    nameEn: "1:1 Online Coaching Session",
-    price: 45,
-    shortBenefit: "Προσωπική καθοδήγηση από έμπειρη coach",
-    shortBenefitEn: "Personal guidance from experienced coach",
-    description: "Μια ωριαία συνεδρία 1:1 coaching μαζί μου! Θα αναλύσουμε τους στόχους σου, θα δημιουργήσουμε στρατηγική, και θα απαντήσω σε όλες τις ερωτήσεις σου. Ιδανικό για εξατομικευμένη καθοδήγηση.",
-    descriptionEn: "A one-hour 1:1 coaching session with me! We'll analyze your goals, create a strategy, and I'll answer all your questions. Perfect for personalized guidance.",
-    deliverables: [
-      "60 λεπτά live video call",
-      "Ανάλυση στόχων και προκλήσεων",
-      "Εξατομικευμένες συμβουλές",
-      "Form check (αν χρειάζεται)",
-      "Action plan",
-      "Follow-up email με notes"
-    ],
-    deliverablesEn: [
-      "60-minute live video call",
-      "Goals and challenges analysis",
-      "Personalized advice",
-      "Form check (if needed)",
-      "Action plan",
-      "Follow-up email with notes"
-    ],
-    targetAudience: "Όποιος θέλει προσωπική καθοδήγηση για συγκεκριμένα ζητήματα.",
-    targetAudienceEn: "Anyone wanting personal guidance for specific issues.",
-    duration: "60 λεπτά / 60 minutes",
-    format: "coach",
-    category: "coaching",
-    image: "/assets/coaching-session.jpg"
   }
 ];
