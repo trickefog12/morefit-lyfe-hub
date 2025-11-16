@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SplashScreenManager } from "@/components/SplashScreen";
+import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { useDeepLinking } from "@/hooks/useDeepLinking";
 import { useStatusBar } from "@/hooks/useStatusBar";
 import { lazy, Suspense } from "react";
@@ -36,6 +37,7 @@ const AppContent = () => {
   
   return (
     <>
+      <OfflineIndicator />
       <Toaster />
       <Sonner />
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
