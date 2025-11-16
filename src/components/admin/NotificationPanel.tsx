@@ -5,8 +5,11 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Bell, AlertCircle, CheckCircle, AlertTriangle, Info } from "lucide-react";
-import { format } from "date-fns";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Bell, AlertCircle, CheckCircle, AlertTriangle, Info, X } from "lucide-react";
+import { format, subDays, startOfDay, endOfDay } from "date-fns";
 
 interface AuditLog {
   id: string;
@@ -21,21 +24,58 @@ export const NotificationPanel = () => {
   const [lastViewedTime, setLastViewedTime] = useState<string>(
     localStorage.getItem('lastViewedNotifications') || new Date().toISOString()
   );
+  const [severityFilter, setSeverityFilter] = useState<string>("all");
+  const [actionTypeFilter, setActionTypeFilter] = useState<string>("all");
+  const [dateRangeFilter, setDateRangeFilter] = useState<string>("all");
   const queryClient = useQueryClient();
 
-  const { data: recentActions } = useQuery({
+  const { data: allActions } = useQuery({
     queryKey: ['notification-history'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('audit_logs')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(100); // Fetch more for filtering
       
       if (error) throw error;
       return data as AuditLog[];
     }
   });
+
+  // Apply filters
+  const recentActions = allActions?.filter(action => {
+    // Date range filter
+    if (dateRangeFilter !== "all") {
+      const actionDate = new Date(action.created_at);
+      const now = new Date();
+      
+      switch (dateRangeFilter) {
+        case "today":
+          if (actionDate < startOfDay(now)) return false;
+          break;
+        case "week":
+          if (actionDate < subDays(now, 7)) return false;
+          break;
+        case "month":
+          if (actionDate < subDays(now, 30)) return false;
+          break;
+      }
+    }
+
+    // Action type filter
+    if (actionTypeFilter !== "all" && action.action_type !== actionTypeFilter) {
+      return false;
+    }
+
+    // Severity filter
+    if (severityFilter !== "all") {
+      const severity = getActionSeverity(action.action_type);
+      if (severity !== severityFilter) return false;
+    }
+
+    return true;
+  }).slice(0, 20); // Limit to 20 after filtering
 
   // Subscribe to real-time changes
   useEffect(() => {
@@ -68,9 +108,20 @@ export const NotificationPanel = () => {
     }
   };
 
-  const unreadCount = recentActions?.filter(
+  const unreadCount = allActions?.filter(
     action => new Date(action.created_at) > new Date(lastViewedTime)
   ).length || 0;
+
+  const clearFilters = () => {
+    setSeverityFilter("all");
+    setActionTypeFilter("all");
+    setDateRangeFilter("all");
+  };
+
+  const hasActiveFilters = severityFilter !== "all" || actionTypeFilter !== "all" || dateRangeFilter !== "all";
+
+  // Get unique action types for filter
+  const uniqueActionTypes = Array.from(new Set(allActions?.map(a => a.action_type) || []));
 
   const getActionLabel = (actionType: string) => {
     switch (actionType) {
@@ -147,10 +198,76 @@ export const NotificationPanel = () => {
         <SheetHeader>
           <SheetTitle>Notification History</SheetTitle>
           <SheetDescription>
-            Recent admin actions in the last 20 entries
+            Filter and review recent admin actions
           </SheetDescription>
         </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-120px)] mt-6">
+
+        {/* Filters */}
+        <div className="space-y-4 mt-6 pb-4 border-b">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label className="text-xs">Severity</Label>
+              <Select value={severityFilter} onValueChange={setSeverityFilter}>
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Levels</SelectItem>
+                  <SelectItem value="destructive">Critical</SelectItem>
+                  <SelectItem value="warning">Warning</SelectItem>
+                  <SelectItem value="success">Success</SelectItem>
+                  <SelectItem value="default">Info</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs">Date Range</Label>
+              <Select value={dateRangeFilter} onValueChange={setDateRangeFilter}>
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Time</SelectItem>
+                  <SelectItem value="today">Today</SelectItem>
+                  <SelectItem value="week">Last 7 Days</SelectItem>
+                  <SelectItem value="month">Last 30 Days</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs">Action Type</Label>
+            <Select value={actionTypeFilter} onValueChange={setActionTypeFilter}>
+              <SelectTrigger className="h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Actions</SelectItem>
+                {uniqueActionTypes.map(type => (
+                  <SelectItem key={type} value={type}>
+                    {getActionLabel(type)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFilters}
+              className="w-full"
+            >
+              <X className="h-4 w-4 mr-2" />
+              Clear Filters
+            </Button>
+          )}
+        </div>
+
+        <ScrollArea className="h-[calc(100vh-380px)] mt-4">
           <div className="space-y-4 pr-4">
             {recentActions && recentActions.length > 0 ? (
               recentActions.map((action) => {
