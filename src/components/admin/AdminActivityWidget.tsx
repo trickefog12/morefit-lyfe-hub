@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,8 @@ interface AuditLog {
 }
 
 export const AdminActivityWidget = () => {
+  const queryClient = useQueryClient();
+  
   const { data: stats, isLoading } = useQuery({
     queryKey: ['admin-activity-stats'],
     queryFn: async () => {
@@ -69,6 +72,30 @@ export const AdminActivityWidget = () => {
       };
     }
   });
+
+  // Subscribe to real-time changes
+  useEffect(() => {
+    const channel = supabase
+      .channel('activity-widget-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'audit_logs'
+        },
+        (payload) => {
+          console.log('Activity widget - audit log change detected:', payload);
+          // Invalidate queries to refetch stats
+          queryClient.invalidateQueries({ queryKey: ['admin-activity-stats'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const getActionLabel = (actionType: string) => {
     switch (actionType) {
