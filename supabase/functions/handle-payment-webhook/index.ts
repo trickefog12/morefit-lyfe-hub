@@ -101,9 +101,43 @@ serve(async (req) => {
 
       console.log("Purchase record created successfully for session:", session.id);
 
-      // TODO: Send purchase confirmation email with download link
-      // You can implement this by creating a send-purchase-email edge function
-      // and invoking it here with the purchase details
+      // Get product details and user info for email
+      const { data: product } = await supabase
+        .from("products")
+        .select("name_en")
+        .eq("sku", session.metadata.product_sku)
+        .single();
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("email, full_name")
+        .eq("id", session.metadata.user_id)
+        .single();
+
+      if (product && profile) {
+        // Send purchase confirmation email
+        const downloadUrl = `${Deno.env.get("SITE_URL") || "https://your-site.com"}/download/${downloadToken}`;
+        
+        const { error: emailError } = await supabase.functions.invoke("send-purchase-email", {
+          body: {
+            type: "purchase_confirmation",
+            to: profile.email,
+            data: {
+              customerName: profile.full_name || "Valued Customer",
+              productName: product.name_en,
+              amountPaid: (session.amount_total || 0) / 100,
+              downloadToken,
+              downloadUrl,
+            },
+          },
+        });
+
+        if (emailError) {
+          console.error("Failed to send purchase confirmation email:", emailError);
+        } else {
+          console.log("Purchase confirmation email sent successfully");
+        }
+      }
     }
 
     // Handle payment_intent.payment_failed event
