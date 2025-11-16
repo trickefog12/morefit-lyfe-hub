@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertCircle, CheckCircle, AlertTriangle, Info } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -136,9 +137,16 @@ export const AuditLog = () => {
           if (payload.eventType === 'INSERT' && payload.new) {
             const log = payload.new as AuditLog;
             const severity = getActionSeverity(log.action_type);
+            const IconComponent = getSeverityIcon(severity);
+            
             toast({
               title: "New Admin Action",
-              description: `${log.admin_email} performed: ${getActionLabel(log.action_type)}`,
+              description: (
+                <div className="flex items-center gap-2">
+                  <IconComponent className="h-4 w-4" />
+                  <span>{log.admin_email} performed: {getActionLabel(log.action_type)}</span>
+                </div>
+              ),
               variant: severity,
             });
           }
@@ -204,6 +212,19 @@ export const AuditLog = () => {
         return 'success';
       default:
         return 'default';
+    }
+  };
+
+  const getSeverityIcon = (severity: "default" | "destructive" | "success" | "warning") => {
+    switch (severity) {
+      case 'destructive':
+        return AlertCircle;
+      case 'warning':
+        return AlertTriangle;
+      case 'success':
+        return CheckCircle;
+      default:
+        return Info;
     }
   };
 
