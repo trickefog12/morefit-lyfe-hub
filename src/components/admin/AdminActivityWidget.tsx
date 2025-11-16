@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
-import { Shield, TrendingUp, Activity } from "lucide-react";
+import { Shield, TrendingUp, Activity, AlertCircle, CheckCircle, AlertTriangle, Info } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { toast } from "@/hooks/use-toast";
 
@@ -92,9 +92,16 @@ export const AdminActivityWidget = () => {
           if (payload.eventType === 'INSERT' && payload.new) {
             const action = payload.new as AuditLog;
             const severity = getActionSeverity(action.action_type);
+            const IconComponent = getSeverityIcon(severity);
+            
             toast({
               title: "New Admin Action",
-              description: `${action.admin_email} performed: ${getActionLabel(action.action_type)}`,
+              description: (
+                <div className="flex items-center gap-2">
+                  <IconComponent className="h-4 w-4" />
+                  <span>{action.admin_email} performed: {getActionLabel(action.action_type)}</span>
+                </div>
+              ),
               variant: severity,
             });
           }
@@ -137,6 +144,19 @@ export const AdminActivityWidget = () => {
         return 'success';
       default:
         return 'default';
+    }
+  };
+
+  const getSeverityIcon = (severity: "default" | "destructive" | "success" | "warning") => {
+    switch (severity) {
+      case 'destructive':
+        return AlertCircle;
+      case 'warning':
+        return AlertTriangle;
+      case 'success':
+        return CheckCircle;
+      default:
+        return Info;
     }
   };
 
