@@ -7,6 +7,7 @@ import { ProductManagement } from "@/components/admin/ProductManagement";
 import { PurchaseList } from "@/components/admin/PurchaseList";
 import { ReviewModeration } from "@/components/admin/ReviewModeration";
 import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
+import { DownloadAnalytics } from "@/components/admin/DownloadAnalytics";
 import { UserManagement } from "@/components/admin/UserManagement";
 import { RevenueReports } from "@/components/admin/RevenueReports";
 import { FileUpload } from "@/components/admin/FileUpload";
@@ -26,7 +27,7 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-7">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-8">
             <TabsTrigger value="overview" className="gap-2">
               <BarChart className="h-4 w-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -54,6 +55,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="revenue" className="gap-2">
               <DollarSign className="h-4 w-4" />
               <span className="hidden sm:inline">Revenue</span>
+            </TabsTrigger>
+            <TabsTrigger value="downloads" className="gap-2">
+              <BarChart className="h-4 w-4" />
+              <span className="hidden sm:inline">Downloads</span>
             </TabsTrigger>
           </TabsList>
 
@@ -134,6 +139,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="revenue">
             <RevenueReports />
+          </TabsContent>
+
+          <TabsContent value="downloads">
+            <DownloadAnalytics />
           </TabsContent>
         </Tabs>
       </main>
