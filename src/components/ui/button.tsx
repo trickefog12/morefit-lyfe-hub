@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import { useHaptics } from "@/hooks/useHaptics";
 
 import { cn } from "@/lib/utils";
 
@@ -34,12 +35,44 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  haptic?: boolean | 'light' | 'medium' | 'heavy';
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, haptic = true, onClick, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
-    return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+    const haptics = useHaptics();
+
+    const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+      // Trigger haptic feedback before onClick
+      if (haptic && haptics.isAvailable) {
+        switch (haptic) {
+          case 'light':
+            await haptics.light();
+            break;
+          case 'heavy':
+            await haptics.heavy();
+            break;
+          case 'medium':
+          case true:
+          default:
+            await haptics.medium();
+            break;
+        }
+      }
+
+      // Call original onClick handler
+      onClick?.(e);
+    };
+
+    return (
+      <Comp 
+        className={cn(buttonVariants({ variant, size, className }))} 
+        ref={ref} 
+        onClick={handleClick}
+        {...props} 
+      />
+    );
   },
 );
 Button.displayName = "Button";
