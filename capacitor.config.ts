@@ -28,6 +28,16 @@ const config: CapacitorConfig = {
     scheme: "morefitlyfe"
   },
   plugins: {
+    StatusBar: {
+      // iOS configuration
+      iosOverlaysWebView: false,
+      iosStyle: 'light', // White text/icons on iOS
+      iosStatusBarPadding: true,
+      // Android configuration  
+      androidOverlaysWebView: false,
+      backgroundColor: '#FF6B35', // Brand orange for Android
+      androidStyle: 'light' // White text/icons on Android
+    },
     SplashScreen: {
       launchShowDuration: 2000,
       launchAutoHide: true,

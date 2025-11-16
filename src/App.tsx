@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SplashScreenManager } from "@/components/SplashScreen";
 import { useDeepLinking } from "@/hooks/useDeepLinking";
+import { useStatusBar } from "@/hooks/useStatusBar";
 import { lazy, Suspense } from "react";
 
 // Eager load home page for instant display
@@ -26,6 +27,12 @@ const queryClient = new QueryClient();
 
 const AppContent = () => {
   useDeepLinking();
+  
+  // Configure status bar with brand colors
+  useStatusBar({
+    backgroundColor: '#FF6B35', // Brand orange
+    style: 'light' // White icons/text for better contrast on orange
+  });
   
   return (
     <>

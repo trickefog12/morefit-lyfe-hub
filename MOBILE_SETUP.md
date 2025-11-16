@@ -48,9 +48,48 @@ Place icons in `android/app/src/main/res/`:
 - mipmap-xxhdpi/ic_launcher.png (144x144)
 - mipmap-xxxhdpi/ic_launcher.png (192x192)
 
-## Splash Screen Configuration
+## Status Bar & Navigation Bar Customization
 
-A branded splash screen has been configured with:
+The app is configured with your brand colors for a native feel:
+
+### iOS
+- **Status bar style**: Light (white icons and text)
+- **Background**: Matches your app's header background
+- **No overlay**: Status bar has its own dedicated space
+
+### Android
+- **Status bar background**: `#FF6B35` (brand orange)
+- **Status bar style**: Light (white icons and text)
+- **Navigation bar**: Matches system theme
+- **No overlay**: Status bar and navigation bar have dedicated space
+
+### Dynamic Status Bar Colors
+
+If you want different status bar colors for different pages, you can use the `StatusBarController` component:
+
+```typescript
+// In App.tsx, add the StatusBarController
+import { StatusBarController } from '@/components/StatusBarController';
+
+// Inside AppContent component
+<StatusBarController />
+```
+
+Or control it manually on specific pages:
+
+```typescript
+import { setStatusBarColor, setStatusBarStyle } from '@/hooks/useStatusBar';
+
+// In your page component
+useEffect(() => {
+  setStatusBarColor('#F7931E'); // Custom color for this page
+  setStatusBarStyle('light'); // White icons
+}, []);
+```
+
+## Deep Linking Configuration
+
+## Splash Screen Configuration
 - 2-second display duration
 - Smooth fade-out animation (500ms)
 - Orange gradient background matching brand colors
