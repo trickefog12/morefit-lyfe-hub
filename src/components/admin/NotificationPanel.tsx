@@ -30,6 +30,7 @@ export const NotificationPanel = () => {
   const [severityFilter, setSeverityFilter] = useState<string>("all");
   const [actionTypeFilter, setActionTypeFilter] = useState<string>("all");
   const [dateRangeFilter, setDateRangeFilter] = useState<string>("all");
+  const [adminUserFilter, setAdminUserFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
@@ -48,6 +49,7 @@ export const NotificationPanel = () => {
   const severityFilterRef = useRef<HTMLButtonElement>(null);
   const dateRangeFilterRef = useRef<HTMLButtonElement>(null);
   const actionTypeFilterRef = useRef<HTMLButtonElement>(null);
+  const adminUserFilterRef = useRef<HTMLButtonElement>(null);
   const notificationRefs = useRef<(HTMLDivElement | null)[]>([]);
   const lastNotificationCountRef = useRef<number>(0);
 
@@ -175,6 +177,11 @@ export const NotificationPanel = () => {
       return false;
     }
 
+    // Admin user filter
+    if (adminUserFilter !== "all" && action.admin_email !== adminUserFilter) {
+      return false;
+    }
+
     // Severity filter
     if (severityFilter !== "all") {
       const severity = getActionSeverity(action.action_type);
@@ -274,14 +281,16 @@ export const NotificationPanel = () => {
     setSeverityFilter("all");
     setActionTypeFilter("all");
     setDateRangeFilter("all");
+    setAdminUserFilter("all");
     setSearchTerm("");
     setSelectedIndex(-1);
   };
 
-  const hasActiveFilters = severityFilter !== "all" || actionTypeFilter !== "all" || dateRangeFilter !== "all" || searchTerm.trim() !== "";
+  const hasActiveFilters = severityFilter !== "all" || actionTypeFilter !== "all" || dateRangeFilter !== "all" || adminUserFilter !== "all" || searchTerm.trim() !== "";
 
-  // Get unique action types for filter
+  // Get unique action types and admin users for filters
   const uniqueActionTypes = Array.from(new Set(allActions?.map(a => a.action_type) || []));
+  const uniqueAdminUsers = Array.from(new Set(allActions?.map(a => a.admin_email) || [])).sort();
 
   // Group notifications by date
   const groupedNotifications = recentActions?.reduce((groups, action) => {
@@ -560,21 +569,40 @@ export const NotificationPanel = () => {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="action-type-filter" className="text-xs">Action Type</Label>
-            <Select value={actionTypeFilter} onValueChange={setActionTypeFilter}>
-              <SelectTrigger id="action-type-filter" className="h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Actions</SelectItem>
-                {uniqueActionTypes.map(type => (
-                  <SelectItem key={type} value={type}>
-                    {getActionLabel(type)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="action-type-filter" className="text-xs">Action Type</Label>
+              <Select value={actionTypeFilter} onValueChange={setActionTypeFilter}>
+                <SelectTrigger id="action-type-filter" className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Actions</SelectItem>
+                  {uniqueActionTypes.map(type => (
+                    <SelectItem key={type} value={type}>
+                      {getActionLabel(type)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="admin-user-filter" className="text-xs">Admin User</Label>
+              <Select value={adminUserFilter} onValueChange={setAdminUserFilter}>
+                <SelectTrigger id="admin-user-filter" className="h-9" ref={adminUserFilterRef}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Admins</SelectItem>
+                  {uniqueAdminUsers.map(email => (
+                    <SelectItem key={email} value={email}>
+                      {email}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {hasActiveFilters && (
