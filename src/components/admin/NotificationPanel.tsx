@@ -8,9 +8,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Bell, AlertCircle, CheckCircle, AlertTriangle, Info, X, Search, CheckCheck, ChevronDown, ChevronRight } from "lucide-react";
+import { Bell, AlertCircle, CheckCircle, AlertTriangle, Info, X, Search, CheckCheck, ChevronDown, ChevronRight, BellRing, Volume2 } from "lucide-react";
 import { format, subDays, startOfDay, endOfDay, isToday, isYesterday, isThisWeek } from "date-fns";
+import { playNotificationSound, showBrowserNotification, requestNotificationPermission } from "@/lib/notificationSound";
 
 interface AuditLog {
   id: string;
@@ -32,12 +34,22 @@ export const NotificationPanel = () => {
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set(["today", "yesterday", "thisWeek", "older"]));
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(
+    localStorage.getItem('notificationSoundEnabled') !== 'false'
+  );
+  const [browserNotificationsEnabled, setBrowserNotificationsEnabled] = useState<boolean>(
+    localStorage.getItem('browserNotificationsEnabled') === 'true'
+  );
+  const [notificationPermissionGranted, setNotificationPermissionGranted] = useState<boolean>(
+    typeof Notification !== 'undefined' && Notification.permission === 'granted'
+  );
   const queryClient = useQueryClient();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const severityFilterRef = useRef<HTMLButtonElement>(null);
   const dateRangeFilterRef = useRef<HTMLButtonElement>(null);
   const actionTypeFilterRef = useRef<HTMLButtonElement>(null);
   const notificationRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const lastNotificationCountRef = useRef<number>(0);
 
   // Keyboard shortcut listener
   useEffect(() => {
@@ -179,12 +191,31 @@ export const NotificationPanel = () => {
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
           schema: 'public',
           table: 'audit_logs'
         },
-        () => {
+        (payload) => {
           queryClient.invalidateQueries({ queryKey: ['notification-history'] });
+          
+          // Check if this is a new notification (not from initial load)
+          const currentCount = allActions?.length || 0;
+          if (lastNotificationCountRef.current > 0 && currentCount > lastNotificationCountRef.current) {
+            // Play sound if enabled
+            if (soundEnabled) {
+              playNotificationSound();
+            }
+            
+            // Show browser notification if enabled
+            if (browserNotificationsEnabled && notificationPermissionGranted) {
+              const newAction = payload.new as AuditLog;
+              showBrowserNotification('New Admin Action', {
+                body: `${getActionLabel(newAction.action_type)} by ${newAction.admin_email}`,
+                tag: newAction.id,
+                requireInteraction: false,
+              });
+            }
+          }
         }
       )
       .subscribe();
@@ -192,7 +223,14 @@ export const NotificationPanel = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [queryClient]);
+  }, [queryClient, soundEnabled, browserNotificationsEnabled, notificationPermissionGranted, allActions]);
+
+  // Update last notification count
+  useEffect(() => {
+    if (allActions) {
+      lastNotificationCountRef.current = allActions.length;
+    }
+  }, [allActions]);
 
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
@@ -286,6 +324,28 @@ export const NotificationPanel = () => {
       }
       return newSet;
     });
+  };
+
+  const handleSoundToggle = (enabled: boolean) => {
+    setSoundEnabled(enabled);
+    localStorage.setItem('notificationSoundEnabled', String(enabled));
+  };
+
+  const handleBrowserNotificationsToggle = async (enabled: boolean) => {
+    if (enabled) {
+      const granted = await requestNotificationPermission();
+      setNotificationPermissionGranted(granted);
+      setBrowserNotificationsEnabled(granted);
+      localStorage.setItem('browserNotificationsEnabled', String(granted));
+      
+      if (!granted) {
+        // Show a message to the user that permission was denied
+        console.log('Notification permission denied');
+      }
+    } else {
+      setBrowserNotificationsEnabled(false);
+      localStorage.setItem('browserNotificationsEnabled', 'false');
+    }
   };
 
   const getActionLabel = (actionType: string) => {
@@ -399,6 +459,42 @@ export const NotificationPanel = () => {
               </Button>
             </div>
           )}
+
+          {/* Notification Settings */}
+          <div className="mt-4 pt-4 border-t space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Volume2 className="h-4 w-4 text-muted-foreground" />
+                <Label htmlFor="sound-toggle" className="text-sm font-normal cursor-pointer">
+                  Sound Alerts
+                </Label>
+              </div>
+              <Switch
+                id="sound-toggle"
+                checked={soundEnabled}
+                onCheckedChange={handleSoundToggle}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <BellRing className="h-4 w-4 text-muted-foreground" />
+                <Label htmlFor="browser-notifications-toggle" className="text-sm font-normal cursor-pointer">
+                  Browser Notifications
+                </Label>
+              </div>
+              <Switch
+                id="browser-notifications-toggle"
+                checked={browserNotificationsEnabled}
+                onCheckedChange={handleBrowserNotificationsToggle}
+              />
+            </div>
+            {browserNotificationsEnabled && !notificationPermissionGranted && (
+              <p className="text-xs text-muted-foreground">
+                Permission denied. Please enable notifications in your browser settings.
+              </p>
+            )}
+          </div>
         </SheetHeader>
 
         {/* Filters */}
