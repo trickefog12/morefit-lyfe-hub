@@ -8,8 +8,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Bell, AlertCircle, CheckCircle, AlertTriangle, Info, X, Search, CheckCheck } from "lucide-react";
-import { format, subDays, startOfDay, endOfDay } from "date-fns";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Bell, AlertCircle, CheckCircle, AlertTriangle, Info, X, Search, CheckCheck, ChevronDown, ChevronRight } from "lucide-react";
+import { format, subDays, startOfDay, endOfDay, isToday, isYesterday, isThisWeek } from "date-fns";
 
 interface AuditLog {
   id: string;
@@ -30,6 +31,7 @@ export const NotificationPanel = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
+  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set(["today", "yesterday", "thisWeek", "older"]));
   const queryClient = useQueryClient();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const severityFilterRef = useRef<HTMLButtonElement>(null);
@@ -243,6 +245,49 @@ export const NotificationPanel = () => {
   // Get unique action types for filter
   const uniqueActionTypes = Array.from(new Set(allActions?.map(a => a.action_type) || []));
 
+  // Group notifications by date
+  const groupedNotifications = recentActions?.reduce((groups, action) => {
+    const actionDate = new Date(action.created_at);
+    let groupKey: string;
+
+    if (isToday(actionDate)) {
+      groupKey = "today";
+    } else if (isYesterday(actionDate)) {
+      groupKey = "yesterday";
+    } else if (isThisWeek(actionDate, { weekStartsOn: 1 })) {
+      groupKey = "thisWeek";
+    } else {
+      groupKey = "older";
+    }
+
+    if (!groups[groupKey]) {
+      groups[groupKey] = [];
+    }
+    groups[groupKey].push(action);
+    return groups;
+  }, {} as Record<string, typeof recentActions>);
+
+  const groupLabels = {
+    today: "Today",
+    yesterday: "Yesterday",
+    thisWeek: "This Week",
+    older: "Older"
+  };
+
+  const groupOrder = ["today", "yesterday", "thisWeek", "older"];
+
+  const toggleGroup = (groupKey: string) => {
+    setOpenGroups(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(groupKey)) {
+        newSet.delete(groupKey);
+      } else {
+        newSet.add(groupKey);
+      }
+      return newSet;
+    });
+  };
+
   const getActionLabel = (actionType: string) => {
     switch (actionType) {
       case 'reset_download_limit':
@@ -453,74 +498,105 @@ export const NotificationPanel = () => {
         <ScrollArea className="h-[calc(100vh-450px)] mt-4">
           <div className="space-y-4 pr-4">
             {recentActions && recentActions.length > 0 ? (
-              recentActions.map((action, index) => {
-                const severity = getActionSeverity(action.action_type);
-                const IconComponent = getSeverityIcon(severity);
-                const iconColor = getSeverityColor(severity);
-                const isUnread = new Date(action.created_at) > new Date(lastViewedTime);
-                const isExpanded = expandedNotifications.has(action.id);
-                const isSelected = selectedIndex === index;
+              groupOrder.map((groupKey) => {
+                const groupActions = groupedNotifications?.[groupKey];
+                if (!groupActions || groupActions.length === 0) return null;
+
+                const isGroupOpen = openGroups.has(groupKey);
+                const groupLabel = groupLabels[groupKey as keyof typeof groupLabels];
 
                 return (
-                  <div
-                    key={action.id}
-                    ref={el => notificationRefs.current[index] = el}
-                    className={`flex gap-3 p-3 rounded-lg border transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-                      isUnread ? 'bg-accent/50 border-accent' : 'bg-background'
-                    } ${isSelected ? 'ring-2 ring-primary shadow-md' : ''} hover:border-primary/50`}
-                    onClick={() => toggleExpanded(action.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        toggleExpanded(action.id);
-                      }
-                    }}
-                    tabIndex={0}
-                    role="button"
-                    aria-expanded={isExpanded}
-                    aria-label={`${getActionLabel(action.action_type)} by ${action.admin_email}`}
+                  <Collapsible
+                    key={groupKey}
+                    open={isGroupOpen}
+                    onOpenChange={() => toggleGroup(groupKey)}
                   >
-                    <div className={`flex-shrink-0 mt-1 ${iconColor}`}>
-                      <IconComponent className="h-5 w-5" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">
-                            {getActionLabel(action.action_type)}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            by {action.admin_email}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {isUnread && (
-                            <Badge variant="secondary" className="text-xs">
-                              New
-                            </Badge>
-                          )}
-                          {isSelected && (
-                            <kbd className="hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
-                              ↵
-                            </kbd>
-                          )}
-                        </div>
+                    <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-muted/50 rounded-lg transition-colors group">
+                      <div className="flex items-center gap-2">
+                        {isGroupOpen ? (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        )}
+                        <span className="font-semibold text-sm">{groupLabel}</span>
+                        <Badge variant="secondary" className="text-xs">
+                          {groupActions.length}
+                        </Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {format(new Date(action.created_at), "MMM d, yyyy 'at' h:mm a")}
-                      </p>
-                      
-                      {/* Expanded details */}
-                      {isExpanded && action.details && (
-                        <div className="mt-3 p-2 rounded bg-muted/50 border text-xs">
-                          <p className="font-medium mb-1">Details:</p>
-                          <pre className="whitespace-pre-wrap break-words font-mono">
-                            {JSON.stringify(action.details, null, 2)}
-                          </pre>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="space-y-3 mt-2">
+                      {groupActions.map((action, index) => {
+                        const severity = getActionSeverity(action.action_type);
+                        const IconComponent = getSeverityIcon(severity);
+                        const iconColor = getSeverityColor(severity);
+                        const isUnread = new Date(action.created_at) > new Date(lastViewedTime);
+                        const isExpanded = expandedNotifications.has(action.id);
+                        const isSelected = selectedIndex === index;
+
+                        return (
+                          <div
+                            key={action.id}
+                            ref={el => notificationRefs.current[index] = el}
+                            className={`flex gap-3 p-3 rounded-lg border transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                              isUnread ? 'bg-accent/50 border-accent' : 'bg-background'
+                            } ${isSelected ? 'ring-2 ring-primary shadow-md' : ''} hover:border-primary/50`}
+                            onClick={() => toggleExpanded(action.id)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                toggleExpanded(action.id);
+                              }
+                            }}
+                            tabIndex={0}
+                            role="button"
+                            aria-expanded={isExpanded}
+                            aria-label={`${getActionLabel(action.action_type)} by ${action.admin_email}`}
+                          >
+                            <div className={`flex-shrink-0 mt-1 ${iconColor}`}>
+                              <IconComponent className="h-5 w-5" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium">
+                                    {getActionLabel(action.action_type)}
+                                  </p>
+                                  <p className="text-sm text-muted-foreground">
+                                    by {action.admin_email}
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {isUnread && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      New
+                                    </Badge>
+                                  )}
+                                  {isSelected && (
+                                    <kbd className="hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
+                                      ↵
+                                    </kbd>
+                                  )}
+                                </div>
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {format(new Date(action.created_at), "MMM d, yyyy 'at' h:mm a")}
+                              </p>
+                              
+                              {/* Expanded details */}
+                              {isExpanded && action.details && (
+                                <div className="mt-3 p-2 rounded bg-muted/50 border text-xs">
+                                  <p className="font-medium mb-1">Details:</p>
+                                  <pre className="whitespace-pre-wrap break-words font-mono">
+                                    {JSON.stringify(action.details, null, 2)}
+                                  </pre>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </CollapsibleContent>
+                  </Collapsible>
                 );
               })
             ) : (
