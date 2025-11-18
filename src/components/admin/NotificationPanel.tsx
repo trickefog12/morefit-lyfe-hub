@@ -9,8 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Bell, AlertCircle, CheckCircle, AlertTriangle, Info, X, Search, CheckCheck, ChevronDown, ChevronRight, BellRing, Volume2 } from "lucide-react";
+import { Bell, AlertCircle, CheckCircle, AlertTriangle, Info, X, Search, CheckCheck, ChevronDown, ChevronRight, BellRing, Volume2, Trash2 } from "lucide-react";
 import { format, subDays, startOfDay, endOfDay, isToday, isYesterday, isThisWeek } from "date-fns";
 import { playNotificationSound, showBrowserNotification, requestNotificationPermission } from "@/lib/notificationSound";
 
@@ -44,6 +45,7 @@ export const NotificationPanel = () => {
   const [notificationPermissionGranted, setNotificationPermissionGranted] = useState<boolean>(
     typeof Notification !== 'undefined' && Notification.permission === 'granted'
   );
+  const [selectedNotifications, setSelectedNotifications] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const severityFilterRef = useRef<HTMLButtonElement>(null);
