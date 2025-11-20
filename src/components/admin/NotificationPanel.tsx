@@ -86,6 +86,12 @@ export const NotificationPanel = () => {
         toggleSelectAll();
       }
 
+      // Ctrl+I or Cmd+I to invert selection (when panel is open)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'i' && open) {
+        e.preventDefault();
+        invertSelection();
+      }
+
       // Ctrl+D or Cmd+D to delete selected (when panel is open and items are selected)
       if ((e.ctrlKey || e.metaKey) && e.key === 'd' && open && selectedNotifications.size > 0) {
         e.preventDefault();
@@ -449,6 +455,19 @@ export const NotificationPanel = () => {
     }
   };
 
+  const invertSelection = () => {
+    const allIds = new Set(recentActions?.map(a => a.id) || []);
+    const newSelection = new Set<string>();
+    
+    allIds.forEach(id => {
+      if (!selectedNotifications.has(id)) {
+        newSelection.add(id);
+      }
+    });
+    
+    setSelectedNotifications(newSelection);
+  };
+
   const markSelectedAsRead = () => {
     const now = new Date().toISOString();
     setLastViewedTime(now);
@@ -716,10 +735,15 @@ export const NotificationPanel = () => {
                   checked={selectedNotifications.size === recentActions.length && recentActions.length > 0}
                   onCheckedChange={toggleSelectAll}
                 />
-                <Label htmlFor="select-all" className="text-sm cursor-pointer">
+                <Label htmlFor="select-all" className="text-sm cursor-pointer flex items-center gap-2">
                   Select All ({recentActions.length})
-                  <kbd className="ml-2 hidden select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:inline-flex">
+                  <kbd className="ml-1 hidden select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:inline-flex">
                     <span className="text-xs">⌘</span>A
+                  </kbd>
+                  <span className="text-muted-foreground mx-1">|</span>
+                  <span className="text-xs text-muted-foreground">Invert</span>
+                  <kbd className="hidden select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:inline-flex">
+                    <span className="text-xs">⌘</span>I
                   </kbd>
                 </Label>
               </div>
