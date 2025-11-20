@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Bell, AlertCircle, CheckCircle, AlertTriangle, Info, X, Search, CheckCheck, ChevronDown, ChevronRight, BellRing, Volume2, Trash2 } from "lucide-react";
+import { Bell, AlertCircle, CheckCircle, AlertTriangle, Info, X, Search, CheckCheck, ChevronDown, ChevronRight, BellRing, Volume2, Trash2, Download, FileJson, FileSpreadsheet } from "lucide-react";
 import { format, subDays, startOfDay, endOfDay, isToday, isYesterday, isThisWeek } from "date-fns";
 import { playNotificationSound, showBrowserNotification, requestNotificationPermission } from "@/lib/notificationSound";
 
@@ -496,6 +496,74 @@ export const NotificationPanel = () => {
     }
   };
 
+  const exportSelectedAsCSV = () => {
+    const selectedActions = recentActions?.filter(a => selectedNotifications.has(a.id)) || [];
+    
+    if (selectedActions.length === 0) return;
+
+    // CSV headers
+    const headers = ['ID', 'Admin Email', 'Action Type', 'Date', 'Details'];
+    
+    // Convert data to CSV rows
+    const rows = selectedActions.map(action => {
+      const details = action.details ? JSON.stringify(action.details).replace(/"/g, '""') : '';
+      return [
+        action.id,
+        action.admin_email,
+        getActionLabel(action.action_type),
+        format(new Date(action.created_at), "yyyy-MM-dd HH:mm:ss"),
+        `"${details}"`
+      ].join(',');
+    });
+
+    // Combine headers and rows
+    const csv = [headers.join(','), ...rows].join('\n');
+
+    // Create blob and download
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `notifications_${format(new Date(), 'yyyy-MM-dd_HH-mm-ss')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportSelectedAsJSON = () => {
+    const selectedActions = recentActions?.filter(a => selectedNotifications.has(a.id)) || [];
+    
+    if (selectedActions.length === 0) return;
+
+    // Format data for JSON export
+    const exportData = selectedActions.map(action => ({
+      id: action.id,
+      admin_email: action.admin_email,
+      action_type: action.action_type,
+      action_label: getActionLabel(action.action_type),
+      created_at: action.created_at,
+      formatted_date: format(new Date(action.created_at), "yyyy-MM-dd HH:mm:ss"),
+      details: action.details
+    }));
+
+    // Create JSON string with formatting
+    const json = JSON.stringify(exportData, null, 2);
+
+    // Create blob and download
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `notifications_${format(new Date(), 'yyyy-MM-dd_HH-mm-ss')}.json`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetTrigger asChild>
@@ -535,33 +603,59 @@ export const NotificationPanel = () => {
           
           {/* Bulk action buttons */}
           {selectedNotifications.size > 0 && (
-            <div className="mt-4 flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={markSelectedAsRead}
-                className="flex-1"
-                title="Mark selected as read (Ctrl+M)"
-              >
-                <CheckCheck className="h-4 w-4 mr-2" />
-                Mark as Read ({selectedNotifications.size})
-                <kbd className="ml-auto hidden select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
-                  <span className="text-xs">⌘</span>M
-                </kbd>
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={deleteSelected}
-                className="flex-1"
-                title="Delete selected (Ctrl+D)"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete ({selectedNotifications.size})
-                <kbd className="ml-auto hidden select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
-                  <span className="text-xs">⌘</span>D
-                </kbd>
-              </Button>
+            <div className="mt-4 space-y-2">
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={markSelectedAsRead}
+                  className="flex-1"
+                  title="Mark selected as read (Ctrl+M)"
+                >
+                  <CheckCheck className="h-4 w-4 mr-2" />
+                  Mark as Read ({selectedNotifications.size})
+                  <kbd className="ml-auto hidden select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
+                    <span className="text-xs">⌘</span>M
+                  </kbd>
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={deleteSelected}
+                  className="flex-1"
+                  title="Delete selected (Ctrl+D)"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete ({selectedNotifications.size})
+                  <kbd className="ml-auto hidden select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
+                    <span className="text-xs">⌘</span>D
+                  </kbd>
+                </Button>
+              </div>
+              
+              {/* Export buttons */}
+              <div className="flex gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={exportSelectedAsCSV}
+                  className="flex-1"
+                  title="Export selected as CSV"
+                >
+                  <FileSpreadsheet className="h-4 w-4 mr-2" />
+                  Export CSV
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={exportSelectedAsJSON}
+                  className="flex-1"
+                  title="Export selected as JSON"
+                >
+                  <FileJson className="h-4 w-4 mr-2" />
+                  Export JSON
+                </Button>
+              </div>
             </div>
           )}
 
