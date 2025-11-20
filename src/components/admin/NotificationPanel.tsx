@@ -80,6 +80,18 @@ export const NotificationPanel = () => {
         markAllAsRead();
       }
 
+      // Ctrl+A or Cmd+A to select all (when panel is open)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a' && open) {
+        e.preventDefault();
+        toggleSelectAll();
+      }
+
+      // Ctrl+D or Cmd+D to delete selected (when panel is open and items are selected)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'd' && open && selectedNotifications.size > 0) {
+        e.preventDefault();
+        deleteSelected();
+      }
+
       // Arrow navigation and Enter (when panel is open and not focused on search)
       if (open && document.activeElement !== searchInputRef.current) {
         if (e.key === 'ArrowDown') {
@@ -125,7 +137,7 @@ export const NotificationPanel = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [open, selectedIndex]);
+  }, [open, selectedIndex, selectedNotifications.size]);
 
   const { data: allActions } = useQuery({
     queryKey: ['notification-history'],
@@ -254,6 +266,7 @@ export const NotificationPanel = () => {
     } else {
       // Reset selection when closing
       setSelectedIndex(-1);
+      setSelectedNotifications(new Set());
     }
   };
 
@@ -415,6 +428,49 @@ export const NotificationPanel = () => {
     }
   };
 
+  // Bulk action functions
+  const toggleNotificationSelection = (notificationId: string) => {
+    setSelectedNotifications(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(notificationId)) {
+        newSet.delete(notificationId);
+      } else {
+        newSet.add(notificationId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedNotifications.size === recentActions?.length) {
+      setSelectedNotifications(new Set());
+    } else {
+      setSelectedNotifications(new Set(recentActions?.map(a => a.id) || []));
+    }
+  };
+
+  const markSelectedAsRead = () => {
+    const now = new Date().toISOString();
+    setLastViewedTime(now);
+    localStorage.setItem('lastViewedNotifications', now);
+    setSelectedNotifications(new Set());
+  };
+
+  const deleteSelected = async () => {
+    try {
+      const idsToDelete = Array.from(selectedNotifications);
+      await supabase
+        .from('audit_logs')
+        .delete()
+        .in('id', idsToDelete);
+      
+      setSelectedNotifications(new Set());
+      queryClient.invalidateQueries({ queryKey: ['notification-history'] });
+    } catch (error) {
+      console.error('Error deleting notifications:', error);
+    }
+  };
+
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetTrigger asChild>
@@ -452,8 +508,37 @@ export const NotificationPanel = () => {
             </div>
           </div>
           
+          {/* Bulk action buttons */}
+          {selectedNotifications.size > 0 && (
+            <div className="mt-4 flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={markSelectedAsRead}
+                className="flex-1"
+                title="Mark selected as read"
+              >
+                <CheckCheck className="h-4 w-4 mr-2" />
+                Mark as Read ({selectedNotifications.size})
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={deleteSelected}
+                className="flex-1"
+                title="Delete selected (Ctrl+D)"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete ({selectedNotifications.size})
+                <kbd className="ml-auto hidden select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
+                  <span className="text-xs">⌘</span>D
+                </kbd>
+              </Button>
+            </div>
+          )}
+
           {/* Mark all as read button */}
-          {unreadCount > 0 && (
+          {unreadCount > 0 && selectedNotifications.size === 0 && (
             <div className="mt-4">
               <Button
                 variant="outline"
@@ -623,6 +708,23 @@ export const NotificationPanel = () => {
 
         <ScrollArea className="h-[calc(100vh-450px)] mt-4">
           <div className="space-y-4 pr-4">
+            {/* Select All Checkbox */}
+            {recentActions && recentActions.length > 0 && (
+              <div className="flex items-center gap-2 px-2 py-1 border-b">
+                <Checkbox
+                  id="select-all"
+                  checked={selectedNotifications.size === recentActions.length && recentActions.length > 0}
+                  onCheckedChange={toggleSelectAll}
+                />
+                <Label htmlFor="select-all" className="text-sm cursor-pointer">
+                  Select All ({recentActions.length})
+                  <kbd className="ml-2 hidden select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:inline-flex">
+                    <span className="text-xs">⌘</span>A
+                  </kbd>
+                </Label>
+              </div>
+            )}
+
             {recentActions && recentActions.length > 0 ? (
               groupOrder.map((groupKey) => {
                 const groupActions = groupedNotifications?.[groupKey];
@@ -658,6 +760,7 @@ export const NotificationPanel = () => {
                         const isUnread = new Date(action.created_at) > new Date(lastViewedTime);
                         const isExpanded = expandedNotifications.has(action.id);
                         const isSelected = selectedIndex === index;
+                        const isChecked = selectedNotifications.has(action.id);
 
                         return (
                           <div
@@ -665,7 +768,7 @@ export const NotificationPanel = () => {
                             ref={el => notificationRefs.current[index] = el}
                             className={`flex gap-3 p-3 rounded-lg border transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                               isUnread ? 'bg-accent/50 border-accent' : 'bg-background'
-                            } ${isSelected ? 'ring-2 ring-primary shadow-md' : ''} hover:border-primary/50`}
+                            } ${isSelected ? 'ring-2 ring-primary shadow-md' : ''} ${isChecked ? 'bg-primary/10' : ''} hover:border-primary/50`}
                             onClick={() => toggleExpanded(action.id)}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter' || e.key === ' ') {
@@ -678,6 +781,12 @@ export const NotificationPanel = () => {
                             aria-expanded={isExpanded}
                             aria-label={`${getActionLabel(action.action_type)} by ${action.admin_email}`}
                           >
+                            <Checkbox
+                              checked={isChecked}
+                              onCheckedChange={() => toggleNotificationSelection(action.id)}
+                              onClick={(e) => e.stopPropagation()}
+                              className="mt-1"
+                            />
                             <div className={`flex-shrink-0 mt-1 ${iconColor}`}>
                               <IconComponent className="h-5 w-5" />
                             </div>
