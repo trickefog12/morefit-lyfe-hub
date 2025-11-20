@@ -80,6 +80,12 @@ export const NotificationPanel = () => {
         markAllAsRead();
       }
 
+      // Ctrl+M or Cmd+M to mark selected as read (when items are selected)
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'm' && open && selectedNotifications.size > 0) {
+        e.preventDefault();
+        markSelectedAsRead();
+      }
+
       // Ctrl+A or Cmd+A to select all (when panel is open)
       if ((e.ctrlKey || e.metaKey) && e.key === 'a' && open) {
         e.preventDefault();
@@ -535,10 +541,13 @@ export const NotificationPanel = () => {
                 size="sm"
                 onClick={markSelectedAsRead}
                 className="flex-1"
-                title="Mark selected as read"
+                title="Mark selected as read (Ctrl+M)"
               >
                 <CheckCheck className="h-4 w-4 mr-2" />
                 Mark as Read ({selectedNotifications.size})
+                <kbd className="ml-auto hidden select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
+                  <span className="text-xs">⌘</span>M
+                </kbd>
               </Button>
               <Button
                 variant="destructive"
