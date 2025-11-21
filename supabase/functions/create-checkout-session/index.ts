@@ -129,6 +129,21 @@ serve(async (req) => {
 
     console.log("Checkout session created successfully:", session.id);
 
+    // Store pending checkout for validation in webhook
+    const { error: pendingCheckoutError } = await supabase
+      .from("pending_checkouts")
+      .insert({
+        stripe_session_id: session.id,
+        user_id: user.id,
+        product_sku: product.sku,
+        expected_amount: product.price,
+      });
+
+    if (pendingCheckoutError) {
+      console.error("Failed to store pending checkout:", pendingCheckoutError);
+      // Continue anyway - webhook will still work with metadata fallback
+    }
+
     return new Response(
       JSON.stringify({ 
         sessionId: session.id,

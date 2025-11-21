@@ -27,18 +27,58 @@ serve(async (req) => {
   }
 
   try {
+    // Verify authentication
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "Authorization required" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Create authenticated Supabase client
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      {
+        global: { headers: { Authorization: authHeader } }
+      }
+    );
+
+    // Verify user is authenticated
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ error: "Invalid authentication" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Check admin role
+    const { data: isAdmin } = await supabaseClient.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'admin'
+    });
+
+    if (!isAdmin) {
+      return new Response(
+        JSON.stringify({ error: "Admin access required" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const { actionType, actionLabel, performedBy, target, details }: NotificationRequest = await req.json();
 
     console.log("Processing notification for action:", actionType);
 
-    // Create Supabase client
-    const supabaseClient = createClient(
+    // Create service role client for admin operations
+    const supabaseServiceClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
     // Get all admins who have notifications enabled for this action type
-    const { data: preferences, error: prefsError } = await supabaseClient
+    const { data: preferences, error: prefsError } = await supabaseServiceClient
       .from("admin_notification_preferences")
       .select(`
         admin_id,
@@ -61,7 +101,7 @@ serve(async (req) => {
     if (!preferences || preferences.length === 0) {
       console.log("No specific preferences found, checking for all admins");
       
-      const { data: allAdmins, error: adminsError } = await supabaseClient
+      const { data: allAdmins, error: adminsError } = await supabaseServiceClient
         .from("user_roles")
         .select(`
           user_id,

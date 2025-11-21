@@ -184,6 +184,51 @@ export type Database = {
           },
         ]
       }
+      pending_checkouts: {
+        Row: {
+          created_at: string
+          expected_amount: number
+          expires_at: string
+          id: string
+          product_sku: string
+          stripe_session_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expected_amount: number
+          expires_at?: string
+          id?: string
+          product_sku: string
+          stripe_session_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expected_amount?: number
+          expires_at?: string
+          id?: string
+          product_sku?: string
+          stripe_session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pending_checkouts_product_sku_fkey"
+            columns: ["product_sku"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["sku"]
+          },
+          {
+            foreignKeyName: "pending_checkouts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           active: boolean
