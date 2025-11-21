@@ -878,6 +878,11 @@ export const NotificationPanel = () => {
                 const isGroupOpen = openGroups.has(groupKey);
                 const groupLabel = groupLabels[groupKey as keyof typeof groupLabels];
 
+                // Calculate starting index for this group
+                const previousGroupsLength = groupOrder
+                  .slice(0, groupOrder.indexOf(groupKey))
+                  .reduce((sum, key) => sum + (groupedNotifications?.[key]?.length || 0), 0);
+
                 return (
                   <Collapsible
                     key={groupKey}
@@ -898,22 +903,23 @@ export const NotificationPanel = () => {
                       </div>
                     </CollapsibleTrigger>
                     <CollapsibleContent className="space-y-3 mt-2">
-                      {groupActions.map((action, index) => {
+                      {groupActions.map((action, groupIndex) => {
+                        const globalIndex = previousGroupsLength + groupIndex;
                         const severity = getActionSeverity(action.action_type);
                         const IconComponent = getSeverityIcon(severity);
                         const iconColor = getSeverityColor(severity);
                         const isUnread = new Date(action.created_at) > new Date(lastViewedTime);
                         const isExpanded = expandedNotifications.has(action.id);
-                        const isSelected = selectedIndex === index;
+                        const isSelected = selectedIndex === globalIndex;
                         const isChecked = selectedNotifications.has(action.id);
 
                         return (
                           <div
                             key={action.id}
-                            ref={el => notificationRefs.current[index] = el}
+                            ref={el => notificationRefs.current[globalIndex] = el}
                             className={`flex gap-3 p-3 rounded-lg border transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                               isUnread ? 'bg-accent/50 border-accent' : 'bg-background'
-                            } ${isSelected ? 'ring-2 ring-primary shadow-md' : ''} ${isChecked ? 'bg-primary/10' : ''} hover:border-primary/50`}
+                            } ${isSelected ? 'ring-2 ring-primary shadow-lg bg-primary/5 border-primary' : ''} ${isChecked ? 'bg-primary/10' : ''} hover:border-primary/50`}
                             onClick={() => toggleExpanded(action.id)}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter' || e.key === ' ') {
