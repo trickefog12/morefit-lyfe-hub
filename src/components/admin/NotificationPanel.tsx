@@ -917,9 +917,13 @@ export const NotificationPanel = () => {
                           <div
                             key={action.id}
                             ref={el => notificationRefs.current[globalIndex] = el}
-                            className={`flex gap-3 p-3 rounded-lg border transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                            className={`flex gap-3 p-3 rounded-lg border transition-all duration-300 ease-in-out cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                               isUnread ? 'bg-accent/50 border-accent' : 'bg-background'
-                            } ${isSelected ? 'ring-2 ring-primary shadow-lg bg-primary/5 border-primary' : ''} ${isChecked ? 'bg-primary/10' : ''} hover:border-primary/50`}
+                            } ${isSelected ? 'ring-2 ring-primary shadow-lg bg-primary/5 border-primary scale-[1.02]' : ''} ${isChecked ? 'bg-primary/10' : ''} hover:border-primary/50`}
+                            style={{
+                              transitionProperty: 'box-shadow, border-color, background-color, transform, opacity',
+                              transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+                            }}
                             onClick={() => toggleExpanded(action.id)}
                             onKeyDown={(e) => {
                               if (e.key === 'Enter' || e.key === ' ') {
