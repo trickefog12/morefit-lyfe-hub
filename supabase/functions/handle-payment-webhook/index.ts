@@ -54,13 +54,45 @@ serve(async (req) => {
         productSku: session.metadata?.product_sku,
       });
 
-      // Validate required metadata
-      if (!session.metadata?.user_id || !session.metadata?.product_sku) {
-        console.error("Missing required metadata in session:", session.id);
-        return new Response(
-          JSON.stringify({ error: "Invalid session metadata" }),
-          { status: 400 }
-        );
+      // Validate against server-side stored checkout data
+      const { data: pendingCheckout, error: checkoutError } = await supabase
+        .from("pending_checkouts")
+        .select("*")
+        .eq("stripe_session_id", session.id)
+        .single();
+
+      if (checkoutError || !pendingCheckout) {
+        console.error("No pending checkout found for session:", session.id);
+        
+        // Fallback to metadata validation (for backwards compatibility)
+        if (!session.metadata?.user_id || !session.metadata?.product_sku) {
+          console.error("Missing required metadata in session:", session.id);
+          return new Response(
+            JSON.stringify({ error: "Invalid session - no pending checkout or metadata" }),
+            { status: 400 }
+          );
+        }
+        console.warn("Using metadata fallback for session:", session.id);
+      }
+
+      // Use server-side data if available, otherwise fall back to metadata
+      const userId = pendingCheckout?.user_id || session.metadata?.user_id;
+      const productSku = pendingCheckout?.product_sku || session.metadata?.product_sku;
+      const expectedAmount = pendingCheckout?.expected_amount;
+
+      // Validate amount if we have expected amount
+      if (expectedAmount) {
+        const actualAmount = (session.amount_total || 0) / 100;
+        const expectedAmountNum = Number(expectedAmount);
+        
+        if (Math.abs(actualAmount - expectedAmountNum) > 0.01) {
+          console.error("Amount mismatch detected:", {
+            sessionId: session.id,
+            expected: expectedAmountNum,
+            actual: actualAmount,
+          });
+          // Log but don't block - could be legitimate currency conversion differences
+        }
       }
 
       // Check for existing purchase to prevent duplicates (idempotency)
@@ -78,12 +110,12 @@ serve(async (req) => {
       // Generate secure download token
       const downloadToken = crypto.randomUUID();
 
-      // Create purchase record
+      // Create purchase record using validated data
       const { error: insertError } = await supabase
         .from("purchases")
         .insert({
-          user_id: session.metadata.user_id,
-          product_sku: session.metadata.product_sku,
+          user_id: userId,
+          product_sku: productSku,
           amount_paid: (session.amount_total || 0) / 100, // Convert from cents
           status: "completed",
           stripe_payment_intent_id: session.payment_intent as string,
@@ -101,17 +133,25 @@ serve(async (req) => {
 
       console.log("Purchase record created successfully for session:", session.id);
 
+      // Clean up pending checkout
+      if (pendingCheckout) {
+        await supabase
+          .from("pending_checkouts")
+          .delete()
+          .eq("id", pendingCheckout.id);
+      }
+
       // Get product details and user info for email
       const { data: product } = await supabase
         .from("products")
         .select("name_en")
-        .eq("sku", session.metadata.product_sku)
+        .eq("sku", productSku)
         .single();
 
       const { data: profile } = await supabase
         .from("profiles")
         .select("email, full_name")
-        .eq("id", session.metadata.user_id)
+        .eq("id", userId)
         .single();
 
       if (product && profile) {
