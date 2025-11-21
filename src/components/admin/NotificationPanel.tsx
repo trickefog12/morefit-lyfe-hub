@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -35,6 +36,7 @@ export const NotificationPanel = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set(["today", "yesterday", "thisWeek", "older"]));
   const [soundEnabled, setSoundEnabled] = useState<boolean>(
     localStorage.getItem('notificationSoundEnabled') !== 'false'
@@ -58,6 +60,13 @@ export const NotificationPanel = () => {
   // Keyboard shortcut listener - global shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Show shortcuts modal: ? or Ctrl+/
+      if (e.key === '?' || (e.ctrlKey && e.key === '/')) {
+        e.preventDefault();
+        setShowShortcutsModal(true);
+        return;
+      }
+      
       // Ctrl+K or Cmd+K to open
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
@@ -997,6 +1006,61 @@ export const NotificationPanel = () => {
           </div>
         </ScrollArea>
       </SheetContent>
+
+      <Dialog open={showShortcutsModal} onOpenChange={setShowShortcutsModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Keyboard Shortcuts</DialogTitle>
+            <DialogDescription>
+              Use these shortcuts to navigate and manage notifications efficiently
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <h4 className="text-sm font-semibold text-muted-foreground">Navigation</h4>
+              <div className="space-y-1.5">
+                <ShortcutRow keys={["↑", "↓"]} description="Navigate between notifications" />
+                <ShortcutRow keys={["Enter"]} description="Expand/collapse notification" />
+                <ShortcutRow keys={["Space"]} description="Toggle selection" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-sm font-semibold text-muted-foreground">Actions</h4>
+              <div className="space-y-1.5">
+                <ShortcutRow keys={["Ctrl", "K"]} description="Mark all as read" />
+                <ShortcutRow keys={["Ctrl", "M"]} description="Mark selected as read" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-sm font-semibold text-muted-foreground">Other</h4>
+              <div className="space-y-1.5">
+                <ShortcutRow keys={["?"]} description="Show this help" />
+                <ShortcutRow keys={["Ctrl", "/"]} description="Show this help" />
+                <ShortcutRow keys={["Esc"]} description="Close panel" />
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Sheet>
   );
 };
+
+const ShortcutRow = ({ keys, description }: { keys: string[], description: string }) => (
+  <div className="flex items-center justify-between text-sm">
+    <span className="text-muted-foreground">{description}</span>
+    <div className="flex gap-1">
+      {keys.map((key, i) => (
+        <kbd 
+          key={i}
+          className="px-2 py-1 text-xs font-semibold border rounded bg-muted"
+        >
+          {key}
+        </kbd>
+      ))}
+    </div>
+  </div>
+);
