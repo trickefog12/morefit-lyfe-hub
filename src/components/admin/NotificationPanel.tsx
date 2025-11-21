@@ -55,7 +55,7 @@ export const NotificationPanel = () => {
   const notificationRefs = useRef<(HTMLDivElement | null)[]>([]);
   const lastNotificationCountRef = useRef<number>(0);
 
-  // Keyboard shortcut listener
+  // Keyboard shortcut listener - global shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ctrl+K or Cmd+K to open
@@ -103,53 +103,11 @@ export const NotificationPanel = () => {
         e.preventDefault();
         deleteSelected();
       }
-
-      // Arrow navigation and Enter (when panel is open and not focused on search)
-      if (open && document.activeElement !== searchInputRef.current) {
-        if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          setSelectedIndex(prev => {
-            const next = prev + 1;
-            // Scroll into view
-            setTimeout(() => {
-              notificationRefs.current[next]?.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'nearest' 
-              });
-            }, 0);
-            return next;
-          });
-        }
-        
-        if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          setSelectedIndex(prev => {
-            const next = prev > 0 ? prev - 1 : 0;
-            // Scroll into view
-            setTimeout(() => {
-              notificationRefs.current[next]?.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'nearest' 
-              });
-            }, 0);
-            return next;
-          });
-        }
-        
-        if (e.key === 'Enter' && selectedIndex >= 0) {
-          e.preventDefault();
-          // Toggle will be handled via the ID from the selected notification
-          const notificationEl = notificationRefs.current[selectedIndex];
-          if (notificationEl) {
-            notificationEl.click();
-          }
-        }
-      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [open, selectedIndex, selectedNotifications.size]);
+  }, [open, selectedNotifications.size]);
 
   const { data: allActions } = useQuery({
     queryKey: ['notification-history'],
@@ -216,6 +174,66 @@ export const NotificationPanel = () => {
 
     return true;
   }).slice(0, 20); // Limit to 20 after filtering
+
+  // Keyboard navigation shortcuts - needs recentActions
+  useEffect(() => {
+    const handleNavigationKeys = (e: KeyboardEvent) => {
+      // Arrow navigation, Space, and Enter (when panel is open and not focused on search)
+      if (open && document.activeElement !== searchInputRef.current) {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          setSelectedIndex(prev => {
+            const maxIndex = (recentActions?.length || 0) - 1;
+            const next = Math.min(prev + 1, maxIndex);
+            // Scroll into view
+            setTimeout(() => {
+              notificationRefs.current[next]?.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'nearest' 
+              });
+            }, 0);
+            return next;
+          });
+        }
+        
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          setSelectedIndex(prev => {
+            const next = prev > 0 ? prev - 1 : 0;
+            // Scroll into view
+            setTimeout(() => {
+              notificationRefs.current[next]?.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'nearest' 
+              });
+            }, 0);
+            return next;
+          });
+        }
+        
+        if (e.key === ' ' && selectedIndex >= 0) {
+          e.preventDefault();
+          // Toggle checkbox selection for the currently focused notification
+          const notification = recentActions?.[selectedIndex];
+          if (notification) {
+            toggleNotificationSelection(notification.id);
+          }
+        }
+        
+        if (e.key === 'Enter' && selectedIndex >= 0) {
+          e.preventDefault();
+          // Toggle expansion for the currently focused notification
+          const notification = recentActions?.[selectedIndex];
+          if (notification) {
+            toggleExpanded(notification.id);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleNavigationKeys);
+    return () => window.removeEventListener('keydown', handleNavigationKeys);
+  }, [open, selectedIndex, recentActions]);
 
   // Subscribe to real-time changes
   useEffect(() => {
