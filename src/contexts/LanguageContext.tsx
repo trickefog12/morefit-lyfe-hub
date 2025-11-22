@@ -343,7 +343,9 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <LanguageContext.Provider value={{ language, toggleLanguage, t }}>
-      {children}
+      <div key={language} className="animate-fade-in">
+        {children}
+      </div>
     </LanguageContext.Provider>
   );
 };
