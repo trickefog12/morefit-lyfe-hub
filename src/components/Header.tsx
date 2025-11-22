@@ -52,16 +52,6 @@ export const Header = () => {
           <Link to="/meal-plans" className="text-sm font-medium transition-colors hover:text-primary">
             {t("nutrition")}
           </Link>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleLanguage}
-            className="gap-2"
-            aria-label="Toggle language"
-          >
-            <Languages className="h-4 w-4" />
-            {language === "el" ? "EN" : "ΕΛ"}
-          </Button>
           {user ? (
             <div className="flex items-center gap-2">
               <Button
@@ -102,13 +92,35 @@ export const Header = () => {
                 <LogOut className="h-4 w-4" />
                 Logout
               </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleLanguage}
+                className="gap-2"
+                aria-label="Toggle language"
+              >
+                <Languages className="h-4 w-4" />
+                {language === "el" ? "EN" : "ΕΛ"}
+              </Button>
             </div>
           ) : (
-            <Link to="/signup">
-              <Button variant="default" size="sm" className="bg-primary hover:bg-primary-glow">
-                {t("signup")}
+            <>
+              <Link to="/signup">
+                <Button variant="default" size="sm" className="bg-primary hover:bg-primary-glow">
+                  {t("signup")}
+                </Button>
+              </Link>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleLanguage}
+                className="gap-2"
+                aria-label="Toggle language"
+              >
+                <Languages className="h-4 w-4" />
+                {language === "el" ? "EN" : "ΕΛ"}
               </Button>
-            </Link>
+            </>
           )}
         </nav>
 
