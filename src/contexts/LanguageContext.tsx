@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 type Language = "el" | "en";
 
@@ -324,7 +324,14 @@ const translations = {
 };
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>("el");
+  const [language, setLanguage] = useState<Language>(() => {
+    const saved = localStorage.getItem("morefitlyfe-language");
+    return (saved === "el" || saved === "en") ? saved : "el";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("morefitlyfe-language", language);
+  }, [language]);
 
   const toggleLanguage = () => {
     setLanguage((prev) => (prev === "el" ? "en" : "el"));
