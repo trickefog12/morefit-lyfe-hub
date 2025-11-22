@@ -41,6 +41,7 @@ const ProductDetail = () => {
   }
 
   // Get language-specific content
+  const currencySymbol = language === "el" ? "€" : "$";
   const productName = language === "en" ? product.nameEn : product.name;
   const productBenefit = language === "en" ? product.shortBenefitEn : product.shortBenefit;
   const productDescription = language === "en" ? product.descriptionEn : product.description;
@@ -75,7 +76,7 @@ const ProductDetail = () => {
               <div className="flex items-start justify-between gap-4 mb-4">
                 <h1 className="text-4xl font-bold">{productName}</h1>
                 <Badge variant="secondary" className="text-2xl py-2 px-4">
-                  ${product.price}
+                  {currencySymbol}{product.price}
                 </Badge>
               </div>
               
@@ -100,7 +101,7 @@ const ProductDetail = () => {
               </div>
 
               <Button size="lg" className="w-full md:w-auto bg-primary hover:bg-primary-glow text-lg px-12 mb-4">
-                {t("buy_now_price")} - ${product.price}
+                {t("buy_now_price")} - {currencySymbol}{product.price}
               </Button>
 
               <p className="text-sm text-muted-foreground">
@@ -190,12 +191,16 @@ const ProductDetail = () => {
           {/* CTA */}
           <Card className="max-w-4xl mx-auto bg-gradient-to-r from-primary/10 to-secondary/10 border-primary">
             <CardContent className="pt-12 pb-12 text-center">
-              <h2 className="text-3xl font-bold mb-4">Έτοιμος/η να Ξεκινήσεις;</h2>
+              <h2 className="text-3xl font-bold mb-4">
+                {language === "el" ? "Έτοιμος/η να Ξεκινήσεις;" : "Ready to Get Started?"}
+              </h2>
               <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Μην χάσεις την ευκαιρία να επενδύσεις στον εαυτό σου. Ξεκίνα το ταξίδι μεταμόρφωσης σήμερα!
+                {language === "el" 
+                  ? "Μην χάσεις την ευκαιρία να επενδύσεις στον εαυτό σου. Ξεκίνα το ταξίδι μεταμόρφωσης σήμερα!"
+                  : "Don't miss the opportunity to invest in yourself. Start your transformation journey today!"}
               </p>
               <Button size="lg" className="bg-primary hover:bg-primary-glow text-lg px-12">
-                Αγόρασε Τώρα - ${product.price}
+                {language === "el" ? "Αγόρασε Τώρα" : "Buy Now"} - {currencySymbol}{product.price}
               </Button>
             </CardContent>
           </Card>

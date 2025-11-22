@@ -7,6 +7,7 @@ import type { Product } from "@/data/products";
 import programStrength from "@/assets/program-strength.jpg";
 import mealGuide from "@/assets/meal-guide.jpg";
 import coachingSession from "@/assets/coaching-session.jpg";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const formatIcons = {
   pdf: FileText,
@@ -27,33 +28,37 @@ interface ProductCardProps {
 
 export const ProductCard = ({ product }: ProductCardProps) => {
   const Icon = formatIcons[product.format];
+  const { language } = useLanguage();
+  const currencySymbol = language === "el" ? "€" : "$";
+  const productName = language === "el" ? product.name : product.nameEn;
+  const productBenefit = language === "el" ? product.shortBenefit : product.shortBenefitEn;
 
   return (
     <Card className="group overflow-hidden transition-all hover:shadow-lg">
       <div className="relative aspect-square overflow-hidden bg-muted">
         <img
           src={getImageForProduct(product)}
-          alt={product.nameEn}
+          alt={productName}
           className="h-full w-full object-cover transition-transform group-hover:scale-105"
         />
         <Badge className="absolute top-3 right-3 bg-primary/90 backdrop-blur-sm">
-          ${product.price}
+          {currencySymbol}{product.price}
         </Badge>
       </div>
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-lg leading-tight">{product.nameEn}</CardTitle>
+          <CardTitle className="text-lg leading-tight">{productName}</CardTitle>
           <Icon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
         </div>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-muted-foreground line-clamp-2">{product.shortBenefitEn}</p>
+        <p className="text-sm text-muted-foreground line-clamp-2">{productBenefit}</p>
         <p className="text-xs text-muted-foreground mt-2">{product.duration}</p>
       </CardContent>
       <CardFooter>
         <Link to={`/programs/${product.sku}`} className="w-full">
           <Button className="w-full bg-primary hover:bg-primary-glow">
-            Δες Περισσότερα
+            {language === "el" ? "Δες Περισσότερα" : "See More"}
           </Button>
         </Link>
       </CardFooter>
