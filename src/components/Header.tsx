@@ -34,6 +34,19 @@ export const Header = () => {
     checkAdminStatus();
   }, [user]);
 
+  // Keyboard shortcut for language toggle (Ctrl+L or Cmd+L)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === 'l') {
+        event.preventDefault();
+        toggleLanguage();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [toggleLanguage]);
+
   return (
     <TooltipProvider>
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
