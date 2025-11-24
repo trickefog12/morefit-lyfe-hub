@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, Languages, LogOut, User, Shield, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +14,7 @@ import logoText from "@/assets/logo-text.jpeg";
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const { language, toggleLanguage, t } = useLanguage();
   const { user, signOut } = useAuth();
   const { toast } = useToast();
@@ -39,6 +41,13 @@ export const Header = () => {
   // Keyboard shortcut for language toggle (Ctrl+L or Cmd+L)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Open shortcuts help modal with '?'
+      if (event.shiftKey && event.key === '?') {
+        event.preventDefault();
+        setShortcutsOpen(true);
+        return;
+      }
+
       if ((event.ctrlKey || event.metaKey) && event.key === 'l') {
         event.preventDefault();
         toggleLanguage();
@@ -274,6 +283,39 @@ export const Header = () => {
         </div>
       )}
       </header>
+
+      <Dialog open={shortcutsOpen} onOpenChange={setShortcutsOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {language === "el" ? "Συντομεύσεις Πληκτρολογίου" : "Keyboard Shortcuts"}
+            </DialogTitle>
+            <DialogDescription>
+              {language === "el" 
+                ? "Χρησιμοποιήστε αυτές τις συντομεύσεις για γρήγορη πλοήγηση" 
+                : "Use these shortcuts for quick navigation"}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1">
+            <div className="flex justify-between items-center py-2 border-b border-border/50">
+              <span className="text-sm text-muted-foreground">
+                {language === "el" ? "Εναλλαγή γλώσσας" : "Toggle language"}
+              </span>
+              <kbd className="px-2 py-1 text-xs font-semibold text-foreground bg-muted border border-border rounded">
+                {navigator.platform.toUpperCase().includes('MAC') ? "⌘ + L" : "Ctrl + L"}
+              </kbd>
+            </div>
+            <div className="flex justify-between items-center py-2">
+              <span className="text-sm text-muted-foreground">
+                {language === "el" ? "Εμφάνιση συντομεύσεων" : "Show shortcuts"}
+              </span>
+              <kbd className="px-2 py-1 text-xs font-semibold text-foreground bg-muted border border-border rounded">
+                ?
+              </kbd>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </TooltipProvider>
   );
 };
