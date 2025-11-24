@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import logoIcon from "@/assets/logo-icon.jpeg";
 import logoText from "@/assets/logo-text.jpeg";
@@ -14,6 +15,7 @@ export const Header = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const { language, toggleLanguage, t } = useLanguage();
   const { user, signOut } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,12 +42,20 @@ export const Header = () => {
       if ((event.ctrlKey || event.metaKey) && event.key === 'l') {
         event.preventDefault();
         toggleLanguage();
+        
+        // Show toast notification
+        const newLanguage = language === "el" ? "en" : "el";
+        toast({
+          title: newLanguage === "el" ? "Γλώσσα άλλαξε" : "Language changed",
+          description: newLanguage === "el" ? "Ελληνικά ενεργοποιήθηκαν" : "English activated",
+          duration: 2000,
+        });
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [toggleLanguage]);
+  }, [toggleLanguage, language, toast]);
 
   return (
     <TooltipProvider>
