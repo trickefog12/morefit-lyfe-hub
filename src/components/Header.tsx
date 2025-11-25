@@ -40,7 +40,7 @@ export const Header = () => {
     checkAdminStatus();
   }, [user]);
 
-  // Keyboard shortcut for language toggle (Ctrl+L or Cmd+L)
+  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Open shortcuts help modal with '?'
@@ -50,24 +50,44 @@ export const Header = () => {
         return;
       }
 
-      if ((event.ctrlKey || event.metaKey) && event.key === 'l') {
-        event.preventDefault();
-        haptics.light();
-        toggleLanguage();
-        
-        // Show toast notification
-        const newLanguage = language === "el" ? "en" : "el";
-        toast({
-          title: newLanguage === "el" ? "Γλώσσα άλλαξε" : "Language changed",
-          description: newLanguage === "el" ? "Ελληνικά ενεργοποιήθηκαν" : "English activated",
-          duration: 2000,
-        });
+      // Navigation shortcuts
+      if (event.ctrlKey || event.metaKey) {
+        switch (event.key.toLowerCase()) {
+          case 'h':
+            event.preventDefault();
+            haptics.light();
+            navigate('/');
+            break;
+          case 'p':
+            event.preventDefault();
+            haptics.light();
+            navigate('/programs');
+            break;
+          case 'm':
+            event.preventDefault();
+            haptics.light();
+            navigate('/meal-plans');
+            break;
+          case 'l':
+            event.preventDefault();
+            haptics.light();
+            toggleLanguage();
+            
+            // Show toast notification
+            const newLanguage = language === "el" ? "en" : "el";
+            toast({
+              title: newLanguage === "el" ? "Γλώσσα άλλαξε" : "Language changed",
+              description: newLanguage === "el" ? "Ελληνικά ενεργοποιήθηκαν" : "English activated",
+              duration: 2000,
+            });
+            break;
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [toggleLanguage, language, toast]);
+  }, [toggleLanguage, language, toast, navigate, haptics]);
 
   return (
     <TooltipProvider>
@@ -307,6 +327,30 @@ export const Header = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-1">
+            <div className="flex justify-between items-center py-2 border-b border-border/50">
+              <span className="text-sm text-muted-foreground">
+                {language === "el" ? "Αρχική σελίδα" : "Go to home"}
+              </span>
+              <kbd className="px-2 py-1 text-xs font-semibold text-foreground bg-muted border border-border rounded">
+                {navigator.platform.toUpperCase().includes('MAC') ? "⌘ + H" : "Ctrl + H"}
+              </kbd>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-border/50">
+              <span className="text-sm text-muted-foreground">
+                {language === "el" ? "Προγράμματα" : "Go to programs"}
+              </span>
+              <kbd className="px-2 py-1 text-xs font-semibold text-foreground bg-muted border border-border rounded">
+                {navigator.platform.toUpperCase().includes('MAC') ? "⌘ + P" : "Ctrl + P"}
+              </kbd>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-border/50">
+              <span className="text-sm text-muted-foreground">
+                {language === "el" ? "Διατροφή" : "Go to meal plans"}
+              </span>
+              <kbd className="px-2 py-1 text-xs font-semibold text-foreground bg-muted border border-border rounded">
+                {navigator.platform.toUpperCase().includes('MAC') ? "⌘ + M" : "Ctrl + M"}
+              </kbd>
+            </div>
             <div className="flex justify-between items-center py-2 border-b border-border/50">
               <span className="text-sm text-muted-foreground">
                 {language === "el" ? "Εναλλαγή γλώσσας" : "Toggle language"}
