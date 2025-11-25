@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useHaptics } from "@/hooks/useHaptics";
 import { supabase } from "@/integrations/supabase/client";
 import logoIcon from "@/assets/logo-icon.jpeg";
 import logoText from "@/assets/logo-text.jpeg";
@@ -18,6 +19,7 @@ export const Header = () => {
   const { language, toggleLanguage, t } = useLanguage();
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const haptics = useHaptics();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,6 +52,7 @@ export const Header = () => {
 
       if ((event.ctrlKey || event.metaKey) && event.key === 'l') {
         event.preventDefault();
+        haptics.light();
         toggleLanguage();
         
         // Show toast notification
@@ -131,7 +134,10 @@ export const Header = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={toggleLanguage}
+                    onClick={() => {
+                      haptics.light();
+                      toggleLanguage();
+                    }}
                     className="gap-2"
                     aria-label="Toggle language"
                   >
@@ -156,7 +162,10 @@ export const Header = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={toggleLanguage}
+                    onClick={() => {
+                      haptics.light();
+                      toggleLanguage();
+                    }}
                     className="gap-2"
                     aria-label="Toggle language"
                   >
@@ -211,6 +220,7 @@ export const Header = () => {
               variant="ghost"
               size="sm"
               onClick={() => {
+                haptics.light();
                 toggleLanguage();
                 setIsMenuOpen(false);
               }}
