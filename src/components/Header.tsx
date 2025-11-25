@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, Languages, LogOut, User, Shield, ShoppingBag } from "lucide-react";
+import { Menu, X, Languages, LogOut, User, Shield, ShoppingBag, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -150,6 +150,15 @@ export const Header = () => {
                 variant="ghost"
                 size="sm"
                 className="gap-2"
+                onClick={() => navigate("/settings")}
+              >
+                <Settings className="h-4 w-4" />
+                Settings
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2"
                 onClick={() => navigate("/signup")}
               >
                 <User className="h-4 w-4" />
@@ -292,6 +301,18 @@ export const Header = () => {
                     Admin Dashboard
                   </Button>
                 )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    navigate("/settings");
+                    setIsMenuOpen(false);
+                  }}
+                  className="gap-2 justify-start w-full"
+                >
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </Button>
                 <Button
                   variant="ghost"
                   size="sm"
