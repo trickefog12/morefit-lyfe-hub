@@ -57,16 +57,31 @@ export const Header = () => {
             event.preventDefault();
             haptics.light();
             navigate('/');
+            toast({
+              title: language === "el" ? "Αρχική σελίδα" : "Home",
+              description: language === "el" ? "Μετάβαση στην αρχική σελίδα" : "Navigating to home page",
+              duration: 1500,
+            });
             break;
           case 'p':
             event.preventDefault();
             haptics.light();
             navigate('/programs');
+            toast({
+              title: language === "el" ? "Προγράμματα" : "Programs",
+              description: language === "el" ? "Μετάβαση στα προγράμματα" : "Navigating to programs",
+              duration: 1500,
+            });
             break;
           case 'm':
             event.preventDefault();
             haptics.light();
             navigate('/meal-plans');
+            toast({
+              title: language === "el" ? "Διατροφή" : "Meal Plans",
+              description: language === "el" ? "Μετάβαση στη διατροφή" : "Navigating to meal plans",
+              duration: 1500,
+            });
             break;
           case 'l':
             event.preventDefault();
