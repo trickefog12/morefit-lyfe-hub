@@ -218,7 +218,7 @@ serve(async (req) => {
       },
     });
   } catch (error: any) {
-    console.error("Error in download-file function:", error);
+    console.error("Error in download-file function");
     return new Response(
       JSON.stringify({ error: "An unexpected error occurred. Please try again." }),
       { 
