@@ -91,11 +91,7 @@ serve(async (req) => {
       .eq("id", user.id)
       .single();
 
-    console.log("Creating checkout session for:", {
-      userId: user.id,
-      productSku: product.sku,
-      amount: product.price,
-    });
+    console.log("Creating checkout session");
 
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
@@ -127,7 +123,7 @@ serve(async (req) => {
       },
     });
 
-    console.log("Checkout session created successfully:", session.id);
+    console.log("Checkout session created successfully");
 
     // Store pending checkout for validation in webhook
     const { error: pendingCheckoutError } = await supabase

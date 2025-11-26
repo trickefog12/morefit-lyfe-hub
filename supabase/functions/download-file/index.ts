@@ -67,7 +67,7 @@ serve(async (req) => {
       );
     }
 
-    console.log("Download request from user:", user.id, "for token:", token);
+    console.log("Download request received");
 
     // Get custom download limit for this user (priority: user-specific > role-based > default)
     let maxDownloads = DEFAULT_MAX_DOWNLOADS_PER_DAY;
@@ -81,7 +81,6 @@ serve(async (req) => {
     
     if (userLimit) {
       maxDownloads = userLimit.daily_limit;
-      console.log(`User-specific limit found: ${maxDownloads}`);
     } else {
       // Check for role-based limit
       const { data: userRoles } = await supabaseClient
@@ -100,7 +99,6 @@ serve(async (req) => {
           
           if (roleLimit) {
             maxDownloads = roleLimit.daily_limit;
-            console.log(`Role-based limit found for ${role}: ${maxDownloads}`);
             break;
           }
         }
@@ -121,7 +119,7 @@ serve(async (req) => {
     if (rateLimitError) {
       console.error("Rate limit check error:", rateLimitError);
     } else if (recentDownloads && recentDownloads.length >= maxDownloads) {
-      console.log(`Rate limit exceeded for user ${user.id}: ${recentDownloads.length} downloads in last ${RATE_LIMIT_WINDOW_HOURS}h (limit: ${maxDownloads})`);
+      console.log(`Rate limit exceeded: ${recentDownloads.length}/${maxDownloads} downloads in last ${RATE_LIMIT_WINDOW_HOURS}h`);
       return new Response(
         JSON.stringify({ 
           error: "Rate limit exceeded",
@@ -139,7 +137,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`User ${user.id} has ${recentDownloads?.length || 0}/${maxDownloads} downloads in last ${RATE_LIMIT_WINDOW_HOURS}h`);
+    console.log(`Download limit check: ${recentDownloads?.length || 0}/${maxDownloads} in last ${RATE_LIMIT_WINDOW_HOURS}h`);
 
     // Validate the download token and check if user owns this purchase
     const { data: purchase, error: purchaseError } = await supabaseClient
@@ -164,7 +162,7 @@ serve(async (req) => {
       );
     }
 
-    console.log("Valid purchase found:", purchase.id, "for product:", purchase.products.sku);
+    console.log("Valid purchase found");
 
     // Get the file from storage
     // Files are stored as: {token}/{product_sku}.pdf
@@ -193,7 +191,7 @@ serve(async (req) => {
       );
     }
 
-    console.log("File found, serving download for:", filePath);
+    console.log("File found, serving download");
 
     // Log the download event
     await supabaseClient
@@ -222,7 +220,7 @@ serve(async (req) => {
   } catch (error: any) {
     console.error("Error in download-file function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "An unexpected error occurred. Please try again." }),
       { 
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
