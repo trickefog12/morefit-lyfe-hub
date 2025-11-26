@@ -57,17 +57,17 @@ serve(async (req) => {
         .single();
 
       if (checkoutError || !pendingCheckout) {
-        console.error("No pending checkout found for session:", session.id);
+        console.error("No pending checkout found, attempting metadata fallback");
         
         // Fallback to metadata validation (for backwards compatibility)
         if (!session.metadata?.user_id || !session.metadata?.product_sku) {
-          console.error("Missing required metadata in session:", session.id);
+          console.error("Missing required metadata in checkout session");
           return new Response(
             JSON.stringify({ error: "Invalid session - no pending checkout or metadata" }),
             { status: 400 }
           );
         }
-        console.warn("Using metadata fallback for session:", session.id);
+        console.warn("Using metadata fallback for checkout validation");
       }
 
       // Use server-side data if available, otherwise fall back to metadata
@@ -175,7 +175,7 @@ serve(async (req) => {
     if (event.type === "payment_intent.payment_failed") {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
       
-      console.error("Payment failed:", paymentIntent.last_payment_error?.message);
+      console.error("Payment failed for payment intent");
 
       // Update purchase record if it exists
       await supabase

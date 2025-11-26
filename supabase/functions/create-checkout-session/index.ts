@@ -77,7 +77,7 @@ serve(async (req) => {
       .single();
 
     if (productError || !product) {
-      console.error("Product not found or inactive:", productSku, productError);
+      console.error("Product not found or inactive");
       return new Response(
         JSON.stringify({ error: "Invalid product" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -136,7 +136,7 @@ serve(async (req) => {
       });
 
     if (pendingCheckoutError) {
-      console.error("Failed to store pending checkout:", pendingCheckoutError);
+      console.error("Failed to store pending checkout");
       // Continue anyway - webhook will still work with metadata fallback
     }
 

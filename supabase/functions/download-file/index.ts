@@ -57,7 +57,7 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
     
     if (userError || !user) {
-      console.error("User authentication error:", userError);
+      console.error("User authentication failed");
       return new Response(
         JSON.stringify({ error: "Invalid authentication" }),
         { 
@@ -117,7 +117,7 @@ serve(async (req) => {
       .gte("created_at", rateLimitCutoff.toISOString());
 
     if (rateLimitError) {
-      console.error("Rate limit check error:", rateLimitError);
+      console.error("Rate limit check failed");
     } else if (recentDownloads && recentDownloads.length >= maxDownloads) {
       console.log(`Rate limit exceeded: ${recentDownloads.length}/${maxDownloads} downloads in last ${RATE_LIMIT_WINDOW_HOURS}h`);
       return new Response(
@@ -152,7 +152,7 @@ serve(async (req) => {
       .single();
 
     if (purchaseError || !purchase) {
-      console.error("Purchase validation error:", purchaseError);
+      console.error("Purchase validation failed");
       return new Response(
         JSON.stringify({ error: "Invalid or expired download token" }),
         { 
@@ -174,7 +174,7 @@ serve(async (req) => {
       .download(filePath);
 
     if (storageError || !fileData) {
-      console.error("Storage error:", storageError);
+      console.error("File not found in storage");
       
       // If file doesn't exist, provide helpful message
       return new Response(
