@@ -47,12 +47,7 @@ serve(async (req) => {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       
-      console.log("Processing completed checkout session:", {
-        sessionId: session.id,
-        paymentIntent: session.payment_intent,
-        userId: session.metadata?.user_id,
-        productSku: session.metadata?.product_sku,
-      });
+      console.log("Processing completed checkout session");
 
       // Validate against server-side stored checkout data
       const { data: pendingCheckout, error: checkoutError } = await supabase
@@ -86,11 +81,7 @@ serve(async (req) => {
         const expectedAmountNum = Number(expectedAmount);
         
         if (Math.abs(actualAmount - expectedAmountNum) > 0.01) {
-          console.error("Amount mismatch detected:", {
-            sessionId: session.id,
-            expected: expectedAmountNum,
-            actual: actualAmount,
-          });
+          console.error("Amount mismatch detected - expected vs actual amount differs");
           // Log but don't block - could be legitimate currency conversion differences
         }
       }
@@ -103,7 +94,7 @@ serve(async (req) => {
         .single();
 
       if (existingPurchase) {
-        console.log("Purchase already exists, skipping duplicate:", session.payment_intent);
+        console.log("Purchase already exists, skipping duplicate");
         return new Response(JSON.stringify({ received: true }), { status: 200 });
       }
 
@@ -131,7 +122,7 @@ serve(async (req) => {
         );
       }
 
-      console.log("Purchase record created successfully for session:", session.id);
+      console.log("Purchase record created successfully");
 
       // Clean up pending checkout
       if (pendingCheckout) {
@@ -184,10 +175,7 @@ serve(async (req) => {
     if (event.type === "payment_intent.payment_failed") {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
       
-      console.error("Payment failed:", {
-        paymentIntentId: paymentIntent.id,
-        error: paymentIntent.last_payment_error?.message,
-      });
+      console.error("Payment failed:", paymentIntent.last_payment_error?.message);
 
       // Update purchase record if it exists
       await supabase
