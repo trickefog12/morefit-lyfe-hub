@@ -91,7 +91,7 @@ serve(async (req) => {
       .eq("email_enabled", true);
 
     if (prefsError) {
-      console.error("Error fetching preferences:", prefsError);
+      console.error("Failed to fetch notification preferences");
       throw prefsError;
     }
 
@@ -112,7 +112,7 @@ serve(async (req) => {
         .eq("role", "admin");
 
       if (adminsError) {
-        console.error("Error fetching admins:", adminsError);
+        console.error("Failed to fetch admins");
         throw adminsError;
       }
 
@@ -168,14 +168,14 @@ serve(async (req) => {
         });
 
         if (sendError) {
-          console.error(`Failed to send email to ${admin.email}:`, sendError);
+          console.error("Failed to send notification email");
           return { email: admin.email, success: false, error: sendError };
         }
 
-        console.log(`Email sent successfully to ${admin.email}`);
+        console.log("Notification email sent successfully");
         return { email: admin.email, success: true };
       } catch (error) {
-        console.error(`Error processing email for ${admin.email}:`, error);
+        console.error("Failed to process notification email");
         return { email: admin.email, success: false, error };
       }
     });
