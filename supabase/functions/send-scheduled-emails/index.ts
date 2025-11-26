@@ -67,7 +67,7 @@ serve(async (req) => {
       .returns<Purchase[]>();
 
     if (reviewError) {
-      console.error("Error fetching purchases for review:", reviewError);
+      console.error("Failed to fetch purchases for review");
     } else if (purchasesForReview && purchasesForReview.length > 0) {
       console.log(`Sending ${purchasesForReview.length} review request emails...`);
       
@@ -85,7 +85,7 @@ serve(async (req) => {
         });
 
         if (emailError) {
-          console.error(`Failed to send review request for purchase ${purchase.id}:`, emailError);
+          console.error("Failed to send review request email");
         }
       }
     }
@@ -114,7 +114,7 @@ serve(async (req) => {
         .returns<PurchaseWithToken[]>();
 
       if (reminderError) {
-        console.error(`Error fetching purchases for day ${days} reminder:`, reminderError);
+        console.error(`Failed to fetch purchases for day ${days} reminder`);
         continue;
       }
 
@@ -139,7 +139,7 @@ serve(async (req) => {
           });
 
           if (emailError) {
-            console.error(`Failed to send reminder for purchase ${purchase.id}:`, emailError);
+            console.error("Failed to send program reminder email");
           }
         }
       }

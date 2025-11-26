@@ -40,7 +40,7 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
     
     if (userError || !user) {
-      console.error("User authentication error:", userError);
+      console.error("User authentication failed");
       return new Response(
         JSON.stringify({ error: "Invalid authentication" }),
         { 
@@ -57,7 +57,7 @@ serve(async (req) => {
     });
 
     if (adminError || !isAdmin) {
-      console.error("Admin check failed:", adminError);
+      console.error("Admin check failed");
       return new Response(
         JSON.stringify({ error: "Admin access required" }),
         { 
@@ -80,7 +80,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Admin ${user.id} resetting download limit for user ${targetUserId}`);
+    console.log("Admin resetting download limit for user");
 
     // Delete all download analytics events for the target user
     const { error: deleteError } = await supabaseClient
@@ -90,7 +90,7 @@ serve(async (req) => {
       .eq("event_type", "download");
 
     if (deleteError) {
-      console.error("Error deleting download events:", deleteError);
+      console.error("Failed to delete download events");
       return new Response(
         JSON.stringify({ error: "Failed to reset download limit" }),
         { 
@@ -100,7 +100,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Successfully reset download limit for user ${targetUserId}`);
+    console.log("Download limit reset successfully");
 
     // Get target user email
     const { data: targetProfile } = await supabaseClient
