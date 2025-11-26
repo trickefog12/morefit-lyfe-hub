@@ -45,7 +45,7 @@ serve(async (req) => {
     // Verify user authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      console.error("Authentication failed:", authError);
+      console.error("Authentication failed");
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -151,7 +151,7 @@ serve(async (req) => {
       }
     );
   } catch (error: any) {
-    console.error("Error in create-checkout-session:", error);
+    console.error("Error in create-checkout-session");
     
     // Never expose internal errors to clients
     return new Response(

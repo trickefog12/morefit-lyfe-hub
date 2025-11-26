@@ -31,7 +31,7 @@ serve(async (req) => {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
       console.log("Webhook signature verified:", event.type);
     } catch (err: any) {
-      console.error("Webhook signature verification failed:", err.message);
+      console.error("Webhook signature verification failed");
       return new Response(
         JSON.stringify({ error: "Webhook signature verification failed" }),
         { status: 400 }
@@ -115,7 +115,7 @@ serve(async (req) => {
         });
 
       if (insertError) {
-        console.error("Failed to create purchase record:", insertError);
+        console.error("Failed to create purchase record");
         return new Response(
           JSON.stringify({ error: "Failed to create purchase record" }),
           { status: 500 }
@@ -164,7 +164,7 @@ serve(async (req) => {
         });
 
         if (emailError) {
-          console.error("Failed to send purchase confirmation email:", emailError);
+          console.error("Failed to send purchase confirmation email");
         } else {
           console.log("Purchase confirmation email sent successfully");
         }
@@ -189,7 +189,7 @@ serve(async (req) => {
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error: any) {
-    console.error("Error in handle-payment-webhook:", error);
+    console.error("Error in handle-payment-webhook");
     return new Response(
       JSON.stringify({ error: "Webhook processing failed" }),
       { status: 500, headers: { "Content-Type": "application/json" } }
