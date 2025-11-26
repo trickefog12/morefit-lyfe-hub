@@ -9,6 +9,13 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") as string, {
 
 const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
 
+const securityHeaders = {
+  "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'",
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+};
+
 serve(async (req) => {
   try {
     // Get the signature from the header
@@ -18,7 +25,7 @@ serve(async (req) => {
       console.error("Missing signature or webhook secret");
       return new Response(
         JSON.stringify({ error: "Webhook signature verification failed" }),
-        { status: 400 }
+        { status: 400, headers: { "Content-Type": "application/json", ...securityHeaders } }
       );
     }
 
@@ -34,7 +41,7 @@ serve(async (req) => {
       console.error("Webhook signature verification failed");
       return new Response(
         JSON.stringify({ error: "Webhook signature verification failed" }),
-        { status: 400 }
+        { status: 400, headers: { "Content-Type": "application/json", ...securityHeaders } }
       );
     }
 
@@ -64,7 +71,7 @@ serve(async (req) => {
           console.error("Missing required metadata in checkout session");
           return new Response(
             JSON.stringify({ error: "Invalid session - no pending checkout or metadata" }),
-            { status: 400 }
+            { status: 400, headers: { "Content-Type": "application/json", ...securityHeaders } }
           );
         }
         console.warn("Using metadata fallback for checkout validation");
@@ -95,7 +102,10 @@ serve(async (req) => {
 
       if (existingPurchase) {
         console.log("Purchase already exists, skipping duplicate");
-        return new Response(JSON.stringify({ received: true }), { status: 200 });
+        return new Response(JSON.stringify({ received: true }), { 
+          status: 200, 
+          headers: { "Content-Type": "application/json", ...securityHeaders } 
+        });
       }
 
       // Generate secure download token
@@ -118,7 +128,7 @@ serve(async (req) => {
         console.error("Failed to create purchase record");
         return new Response(
           JSON.stringify({ error: "Failed to create purchase record" }),
-          { status: 500 }
+          { status: 500, headers: { "Content-Type": "application/json", ...securityHeaders } }
         );
       }
 
@@ -186,13 +196,13 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ received: true }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
+      { status: 200, headers: { "Content-Type": "application/json", ...securityHeaders } }
     );
   } catch (error: any) {
     console.error("Error in handle-payment-webhook");
     return new Response(
       JSON.stringify({ error: "Webhook processing failed" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      { status: 500, headers: { "Content-Type": "application/json", ...securityHeaders } }
     );
   }
 });
