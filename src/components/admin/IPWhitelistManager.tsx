@@ -30,6 +30,7 @@ interface WhitelistedIP {
   ip_address: string;
   description: string | null;
   created_at: string;
+  is_cidr: boolean;
 }
 
 export const IPWhitelistManager = () => {
@@ -53,9 +54,13 @@ export const IPWhitelistManager = () => {
 
   const addIPMutation = useMutation({
     mutationFn: async () => {
+      const trimmedIP = newIP.trim();
+      const isCIDR = trimmedIP.includes('/');
+      
       const { error } = await supabase.from("ip_whitelist").insert({
-        ip_address: newIP.trim(),
+        ip_address: trimmedIP,
         description: newDescription.trim() || null,
+        is_cidr: isCIDR,
       });
 
       if (error) throw error;
@@ -89,15 +94,28 @@ export const IPWhitelistManager = () => {
 
   const handleAddIP = () => {
     if (!newIP.trim()) {
-      toast.error("Please enter an IP address");
+      toast.error("Please enter an IP address or CIDR range");
       return;
     }
 
-    // Basic IP validation
+    const trimmedIP = newIP.trim();
+    
+    // Validate IP or CIDR notation
     const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
-    if (!ipPattern.test(newIP.trim())) {
-      toast.error("Please enter a valid IP address");
+    const cidrPattern = /^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/;
+    
+    if (!ipPattern.test(trimmedIP) && !cidrPattern.test(trimmedIP)) {
+      toast.error("Please enter a valid IP address (e.g., 192.168.1.1) or CIDR range (e.g., 192.168.1.0/24)");
       return;
+    }
+
+    // Validate CIDR prefix length if it's a CIDR range
+    if (cidrPattern.test(trimmedIP)) {
+      const prefix = parseInt(trimmedIP.split('/')[1]);
+      if (prefix < 0 || prefix > 32) {
+        toast.error("CIDR prefix must be between 0 and 32");
+        return;
+      }
     }
 
     addIPMutation.mutate();
@@ -111,7 +129,7 @@ export const IPWhitelistManager = () => {
           IP Whitelist Management
         </CardTitle>
         <CardDescription>
-          Manage trusted IPs that bypass rate limiting for webhooks and API endpoints
+          Manage trusted IPs and CIDR ranges that bypass rate limiting for webhooks and API endpoints
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -125,20 +143,23 @@ export const IPWhitelistManager = () => {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Add Whitelisted IP</DialogTitle>
+                <DialogTitle>Add Whitelisted IP or CIDR Range</DialogTitle>
                 <DialogDescription>
-                  Add a trusted IP address that will bypass rate limiting
+                  Add a trusted IP address or CIDR range that will bypass rate limiting
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="ip-address">IP Address</Label>
+                  <Label htmlFor="ip-address">IP Address or CIDR Range</Label>
                   <Input
                     id="ip-address"
-                    placeholder="192.168.1.1"
+                    placeholder="192.168.1.1 or 192.168.1.0/24"
                     value={newIP}
                     onChange={(e) => setNewIP(e.target.value)}
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Enter a single IP (192.168.1.1) or CIDR range (192.168.1.0/24)
+                  </p>
                 </div>
                 <div>
                   <Label htmlFor="description">Description (Optional)</Label>
@@ -165,14 +186,15 @@ export const IPWhitelistManager = () => {
             <div className="text-center py-8 text-muted-foreground">Loading...</div>
           ) : !whitelistedIPs || whitelistedIPs.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              No whitelisted IPs yet. Add trusted IPs to bypass rate limits.
+              No whitelisted IPs yet. Add trusted IPs or CIDR ranges to bypass rate limits.
             </div>
           ) : (
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>IP Address</TableHead>
+                    <TableHead>IP / CIDR Range</TableHead>
+                    <TableHead>Type</TableHead>
                     <TableHead>Description</TableHead>
                     <TableHead>Added</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -182,6 +204,15 @@ export const IPWhitelistManager = () => {
                   {whitelistedIPs.map((ip) => (
                     <TableRow key={ip.id}>
                       <TableCell className="font-mono">{ip.ip_address}</TableCell>
+                      <TableCell>
+                        <span className={`text-xs px-2 py-1 rounded ${
+                          ip.is_cidr 
+                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' 
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
+                        }`}>
+                          {ip.is_cidr ? 'CIDR Range' : 'Single IP'}
+                        </span>
+                      </TableCell>
                       <TableCell>{ip.description || "-"}</TableCell>
                       <TableCell>
                         {new Date(ip.created_at).toLocaleDateString()}

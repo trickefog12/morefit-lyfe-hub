@@ -191,6 +191,7 @@ export type Database = {
           description: string | null
           id: string
           ip_address: string
+          is_cidr: boolean | null
           updated_at: string | null
         }
         Insert: {
@@ -199,6 +200,7 @@ export type Database = {
           description?: string | null
           id?: string
           ip_address: string
+          is_cidr?: boolean | null
           updated_at?: string | null
         }
         Update: {
@@ -207,6 +209,7 @@ export type Database = {
           description?: string | null
           id?: string
           ip_address?: string
+          is_cidr?: boolean | null
           updated_at?: string | null
         }
         Relationships: []
@@ -474,6 +477,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_ip_whitelisted: { Args: { check_ip: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
