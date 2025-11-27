@@ -20,8 +20,25 @@ const securityHeaders = {
 const RATE_LIMIT_WINDOW_MINUTES = 1;
 const MAX_REQUESTS_PER_WINDOW = 100;
 
+// Check if IP is whitelisted
+async function isWhitelisted(supabase: any, ip: string): Promise<boolean> {
+  const { data } = await supabase
+    .from("ip_whitelist")
+    .select("id")
+    .eq("ip_address", ip)
+    .single();
+  
+  return !!data;
+}
+
 // Rate limiting helper
 async function checkRateLimit(supabase: any, ip: string, endpoint: string): Promise<{ allowed: boolean; retryAfter?: number }> {
+  // Check if IP is whitelisted first
+  if (await isWhitelisted(supabase, ip)) {
+    console.log(`Whitelisted IP bypassing rate limit: ${ip}`);
+    return { allowed: true };
+  }
+
   const windowStart = new Date();
   windowStart.setMinutes(windowStart.getMinutes() - RATE_LIMIT_WINDOW_MINUTES);
 
