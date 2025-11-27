@@ -16,8 +16,85 @@ const securityHeaders = {
   "Referrer-Policy": "strict-origin-when-cross-origin",
 };
 
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW_MINUTES = 1;
+const MAX_REQUESTS_PER_WINDOW = 100;
+
+// Rate limiting helper
+async function checkRateLimit(supabase: any, ip: string, endpoint: string): Promise<{ allowed: boolean; retryAfter?: number }> {
+  const windowStart = new Date();
+  windowStart.setMinutes(windowStart.getMinutes() - RATE_LIMIT_WINDOW_MINUTES);
+
+  // Check existing rate limit entry
+  const { data: existingLog } = await supabase
+    .from("rate_limit_logs")
+    .select("request_count, window_start")
+    .eq("ip_address", ip)
+    .eq("endpoint", endpoint)
+    .gte("window_start", windowStart.toISOString())
+    .single();
+
+  if (existingLog) {
+    if (existingLog.request_count >= MAX_REQUESTS_PER_WINDOW) {
+      const retryAfter = Math.ceil((new Date(existingLog.window_start).getTime() + RATE_LIMIT_WINDOW_MINUTES * 60000 - Date.now()) / 1000);
+      return { allowed: false, retryAfter };
+    }
+
+    // Increment counter
+    await supabase
+      .from("rate_limit_logs")
+      .update({ request_count: existingLog.request_count + 1 })
+      .eq("ip_address", ip)
+      .eq("endpoint", endpoint)
+      .gte("window_start", windowStart.toISOString());
+  } else {
+    // Create new rate limit entry
+    await supabase
+      .from("rate_limit_logs")
+      .insert({
+        ip_address: ip,
+        endpoint: endpoint,
+        request_count: 1,
+        window_start: new Date().toISOString(),
+      });
+  }
+
+  return { allowed: true };
+}
+
 serve(async (req) => {
   try {
+    // Initialize Supabase client for rate limiting
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Get client IP
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || 
+                     req.headers.get("x-real-ip") || 
+                     "unknown";
+
+    // Check rate limit
+    const rateLimitResult = await checkRateLimit(supabase, clientIp, "payment-webhook");
+    
+    if (!rateLimitResult.allowed) {
+      console.log(`Rate limit exceeded for IP: ${clientIp}`);
+      return new Response(
+        JSON.stringify({ 
+          error: "Rate limit exceeded",
+          message: "Too many requests. Please try again later.",
+        }),
+        { 
+          status: 429, 
+          headers: { 
+            "Content-Type": "application/json", 
+            "Retry-After": String(rateLimitResult.retryAfter || 60),
+            ...securityHeaders 
+          }
+        }
+      );
+    }
+
     // Get the signature from the header
     const signature = req.headers.get("stripe-signature");
     
@@ -45,10 +122,7 @@ serve(async (req) => {
       );
     }
 
-    // Initialize Supabase client with service role key for database writes
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // Supabase client already initialized for rate limiting
 
     // Handle checkout.session.completed event
     if (event.type === "checkout.session.completed") {
