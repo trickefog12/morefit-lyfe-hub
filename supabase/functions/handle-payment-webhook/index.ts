@@ -20,15 +20,16 @@ const securityHeaders = {
 const RATE_LIMIT_WINDOW_MINUTES = 1;
 const MAX_REQUESTS_PER_WINDOW = 100;
 
-// Check if IP is whitelisted
+// Check if IP is whitelisted (supports both individual IPs and CIDR ranges)
 async function isWhitelisted(supabase: any, ip: string): Promise<boolean> {
-  const { data } = await supabase
-    .from("ip_whitelist")
-    .select("id")
-    .eq("ip_address", ip)
-    .single();
+  const { data, error } = await supabase.rpc('is_ip_whitelisted', { check_ip: ip });
   
-  return !!data;
+  if (error) {
+    console.error('Whitelist check error:', error);
+    return false;
+  }
+  
+  return data === true;
 }
 
 // Rate limiting helper
