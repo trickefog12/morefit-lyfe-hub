@@ -11,16 +11,14 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useReviews } from "@/hooks/useReviews";
 import heroDesktop from "@/assets/hero-desktop.jpg";
 import heroMobile from "@/assets/hero-mobile.jpg";
+
 const Index = () => {
-  const {
-    t
-  } = useLanguage();
+  const { t } = useLanguage();
   const featuredProducts = products.slice(0, 3);
-  const {
-    data: reviews,
-    isLoading
-  } = useReviews();
-  return <div className="min-h-screen flex flex-col">
+  const { data: reviews, isLoading } = useReviews();
+
+  return (
+    <div className="min-h-screen flex flex-col">
       <Header />
       
       {/* Hero Section */}
@@ -29,7 +27,11 @@ const Index = () => {
         <div className="absolute inset-0 z-0">
           <picture>
             <source media="(min-width: 768px)" srcSet={heroDesktop} />
-            <img src={heroMobile} alt="Δυναμική προπόνηση - Γυναίκα σε δράση" className="h-full w-full object-cover" />
+            <img
+              src={heroMobile}
+              alt="Δυναμική προπόνηση - Γυναίκα σε δράση"
+              className="h-full w-full object-cover"
+            />
           </picture>
           <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/60 to-transparent" />
         </div>
@@ -37,10 +39,10 @@ const Index = () => {
         {/* Hero Content */}
         <div className="container relative z-10 mx-auto px-4 lg:px-8 py-20">
           <div className="max-w-2xl">
-            <h1 className="text-4xl font-bold text-primary-foreground mb-6 leading-tight text-center md:text-6xl">
+            <h1 className="text-4xl md:text-6xl font-bold text-primary-foreground mb-6 leading-tight">
               {t("hero_title")}
               <br />
-              <span className="text-primary text-left">{t("hero_subtitle")}</span>
+              <span className="text-primary">{t("hero_subtitle")}</span>
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/90 mb-8 max-w-xl">
               {t("hero_description")}
@@ -89,7 +91,9 @@ const Index = () => {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {featuredProducts.map(product => <ProductCard key={product.sku} product={product} />)}
+            {featuredProducts.map((product) => (
+              <ProductCard key={product.sku} product={product} />
+            ))}
           </div>
           <div className="text-center">
             <Link to="/programs">
@@ -162,21 +166,38 @@ const Index = () => {
           </div>
           
           {/* Display Reviews */}
-          {isLoading ? <div className="text-center text-muted-foreground">{t("loading_reviews")}</div> : reviews && reviews.length > 0 ? <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
-              {reviews.slice(0, 6).map(review => <Card key={review.id}>
+          {isLoading ? (
+            <div className="text-center text-muted-foreground">{t("loading_reviews")}</div>
+          ) : reviews && reviews.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
+              {reviews.slice(0, 6).map((review) => (
+                <Card key={review.id}>
                   <CardContent className="pt-8">
                     <div className="flex gap-1 mb-4">
-                      {[...Array(5)].map((_, i) => <Star key={i} className={`h-5 w-5 ${i < review.rating ? "fill-secondary text-secondary" : "text-muted-foreground"}`} />)}
+                      {[...Array(5)].map((_, i) => (
+                        <Star 
+                          key={i} 
+                          className={`h-5 w-5 ${
+                            i < review.rating 
+                              ? "fill-secondary text-secondary" 
+                              : "text-muted-foreground"
+                          }`} 
+                        />
+                      ))}
                     </div>
                     <p className="text-muted-foreground mb-4">"{review.comment}"</p>
                     <p className="font-semibold">
                       {review.profiles?.full_name || t("anonymous")}
                     </p>
                   </CardContent>
-                </Card>)}
-            </div> : <div className="text-center text-muted-foreground mb-16">
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-muted-foreground mb-16">
               {t("no_reviews_yet")}
-            </div>}
+            </div>
+          )}
 
           {/* Review Form */}
           <div className="max-w-2xl mx-auto">
@@ -208,6 +229,8 @@ const Index = () => {
       </section>
 
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
