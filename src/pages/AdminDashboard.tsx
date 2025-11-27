@@ -15,6 +15,7 @@ import { FileUpload } from "@/components/admin/FileUpload";
 import { AuditLog } from "@/components/admin/AuditLog";
 import { AdminActivityWidget } from "@/components/admin/AdminActivityWidget";
 import { NotificationSettings } from "@/components/admin/NotificationSettings";
+import { IPWhitelistManager } from "@/components/admin/IPWhitelistManager";
 import { ShoppingBag, DollarSign, Star, Users, BarChart, Package, Upload, Settings, Shield } from "lucide-react";
 import { NotificationPanel } from "@/components/admin/NotificationPanel";
 
@@ -169,6 +170,7 @@ const AdminDashboard = () => {
             <div className="space-y-6">
               <DownloadLimitManager />
               <NotificationSettings />
+              <IPWhitelistManager />
             </div>
           </TabsContent>
 

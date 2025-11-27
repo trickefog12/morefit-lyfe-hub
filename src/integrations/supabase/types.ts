@@ -184,6 +184,33 @@ export type Database = {
           },
         ]
       }
+      ip_whitelist: {
+        Row: {
+          added_by: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          ip_address: string
+          updated_at: string | null
+        }
+        Insert: {
+          added_by?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          ip_address: string
+          updated_at?: string | null
+        }
+        Update: {
+          added_by?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          ip_address?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       pending_checkouts: {
         Row: {
           created_at: string
