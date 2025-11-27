@@ -37,10 +37,10 @@ const Index = () => {
         {/* Hero Content */}
         <div className="container relative z-10 mx-auto px-4 lg:px-8 py-20">
           <div className="max-w-2xl">
-            <h1 className="text-4xl font-bold text-primary-foreground mb-6 leading-tight md:text-5xl text-center">
+            <h1 className="text-4xl font-bold text-primary-foreground mb-6 leading-tight text-center md:text-6xl">
               {t("hero_title")}
               <br />
-              <span className="text-primary">{t("hero_subtitle")}</span>
+              <span className="text-primary text-left">{t("hero_subtitle")}</span>
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/90 mb-8 max-w-xl">
               {t("hero_description")}
