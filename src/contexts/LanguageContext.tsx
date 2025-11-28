@@ -20,7 +20,7 @@ const translations = {
     
     // Hero Section
     hero_title: "MoreFitLyfe",
-    hero_subtitle: "Γίνε η καλύτερη έκδοση του εαυτού σου.",
+    hero_subtitle: "Γίνε η καλύτερη εκδοχή του εαυτού σου.",
     hero_description: "Προγράμματα δύναμης, εξατομικευμένα διαιτολόγια και υποστήριξη για πραγματική μεταμόρφωση.",
     buy_now: "Αγόρασε τώρα",
     become_member: "Γίνε μέλος",
