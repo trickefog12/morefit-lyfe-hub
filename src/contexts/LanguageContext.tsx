@@ -165,6 +165,10 @@ const translations = {
     anonymous: "Ανώνυμος",
     no_reviews_yet: "Δεν υπάρχουν κριτικές ακόμα",
     leave_review: "Αφήστε μια Κριτική",
+    sign_in_to_review: "Συνδεθείτε για να αφήσετε μια κριτική",
+    rating: "Αξιολόγηση",
+    your_review: "Η Κριτική σας",
+    share_experience: "Μοιραστείτε την εμπειρία σας..."
   },
   en: {
     // Navigation
@@ -320,6 +324,10 @@ const translations = {
     anonymous: "Anonymous",
     no_reviews_yet: "No reviews yet",
     leave_review: "Leave a Review",
+    sign_in_to_review: "Sign in to leave a review",
+    rating: "Rating",
+    your_review: "Your Review",
+    share_experience: "Share your experience..."
   },
 };
 
