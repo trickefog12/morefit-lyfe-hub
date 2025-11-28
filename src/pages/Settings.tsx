@@ -19,7 +19,7 @@ interface KeyboardShortcut {
 }
 
 export default function Settings() {
-  const { language, toggleLanguage } = useLanguage();
+  const { language, toggleLanguage, t } = useLanguage();
   const { toast } = useToast();
   
   const [shortcuts, setShortcuts] = useState<KeyboardShortcut[]>([
@@ -81,10 +81,8 @@ export default function Settings() {
     localStorage.setItem('morefitlyfe-language', defaultLanguage);
 
     toast({
-      title: language === 'el' ? 'Οι ρυθμίσεις αποθηκεύτηκαν' : 'Settings saved',
-      description: language === 'el' 
-        ? 'Οι προτιμήσεις σας ενημερώθηκαν επιτυχώς' 
-        : 'Your preferences have been updated successfully',
+      title: t("toast_settings_saved"),
+      description: t("toast_settings_saved_desc"),
     });
   };
 
@@ -94,12 +92,10 @@ export default function Settings() {
       <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">
-            {language === 'el' ? 'Ρυθμίσεις' : 'Settings'}
+            {t("settings_title")}
           </h1>
           <p className="text-muted-foreground">
-            {language === 'el' 
-              ? 'Διαχειριστείτε τις προτιμήσεις και τις ρυθμίσεις του λογαριασμού σας' 
-              : 'Manage your account preferences and settings'}
+            {t("settings_description")}
           </p>
         </div>
 
@@ -110,13 +106,11 @@ export default function Settings() {
               <div className="flex items-center gap-2">
                 <Keyboard className="h-5 w-5 text-primary" />
                 <CardTitle>
-                  {language === 'el' ? 'Συντομεύσεις πληκτρολογίου' : 'Keyboard Shortcuts'}
+                  {t("keyboard_shortcuts")}
                 </CardTitle>
               </div>
               <CardDescription>
-                {language === 'el' 
-                  ? 'Ενεργοποιήστε ή απενεργοποιήστε συντομεύσεις πληκτρολογίου για γρήγορη πλοήγηση' 
-                  : 'Enable or disable keyboard shortcuts for faster navigation'}
+                {t("keyboard_shortcuts_desc")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -137,9 +131,7 @@ export default function Settings() {
                 </div>
               ))}
               <div className="pt-4 text-sm text-muted-foreground">
-                {language === 'el' 
-                  ? 'Πατήστε ? για να δείτε όλες τις διαθέσιμες συντομεύσεις' 
-                  : 'Press ? to view all available shortcuts'}
+                {t("keyboard_shortcuts_help")}
               </div>
             </CardContent>
           </Card>
@@ -150,27 +142,25 @@ export default function Settings() {
               <div className="flex items-center gap-2">
                 <Languages className="h-5 w-5 text-primary" />
                 <CardTitle>
-                  {language === 'el' ? 'Προτιμήσεις γλώσσας' : 'Language Preferences'}
+                  {t("language_preferences")}
                 </CardTitle>
               </div>
               <CardDescription>
-                {language === 'el' 
-                  ? 'Επιλέξτε την προτιμώμενη γλώσσα για τη διεπαφή' 
-                  : 'Choose your preferred language for the interface'}
+                {t("language_preferences_desc")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label className="text-base">
-                    {language === 'el' ? 'Προεπιλεγμένη γλώσσα' : 'Default Language'}
+                    {t("default_language")}
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    {defaultLanguage === 'el' ? 'Ελληνικά' : 'English'}
+                    {defaultLanguage === 'el' ? t("greek") : t("english")}
                   </p>
                 </div>
                 <Button variant="outline" onClick={handleLanguageChange}>
-                  {language === 'el' ? 'Αλλαγή' : 'Change'}
+                  {t("change")}
                 </Button>
               </div>
             </CardContent>
@@ -182,25 +172,21 @@ export default function Settings() {
               <div className="flex items-center gap-2">
                 <Bell className="h-5 w-5 text-primary" />
                 <CardTitle>
-                  {language === 'el' ? 'Προτιμήσεις ειδοποιήσεων' : 'Notification Preferences'}
+                  {t("notification_preferences")}
                 </CardTitle>
               </div>
               <CardDescription>
-                {language === 'el' 
-                  ? 'Διαχειριστείτε πώς και πότε θέλετε να λαμβάνετε ειδοποιήσεις' 
-                  : 'Manage how and when you want to receive notifications'}
+                {t("notification_preferences_desc")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label className="text-base">
-                    {language === 'el' ? 'Ειδοποιήσεις email' : 'Email Notifications'}
+                    {t("email_notifications")}
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    {language === 'el' 
-                      ? 'Λήψη ειδοποιήσεων μέσω email' 
-                      : 'Receive notifications via email'}
+                    {t("email_notifications_desc")}
                   </p>
                 </div>
                 <Switch
@@ -212,12 +198,10 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label className="text-base">
-                    {language === 'el' ? 'Push ειδοποιήσεις' : 'Push Notifications'}
+                    {t("push_notifications")}
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    {language === 'el' 
-                      ? 'Λήψη push ειδοποιήσεων στη συσκευή σας' 
-                      : 'Receive push notifications on your device'}
+                    {t("push_notifications_desc")}
                   </p>
                 </div>
                 <Switch
@@ -229,12 +213,10 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label className="text-base">
-                    {language === 'el' ? 'Marketing emails' : 'Marketing Emails'}
+                    {t("marketing_emails")}
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    {language === 'el' 
-                      ? 'Λήψη προσφορών και ενημερώσεων προϊόντων' 
-                      : 'Receive special offers and product updates'}
+                    {t("marketing_emails_desc")}
                   </p>
                 </div>
                 <Switch
@@ -246,12 +228,10 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label className="text-base">
-                    {language === 'el' ? 'Ενημερώσεις συστήματος' : 'System Updates'}
+                    {t("system_updates")}
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    {language === 'el' 
-                      ? 'Σημαντικές ειδοποιήσεις για το λογαριασμό σας' 
-                      : 'Important notifications about your account'}
+                    {t("system_updates_desc")}
                   </p>
                 </div>
                 <Switch
@@ -266,7 +246,7 @@ export default function Settings() {
           <div className="flex justify-end">
             <Button onClick={handleSaveSettings} size="lg" className="gap-2">
               <Save className="h-4 w-4" />
-              {language === 'el' ? 'Αποθήκευση ρυθμίσεων' : 'Save Settings'}
+              {t("save_settings")}
             </Button>
           </div>
         </div>

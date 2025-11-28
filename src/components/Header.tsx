@@ -58,8 +58,8 @@ export const Header = () => {
             haptics.light();
             navigate('/');
             toast({
-              title: language === "el" ? "Αρχική σελίδα" : "Home",
-              description: language === "el" ? "Μετάβαση στην αρχική σελίδα" : "Navigating to home page",
+              title: t("home"),
+              description: t("toast_navigating_home"),
               duration: 1500,
             });
             break;
@@ -68,8 +68,8 @@ export const Header = () => {
             haptics.light();
             navigate('/programs');
             toast({
-              title: language === "el" ? "Προγράμματα" : "Programs",
-              description: language === "el" ? "Μετάβαση στα προγράμματα" : "Navigating to programs",
+              title: t("programs"),
+              description: t("toast_navigating_programs"),
               duration: 1500,
             });
             break;
@@ -78,8 +78,8 @@ export const Header = () => {
             haptics.light();
             navigate('/meal-plans');
             toast({
-              title: language === "el" ? "Διατροφή" : "Meal Plans",
-              description: language === "el" ? "Μετάβαση στη διατροφή" : "Navigating to meal plans",
+              title: t("nutrition"),
+              description: t("toast_navigating_meals"),
               duration: 1500,
             });
             break;
@@ -91,8 +91,8 @@ export const Header = () => {
             // Show toast notification
             const newLanguage = language === "el" ? "en" : "el";
             toast({
-              title: newLanguage === "el" ? "Γλώσσα άλλαξε" : "Language changed",
-              description: newLanguage === "el" ? "Ελληνικά ενεργοποιήθηκαν" : "English activated",
+              title: t("toast_language_changed"),
+              description: newLanguage === "el" ? t("toast_language_greek") : t("toast_language_english"),
               duration: 2000,
             });
             break;
@@ -133,7 +133,7 @@ export const Header = () => {
                 onClick={() => navigate("/my-purchases")}
               >
                 <ShoppingBag className="h-4 w-4" />
-                My Purchases
+                {t("my_purchases")}
               </Button>
               {isAdmin && (
                 <Button
@@ -143,7 +143,7 @@ export const Header = () => {
                   onClick={() => navigate("/admin")}
                 >
                   <Shield className="h-4 w-4" />
-                  Admin
+                  {t("admin")}
                 </Button>
               )}
               <Button
@@ -153,7 +153,7 @@ export const Header = () => {
                 onClick={() => navigate("/settings")}
               >
                 <Settings className="h-4 w-4" />
-                Settings
+                {t("settings")}
               </Button>
               <Button
                 variant="ghost"
@@ -171,7 +171,7 @@ export const Header = () => {
                 className="gap-2"
               >
                 <LogOut className="h-4 w-4" />
-                Logout
+                {t("logout")}
               </Button>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -285,7 +285,7 @@ export const Header = () => {
                   className="gap-2 justify-start w-full"
                 >
                   <ShoppingBag className="h-4 w-4" />
-                  My Purchases
+                  {t("my_purchases")}
                 </Button>
                 {isAdmin && (
                   <Button
@@ -298,7 +298,7 @@ export const Header = () => {
                     className="gap-2 justify-start w-full"
                   >
                     <Shield className="h-4 w-4" />
-                    Admin Dashboard
+                    {t("admin_dashboard")}
                   </Button>
                 )}
                 <Button
@@ -311,7 +311,7 @@ export const Header = () => {
                   className="gap-2 justify-start w-full"
                 >
                   <Settings className="h-4 w-4" />
-                  Settings
+                  {t("settings")}
                 </Button>
                 <Button
                   variant="ghost"
@@ -335,7 +335,7 @@ export const Header = () => {
                   className="gap-2 justify-start w-full"
                 >
                   <LogOut className="h-4 w-4" />
-                  Logout
+                  {t("logout")}
                 </Button>
               </>
             ) : (
@@ -354,18 +354,16 @@ export const Header = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {language === "el" ? "Συντομεύσεις Πληκτρολογίου" : "Keyboard Shortcuts"}
+              {t("shortcuts_title")}
             </DialogTitle>
             <DialogDescription>
-              {language === "el" 
-                ? "Χρησιμοποιήστε αυτές τις συντομεύσεις για γρήγορη πλοήγηση" 
-                : "Use these shortcuts for quick navigation"}
+              {t("shortcuts_description")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-1">
             <div className="flex justify-between items-center py-2 border-b border-border/50">
               <span className="text-sm text-muted-foreground">
-                {language === "el" ? "Αρχική σελίδα" : "Go to home"}
+                {t("shortcut_home")}
               </span>
               <kbd className="px-2 py-1 text-xs font-semibold text-foreground bg-muted border border-border rounded">
                 {navigator.platform.toUpperCase().includes('MAC') ? "⌘ + H" : "Ctrl + H"}
@@ -373,7 +371,7 @@ export const Header = () => {
             </div>
             <div className="flex justify-between items-center py-2 border-b border-border/50">
               <span className="text-sm text-muted-foreground">
-                {language === "el" ? "Προγράμματα" : "Go to programs"}
+                {t("shortcut_programs")}
               </span>
               <kbd className="px-2 py-1 text-xs font-semibold text-foreground bg-muted border border-border rounded">
                 {navigator.platform.toUpperCase().includes('MAC') ? "⌘ + P" : "Ctrl + P"}
@@ -381,7 +379,7 @@ export const Header = () => {
             </div>
             <div className="flex justify-between items-center py-2 border-b border-border/50">
               <span className="text-sm text-muted-foreground">
-                {language === "el" ? "Διατροφή" : "Go to meal plans"}
+                {t("shortcut_meals")}
               </span>
               <kbd className="px-2 py-1 text-xs font-semibold text-foreground bg-muted border border-border rounded">
                 {navigator.platform.toUpperCase().includes('MAC') ? "⌘ + M" : "Ctrl + M"}
@@ -389,7 +387,7 @@ export const Header = () => {
             </div>
             <div className="flex justify-between items-center py-2 border-b border-border/50">
               <span className="text-sm text-muted-foreground">
-                {language === "el" ? "Εναλλαγή γλώσσας" : "Toggle language"}
+                {t("shortcut_toggle_language")}
               </span>
               <kbd className="px-2 py-1 text-xs font-semibold text-foreground bg-muted border border-border rounded">
                 {navigator.platform.toUpperCase().includes('MAC') ? "⌘ + L" : "Ctrl + L"}
@@ -397,7 +395,7 @@ export const Header = () => {
             </div>
             <div className="flex justify-between items-center py-2">
               <span className="text-sm text-muted-foreground">
-                {language === "el" ? "Εμφάνιση συντομεύσεων" : "Show shortcuts"}
+                {t("shortcut_show_shortcuts")}
               </span>
               <kbd className="px-2 py-1 text-xs font-semibold text-foreground bg-muted border border-border rounded">
                 ?
