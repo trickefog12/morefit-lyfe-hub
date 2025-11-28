@@ -36,7 +36,7 @@ export function ReviewForm() {
 
   const onSubmit = async (data: ReviewInput) => {
     if (!user) {
-      toast.error("Please sign in to leave a review");
+      toast.error(t("toast_sign_in_required"));
       return;
     }
 
@@ -50,10 +50,10 @@ export function ReviewForm() {
 
       if (error) throw error;
 
-      toast.success("Review submitted! It will appear after approval.");
+      toast.success(t("toast_review_submitted"));
       form.reset();
     } catch (error: any) {
-      toast.error(error.message || "Failed to submit review");
+      toast.error(error.message || t("toast_review_failed"));
     } finally {
       setIsSubmitting(false);
     }

@@ -12,11 +12,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { signupSchema, loginSchema, type SignupInput, type LoginInput } from "@/lib/validations";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useEffect, useState } from "react";
 
 const SignUp = () => {
   const navigate = useNavigate();
   const { user, signUp, signIn, loading } = useAuth();
+  const { t } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const signupForm = useForm<SignupInput>({
@@ -70,7 +72,7 @@ const SignUp = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
+        <div className="animate-pulse text-muted-foreground">{t("loading")}</div>
       </div>
     );
   }
@@ -83,9 +85,9 @@ const SignUp = () => {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <h1 className="text-4xl font-bold mb-4">Join MoreFitLyfe</h1>
+              <h1 className="text-4xl font-bold mb-4">{t("join_morefitlyfe")}</h1>
               <p className="text-lg text-muted-foreground">
-                Start your transformation journey today
+                {t("start_transformation")}
               </p>
             </div>
 
@@ -93,8 +95,8 @@ const SignUp = () => {
               <CardContent className="pt-6">
                 <Tabs defaultValue="signup" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 mb-6">
-                    <TabsTrigger value="signup">Sign Up</TabsTrigger>
-                    <TabsTrigger value="login">Log In</TabsTrigger>
+                    <TabsTrigger value="signup">{t("sign_up")}</TabsTrigger>
+                    <TabsTrigger value="login">{t("log_in")}</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="signup">
@@ -104,39 +106,39 @@ const SignUp = () => {
                           control={signupForm.control}
                           name="fullName"
                           render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Full Name</FormLabel>
-                              <FormControl>
-                                <Input placeholder="John Doe" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
+                          <FormItem>
+                            <FormLabel>{t("full_name")}</FormLabel>
+                            <FormControl>
+                              <Input placeholder="John Doe" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
                           )}
                         />
                         <FormField
                           control={signupForm.control}
                           name="email"
                           render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Email</FormLabel>
-                              <FormControl>
-                                <Input type="email" placeholder="john@example.com" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
+                          <FormItem>
+                            <FormLabel>{t("email")}</FormLabel>
+                            <FormControl>
+                              <Input type="email" placeholder="john@example.com" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
                           )}
                         />
                         <FormField
                           control={signupForm.control}
                           name="password"
                           render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Password</FormLabel>
-                              <FormControl>
-                                <Input type="password" placeholder="••••••••" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
+                          <FormItem>
+                            <FormLabel>{t("password")}</FormLabel>
+                            <FormControl>
+                              <Input type="password" placeholder="••••••••" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
                           )}
                         />
                         <FormField
@@ -150,24 +152,24 @@ const SignUp = () => {
                                   onCheckedChange={field.onChange}
                                 />
                               </FormControl>
-                              <div className="space-y-1 leading-none">
-                                <FormLabel className="text-sm text-muted-foreground font-normal">
-                                  I agree to the{" "}
-                                  <Link to="/privacy" className="text-primary hover:underline">
-                                    Privacy Policy
-                                  </Link>{" "}
-                                  and{" "}
-                                  <Link to="/terms" className="text-primary hover:underline">
-                                    Terms of Service
-                                  </Link>
-                                </FormLabel>
-                                <FormMessage />
-                              </div>
+                            <div className="space-y-1 leading-none">
+                              <FormLabel className="text-sm text-muted-foreground font-normal">
+                                {t("i_agree_to")}{" "}
+                                <Link to="/privacy" className="text-primary hover:underline">
+                                  {t("privacy_policy")}
+                                </Link>{" "}
+                                {t("and")}{" "}
+                                <Link to="/terms" className="text-primary hover:underline">
+                                  {t("terms_of_service")}
+                                </Link>
+                              </FormLabel>
+                              <FormMessage />
+                            </div>
                             </FormItem>
                           )}
                         />
                         <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
-                          {isSubmitting ? "Creating Account..." : "Create Account"}
+                          {isSubmitting ? t("creating_account") : t("create_account")}
                         </Button>
                       </form>
                     </Form>
@@ -181,7 +183,7 @@ const SignUp = () => {
                           name="email"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Email</FormLabel>
+                              <FormLabel>{t("email")}</FormLabel>
                               <FormControl>
                                 <Input type="email" placeholder="john@example.com" {...field} />
                               </FormControl>
@@ -194,7 +196,7 @@ const SignUp = () => {
                           name="password"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Password</FormLabel>
+                              <FormLabel>{t("password")}</FormLabel>
                               <FormControl>
                                 <Input type="password" placeholder="••••••••" {...field} />
                               </FormControl>
@@ -203,7 +205,7 @@ const SignUp = () => {
                           )}
                         />
                         <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
-                          {isSubmitting ? "Logging in..." : "Log In"}
+                          {isSubmitting ? t("logging_in") : t("log_in")}
                         </Button>
                       </form>
                     </Form>
@@ -212,7 +214,7 @@ const SignUp = () => {
 
                 <p className="text-center text-sm text-muted-foreground mt-6">
                   <Link to="/" className="text-primary hover:underline font-medium">
-                    Back to Home
+                    {t("back_to_home")}
                   </Link>
                 </p>
               </CardContent>
