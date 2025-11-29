@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Check, X, Star } from "lucide-react";
 import { format } from "date-fns";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Review {
   id: string;
@@ -23,6 +24,7 @@ interface Review {
 export const ReviewModeration = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
 
   const { data: reviews, isLoading } = useQuery({
     queryKey: ['admin-reviews'],
@@ -51,7 +53,7 @@ export const ReviewModeration = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-reviews'] });
-      toast({ title: "Review status updated" });
+      toast({ title: t("review_status_updated") });
     }
   });
 
@@ -66,12 +68,12 @@ export const ReviewModeration = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-reviews'] });
-      toast({ title: "Review deleted" });
+      toast({ title: t("review_deleted") });
     }
   });
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading reviews...</div>;
+    return <div className="text-center py-8">{t("loading_reviews_admin")}</div>;
   }
 
   const pendingReviews = reviews?.filter(r => !r.approved) || [];
@@ -81,8 +83,8 @@ export const ReviewModeration = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Pending Reviews ({pendingReviews.length})</CardTitle>
-          <CardDescription>Review and moderate customer feedback</CardDescription>
+          <CardTitle>{t("pending_reviews")} ({pendingReviews.length})</CardTitle>
+          <CardDescription>{t("pending_reviews_desc")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {pendingReviews.map((review) => (
@@ -101,7 +103,7 @@ export const ReviewModeration = () => {
                           />
                         ))}
                       </div>
-                      <Badge variant="outline">Pending</Badge>
+                      <Badge variant="outline">{t("pending")}</Badge>
                     </div>
                     <p className="text-sm mb-2">{review.comment}</p>
                     <div className="text-xs text-muted-foreground">
@@ -116,7 +118,7 @@ export const ReviewModeration = () => {
                       onClick={() => updateReviewMutation.mutate({ id: review.id, approved: true })}
                     >
                       <Check className="h-4 w-4 mr-1" />
-                      Approve
+                      {t("approve")}
                     </Button>
                     <Button
                       size="sm"
@@ -124,7 +126,7 @@ export const ReviewModeration = () => {
                       onClick={() => deleteReviewMutation.mutate(review.id)}
                     >
                       <X className="h-4 w-4 mr-1" />
-                      Delete
+                      {t("delete")}
                     </Button>
                   </div>
                 </div>
@@ -134,7 +136,7 @@ export const ReviewModeration = () => {
           
           {!pendingReviews.length && (
             <div className="text-center py-8 text-muted-foreground">
-              No pending reviews
+              {t("no_pending_reviews")}
             </div>
           )}
         </CardContent>
@@ -142,7 +144,7 @@ export const ReviewModeration = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Approved Reviews ({approvedReviews.length})</CardTitle>
+          <CardTitle>{t("approved_reviews")} ({approvedReviews.length})</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {approvedReviews.map((review) => (
@@ -161,7 +163,7 @@ export const ReviewModeration = () => {
                           />
                         ))}
                       </div>
-                      <Badge>Approved</Badge>
+                      <Badge>{t("approved")}</Badge>
                     </div>
                     <p className="text-sm mb-2">{review.comment}</p>
                     <div className="text-xs text-muted-foreground">
@@ -176,7 +178,7 @@ export const ReviewModeration = () => {
                       onClick={() => updateReviewMutation.mutate({ id: review.id, approved: false })}
                     >
                       <X className="h-4 w-4 mr-1" />
-                      Unapprove
+                      {t("unapprove")}
                     </Button>
                   </div>
                 </div>

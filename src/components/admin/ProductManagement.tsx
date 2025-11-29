@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Product {
   sku: string;
@@ -29,6 +30,7 @@ export const ProductManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
 
   const { data: products, isLoading } = useQuery({
     queryKey: ['admin-products'],
@@ -62,12 +64,12 @@ export const ProductManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
-      toast({ title: "Product updated successfully" });
+      toast({ title: t("product_updated") });
       setIsDialogOpen(false);
       setEditingProduct(null);
     },
     onError: () => {
-      toast({ title: "Failed to update product", variant: "destructive" });
+      toast({ title: t("product_update_failed"), variant: "destructive" });
     }
   });
 
@@ -82,7 +84,7 @@ export const ProductManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
-      toast({ title: "Product status updated" });
+      toast({ title: t("product_status_updated") });
     }
   });
 
@@ -98,15 +100,15 @@ export const ProductManagement = () => {
   };
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading products...</div>;
+    return <div className="text-center py-8">{t("loading_products")}</div>;
   }
 
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Product Management</CardTitle>
-          <CardDescription>Manage your training programs and products</CardDescription>
+          <CardTitle>{t("product_management")}</CardTitle>
+          <CardDescription>{t("product_management_desc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -122,7 +124,7 @@ export const ProductManagement = () => {
                     
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-2">
-                        <Label htmlFor={`active-${product.sku}`}>Active</Label>
+                        <Label htmlFor={`active-${product.sku}`}>{t("active")}</Label>
                         <Switch
                           id={`active-${product.sku}`}
                           checked={product.active}
@@ -151,15 +153,15 @@ export const ProductManagement = () => {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Product</DialogTitle>
-            <DialogDescription>Update product details and pricing</DialogDescription>
+            <DialogTitle>{t("edit_product")}</DialogTitle>
+            <DialogDescription>{t("edit_product_desc")}</DialogDescription>
           </DialogHeader>
           
           {editingProduct && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name_en">Name (English)</Label>
+                  <Label htmlFor="name_en">{t("name_english")}</Label>
                   <Input
                     id="name_en"
                     value={editingProduct.name_en}
@@ -168,7 +170,7 @@ export const ProductManagement = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="name_el">Name (Greek)</Label>
+                  <Label htmlFor="name_el">{t("name_greek")}</Label>
                   <Input
                     id="name_el"
                     value={editingProduct.name_el}
@@ -178,7 +180,7 @@ export const ProductManagement = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description_en">Description (English)</Label>
+                <Label htmlFor="description_en">{t("description_english")}</Label>
                 <Textarea
                   id="description_en"
                   value={editingProduct.description_en || ""}
@@ -188,7 +190,7 @@ export const ProductManagement = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description_el">Description (Greek)</Label>
+                <Label htmlFor="description_el">{t("description_greek")}</Label>
                 <Textarea
                   id="description_el"
                   value={editingProduct.description_el || ""}
@@ -198,7 +200,7 @@ export const ProductManagement = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="price">Price ($)</Label>
+                <Label htmlFor="price">{t("price_usd")}</Label>
                 <Input
                   id="price"
                   type="number"
@@ -209,7 +211,7 @@ export const ProductManagement = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="image_url">Image URL</Label>
+                <Label htmlFor="image_url">{t("image_url")}</Label>
                 <Input
                   id="image_url"
                   value={editingProduct.image_url || ""}
@@ -219,10 +221,10 @@ export const ProductManagement = () => {
 
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
+                  {t("cancel")}
                 </Button>
                 <Button onClick={handleSave} disabled={updateProductMutation.isPending}>
-                  {updateProductMutation.isPending ? "Saving..." : "Save Changes"}
+                  {updateProductMutation.isPending ? t("saving") : t("save_changes")}
                 </Button>
               </div>
             </div>

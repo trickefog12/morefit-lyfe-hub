@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, FileText, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const FileUpload = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -14,6 +15,7 @@ export const FileUpload = () => {
   const [productSku, setProductSku] = useState("");
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -22,8 +24,8 @@ export const FileUpload = () => {
         setFile(selectedFile);
       } else {
         toast({
-          title: "Invalid File Type",
-          description: "Please select a PDF file.",
+          title: t("invalid_file_type"),
+          description: t("invalid_file_type_desc"),
           variant: "destructive",
         });
       }
@@ -33,8 +35,8 @@ export const FileUpload = () => {
   const handleUpload = async () => {
     if (!file || !downloadToken || !productSku) {
       toast({
-        title: "Missing Information",
-        description: "Please provide all required fields.",
+        title: t("missing_information"),
+        description: t("missing_information_desc"),
         variant: "destructive",
       });
       return;
@@ -59,8 +61,8 @@ export const FileUpload = () => {
       }
 
       toast({
-        title: "Upload Successful",
-        description: `File uploaded successfully for token: ${downloadToken}`,
+        title: t("upload_successful"),
+        description: t("upload_successful_desc").replace("{token}", downloadToken),
       });
 
       // Reset form
@@ -74,8 +76,8 @@ export const FileUpload = () => {
     } catch (error: any) {
       console.error("Upload error:", error);
       toast({
-        title: "Upload Failed",
-        description: error.message || "Failed to upload file. Please try again.",
+        title: t("upload_failed"),
+        description: error.message || t("upload_failed_desc"),
         variant: "destructive",
       });
     } finally {
@@ -88,24 +90,23 @@ export const FileUpload = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Upload className="h-5 w-5" />
-          Upload Product Files
+          {t("upload_product_files")}
         </CardTitle>
         <CardDescription>
-          Upload PDF files for purchased products. Files will be associated with download tokens.
+          {t("upload_product_files_desc")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            To upload a file, you need the download token from a purchase and the product SKU.
-            You can find these in the Purchase List below.
+            {t("upload_info_alert")}
           </AlertDescription>
         </Alert>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="download-token">Download Token</Label>
+            <Label htmlFor="download-token">{t("download_token")}</Label>
             <Input
               id="download-token"
               placeholder="e.g., 123e4567-e89b-12d3-a456-426614174000"
@@ -113,12 +114,12 @@ export const FileUpload = () => {
               onChange={(e) => setDownloadToken(e.target.value)}
             />
             <p className="text-xs text-muted-foreground">
-              The unique download token from the purchase record
+              {t("download_token_desc")}
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="product-sku">Product SKU</Label>
+            <Label htmlFor="product-sku">{t("product_sku")}</Label>
             <Input
               id="product-sku"
               placeholder="e.g., strength-8week-v1"
@@ -126,12 +127,12 @@ export const FileUpload = () => {
               onChange={(e) => setProductSku(e.target.value)}
             />
             <p className="text-xs text-muted-foreground">
-              The SKU of the product being uploaded
+              {t("product_sku_desc")}
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="file-upload">PDF File</Label>
+            <Label htmlFor="file-upload">{t("pdf_file")}</Label>
             <div className="flex items-center gap-2">
               <Input
                 id="file-upload"
@@ -154,15 +155,15 @@ export const FileUpload = () => {
             disabled={!file || !downloadToken || !productSku || uploading}
             className="w-full"
           >
-            {uploading ? "Uploading..." : "Upload File"}
+            {uploading ? t("uploading") : t("upload_file")}
           </Button>
         </div>
 
         <Alert>
           <AlertDescription className="text-xs">
-            <strong>File Storage Path:</strong> {downloadToken}/{productSku}.pdf
+            <strong>{t("file_storage_path")}</strong> {downloadToken}/{productSku}.pdf
             <br />
-            Files are stored securely and can only be downloaded by users who own the corresponding purchase.
+            {t("file_storage_info")}
           </AlertDescription>
         </Alert>
       </CardContent>
