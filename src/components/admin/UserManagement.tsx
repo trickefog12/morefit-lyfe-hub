@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,6 +41,7 @@ interface User {
 
 export const UserManagement = () => {
   const queryClient = useQueryClient();
+  const { t } = useLanguage();
 
   const { data: users, isLoading } = useQuery({
     queryKey: ['admin-users'],
@@ -91,42 +93,42 @@ export const UserManagement = () => {
       return data;
     },
     onSuccess: () => {
-      toast.success("Download limit reset successfully");
+      toast.success(t("download_limit_reset_success"));
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
     },
     onError: (error: any) => {
-      toast.error(error.message || "Failed to reset download limit");
+      toast.error(error.message || t("download_limit_reset_failed"));
     }
   });
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading users...</div>;
+    return <div className="text-center py-8">{t("loading_users")}</div>;
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>User Management</CardTitle>
-        <CardDescription>View and manage registered users</CardDescription>
+        <CardTitle>{t("user_management")}</CardTitle>
+        <CardDescription>{t("user_management_desc")}</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Downloads</TableHead>
-              <TableHead>Last Download</TableHead>
-              <TableHead>Registered</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead>{t("name")}</TableHead>
+              <TableHead>{t("email")}</TableHead>
+              <TableHead>{t("role")}</TableHead>
+              <TableHead>{t("downloads")}</TableHead>
+              <TableHead>{t("last_download")}</TableHead>
+              <TableHead>{t("registered")}</TableHead>
+              <TableHead>{t("actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {users?.map((user) => (
               <TableRow key={user.id}>
                 <TableCell className="font-medium">
-                  {user.full_name || 'N/A'}
+                  {user.full_name || t("na")}
                 </TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>
@@ -142,7 +144,7 @@ export const UserManagement = () => {
                 <TableCell className="text-muted-foreground">
                   {user.last_download_at 
                     ? format(new Date(user.last_download_at), 'MMM dd, yyyy HH:mm')
-                    : 'Never'}
+                    : t("never")}
                 </TableCell>
                 <TableCell>
                   {format(new Date(user.created_at), 'MMM dd, yyyy')}
@@ -156,21 +158,20 @@ export const UserManagement = () => {
                         disabled={resetLimitMutation.isPending}
                       >
                         <RefreshCw className="h-4 w-4 mr-2" />
-                        Reset Download Limit
+                        {t("reset_download_limit")}
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Reset Download Limit?</AlertDialogTitle>
+                        <AlertDialogTitle>{t("reset_limit_confirm_title")}</AlertDialogTitle>
                         <AlertDialogDescription>
-                          This will clear all download history for {user.full_name || user.email} 
-                          and allow them to download files again. This action cannot be undone.
+                          {t("reset_limit_confirm_desc").replace("{user}", user.full_name || user.email)}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
                         <AlertDialogAction onClick={() => resetLimitMutation.mutate(user.id)}>
-                          Reset Limit
+                          {t("reset_limit")}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -183,7 +184,7 @@ export const UserManagement = () => {
         
         {!users?.length && (
           <div className="text-center py-8 text-muted-foreground">
-            No users yet
+            {t("no_users_yet")}
           </div>
         )}
       </CardContent>

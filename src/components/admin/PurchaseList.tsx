@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Table,
   TableBody,
@@ -29,6 +30,8 @@ interface Purchase {
 }
 
 export const PurchaseList = () => {
+  const { t } = useLanguage();
+  
   const { data: purchases, isLoading } = useQuery({
     queryKey: ['admin-purchases'],
     queryFn: async () => {
@@ -47,24 +50,24 @@ export const PurchaseList = () => {
   });
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading purchases...</div>;
+    return <div className="text-center py-8">{t("loading_purchases")}</div>;
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Purchase History</CardTitle>
-        <CardDescription>View all customer purchases and transaction details</CardDescription>
+        <CardTitle>{t("purchase_history")}</CardTitle>
+        <CardDescription>{t("purchase_history_desc")}</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Product</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{t("date")}</TableHead>
+              <TableHead>{t("customer")}</TableHead>
+              <TableHead>{t("product")}</TableHead>
+              <TableHead>{t("amount")}</TableHead>
+              <TableHead>{t("status")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -75,7 +78,7 @@ export const PurchaseList = () => {
                 </TableCell>
                 <TableCell>
                   <div>
-                    <div className="font-medium">{purchase.profiles.full_name || 'N/A'}</div>
+                    <div className="font-medium">{purchase.profiles.full_name || t("na")}</div>
                     <div className="text-sm text-muted-foreground">{purchase.profiles.email}</div>
                   </div>
                 </TableCell>
@@ -93,7 +96,7 @@ export const PurchaseList = () => {
         
         {!purchases?.length && (
           <div className="text-center py-8 text-muted-foreground">
-            No purchases yet
+            {t("no_purchases_yet")}
           </div>
         )}
       </CardContent>
