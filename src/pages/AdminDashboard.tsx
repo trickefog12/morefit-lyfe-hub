@@ -18,9 +18,11 @@ import { NotificationSettings } from "@/components/admin/NotificationSettings";
 import { IPWhitelistManager } from "@/components/admin/IPWhitelistManager";
 import { ShoppingBag, DollarSign, Star, Users, BarChart, Package, Upload, Settings, Shield } from "lucide-react";
 import { NotificationPanel } from "@/components/admin/NotificationPanel";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -29,8 +31,8 @@ const AdminDashboard = () => {
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-8 flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
-            <p className="text-muted-foreground">Manage your business operations and track performance</p>
+            <h1 className="text-4xl font-bold mb-2">{t("admin_dashboard_title")}</h1>
+            <p className="text-muted-foreground">{t("admin_dashboard_subtitle")}</p>
           </div>
           <NotificationPanel />
         </div>
@@ -39,43 +41,43 @@ const AdminDashboard = () => {
           <TabsList className="grid w-full grid-cols-2 lg:grid-cols-10">
             <TabsTrigger value="overview" className="gap-2">
               <BarChart className="h-4 w-4" />
-              <span className="hidden sm:inline">Overview</span>
+              <span className="hidden sm:inline">{t("admin_overview")}</span>
             </TabsTrigger>
             <TabsTrigger value="products" className="gap-2">
               <Package className="h-4 w-4" />
-              <span className="hidden sm:inline">Products</span>
+              <span className="hidden sm:inline">{t("admin_products")}</span>
             </TabsTrigger>
             <TabsTrigger value="purchases" className="gap-2">
               <ShoppingBag className="h-4 w-4" />
-              <span className="hidden sm:inline">Purchases</span>
+              <span className="hidden sm:inline">{t("admin_purchases")}</span>
             </TabsTrigger>
             <TabsTrigger value="files" className="gap-2">
               <Upload className="h-4 w-4" />
-              <span className="hidden sm:inline">Files</span>
+              <span className="hidden sm:inline">{t("admin_files")}</span>
             </TabsTrigger>
             <TabsTrigger value="reviews" className="gap-2">
               <Star className="h-4 w-4" />
-              <span className="hidden sm:inline">Reviews</span>
+              <span className="hidden sm:inline">{t("admin_reviews")}</span>
             </TabsTrigger>
             <TabsTrigger value="users" className="gap-2">
               <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">Users</span>
+              <span className="hidden sm:inline">{t("admin_users")}</span>
             </TabsTrigger>
             <TabsTrigger value="revenue" className="gap-2">
               <DollarSign className="h-4 w-4" />
-              <span className="hidden sm:inline">Revenue</span>
+              <span className="hidden sm:inline">{t("admin_revenue")}</span>
             </TabsTrigger>
             <TabsTrigger value="downloads" className="gap-2">
               <BarChart className="h-4 w-4" />
-              <span className="hidden sm:inline">Downloads</span>
+              <span className="hidden sm:inline">{t("admin_downloads")}</span>
             </TabsTrigger>
             <TabsTrigger value="limits" className="gap-2">
               <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">Limits</span>
+              <span className="hidden sm:inline">{t("admin_limits")}</span>
             </TabsTrigger>
             <TabsTrigger value="audit" className="gap-2">
               <Shield className="h-4 w-4" />
-              <span className="hidden sm:inline">Audit</span>
+              <span className="hidden sm:inline">{t("admin_audit")}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -83,41 +85,41 @@ const AdminDashboard = () => {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t("total_revenue")}</CardTitle>
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">View in Revenue tab</div>
+                  <div className="text-2xl font-bold">{t("view_in_revenue_tab")}</div>
                 </CardContent>
               </Card>
               
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">Total Purchases</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t("total_purchases")}</CardTitle>
                   <ShoppingBag className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">View in Purchases tab</div>
+                  <div className="text-2xl font-bold">{t("view_in_purchases_tab")}</div>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t("pending_reviews_count")}</CardTitle>
                   <Star className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">View in Reviews tab</div>
+                  <div className="text-2xl font-bold">{t("view_in_reviews_tab")}</div>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t("total_users")}</CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">View in Users tab</div>
+                  <div className="text-2xl font-bold">{t("view_in_users_tab")}</div>
                 </CardContent>
               </Card>
             </div>
@@ -127,8 +129,8 @@ const AdminDashboard = () => {
               
               <Card>
                 <CardHeader>
-                  <CardTitle>Analytics Overview</CardTitle>
-                  <CardDescription>View detailed analytics in the tabs above</CardDescription>
+                  <CardTitle>{t("analytics_overview")}</CardTitle>
+                  <CardDescription>{t("analytics_overview_desc")}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <AnalyticsDashboard />
