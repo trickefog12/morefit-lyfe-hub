@@ -34,6 +34,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface DownloadLimit {
   id: string;
@@ -47,6 +48,7 @@ interface DownloadLimit {
 }
 
 export const DownloadLimitManager = () => {
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   const [limitType, setLimitType] = useState<"user" | "role">("user");
   const [selectedUser, setSelectedUser] = useState<string>("");
@@ -89,16 +91,16 @@ export const DownloadLimitManager = () => {
     mutationFn: async () => {
       const limitValue = parseInt(dailyLimit);
       if (isNaN(limitValue) || limitValue <= 0) {
-        throw new Error("Daily limit must be a positive number");
+        throw new Error(t("limit_must_be_positive"));
       }
 
       const insertData: any = { daily_limit: limitValue };
       
       if (limitType === "user") {
-        if (!selectedUser) throw new Error("Please select a user");
+        if (!selectedUser) throw new Error(t("please_select_user"));
         insertData.user_id = selectedUser;
       } else {
-        if (!selectedRole) throw new Error("Please select a role");
+        if (!selectedRole) throw new Error(t("please_select_role"));
         insertData.role = selectedRole;
       }
 
@@ -124,32 +126,32 @@ export const DownloadLimitManager = () => {
         let targetInfo = "";
         if (limitType === "user") {
           const targetUser = users?.find(u => u.id === selectedUser);
-          targetInfo = `User: ${targetUser?.email || 'Unknown'}`;
+          targetInfo = `${t("user")}: ${targetUser?.email || t("unknown_user")}`;
         } else {
-          targetInfo = `Role: ${selectedRole.toUpperCase()}`;
+          targetInfo = `${t("role")}: ${selectedRole.toUpperCase()}`;
         }
 
         // Send notification email in the background
         supabase.functions.invoke('send-admin-notification', {
           body: {
             actionType: 'create_download_limit',
-            actionLabel: 'Create Download Limit',
+            actionLabel: t("create_limit_action"),
             performedBy: user.email || 'Unknown Admin',
             target: targetInfo,
-            details: `Daily limit set to ${limitValue} downloads`,
+            details: `${t("daily_limit")}: ${limitValue} ${t("downloads")}`,
           }
         });
       }
     },
     onSuccess: () => {
-      toast.success("Download limit created successfully");
+      toast.success(t("download_limit_created"));
       queryClient.invalidateQueries({ queryKey: ['download-limits'] });
       setSelectedUser("");
       setSelectedRole("");
       setDailyLimit("10");
     },
     onError: (error: any) => {
-      toast.error(error.message || "Failed to create download limit");
+      toast.error(error.message || t("download_limit_create_failed"));
     }
   });
 
@@ -186,63 +188,63 @@ export const DownloadLimitManager = () => {
 
         // Prepare target info for notification
         const targetInfo = limitData.user_id 
-          ? `User: ${(limitData.profiles as any)?.email || 'Unknown'}`
-          : `Role: ${limitData.role?.toUpperCase()}`;
+          ? `${t("user")}: ${(limitData.profiles as any)?.email || t("unknown_user")}`
+          : `${t("role")}: ${limitData.role?.toUpperCase()}`;
 
         // Send notification email in the background
         supabase.functions.invoke('send-admin-notification', {
           body: {
             actionType: 'delete_download_limit',
-            actionLabel: 'Delete Download Limit',
+            actionLabel: t("delete_limit_action"),
             performedBy: user.email || 'Unknown Admin',
             target: targetInfo,
-            details: `Removed custom limit of ${limitData.daily_limit} downloads/day`,
+            details: `${t("deleted")} ${limitData.daily_limit} ${t("downloads")}/day`,
           }
         });
       }
     },
     onSuccess: () => {
-      toast.success("Download limit deleted successfully");
+      toast.success(t("download_limit_deleted"));
       queryClient.invalidateQueries({ queryKey: ['download-limits'] });
     },
     onError: (error: any) => {
-      toast.error(error.message || "Failed to delete download limit");
+      toast.error(error.message || t("download_limit_delete_failed"));
     }
   });
 
   if (limitsLoading) {
-    return <div className="text-center py-8">Loading download limits...</div>;
+    return <div className="text-center py-8">{t("loading_download_limits")}</div>;
   }
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Set Custom Download Limit</CardTitle>
+          <CardTitle>{t("set_custom_download_limit")}</CardTitle>
           <CardDescription>
-            Create custom download limits for specific users or roles. User-specific limits take priority over role-based limits.
+            {t("set_custom_download_limit_desc")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>Limit Type</Label>
+            <Label>{t("limit_type")}</Label>
             <Select value={limitType} onValueChange={(value: "user" | "role") => setLimitType(value)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="user">User-Specific</SelectItem>
-                <SelectItem value="role">Role-Based</SelectItem>
+                <SelectItem value="user">{t("user_specific")}</SelectItem>
+                <SelectItem value="role">{t("role_based")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {limitType === "user" ? (
             <div className="space-y-2">
-              <Label>Select User</Label>
+              <Label>{t("select_user")}</Label>
               <Select value={selectedUser} onValueChange={setSelectedUser}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose a user" />
+                  <SelectValue placeholder={t("choose_user")} />
                 </SelectTrigger>
                 <SelectContent>
                   {users?.map((user) => (
@@ -255,21 +257,21 @@ export const DownloadLimitManager = () => {
             </div>
           ) : (
             <div className="space-y-2">
-              <Label>Select Role</Label>
+              <Label>{t("select_role")}</Label>
               <Select value={selectedRole} onValueChange={setSelectedRole}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose a role" />
+                  <SelectValue placeholder={t("choose_role")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="admin">{t("admin_role")}</SelectItem>
+                  <SelectItem value="user">{t("user_role")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           )}
 
           <div className="space-y-2">
-            <Label>Daily Download Limit</Label>
+            <Label>{t("daily_download_limit")}</Label>
             <Input
               type="number"
               min="1"
@@ -284,26 +286,26 @@ export const DownloadLimitManager = () => {
             disabled={createLimitMutation.isPending}
           >
             <Plus className="h-4 w-4 mr-2" />
-            Create Limit
+            {t("create_limit")}
           </Button>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Active Download Limits</CardTitle>
+          <CardTitle>{t("active_download_limits")}</CardTitle>
           <CardDescription>
-            Manage custom download limits. Default limit is 10 downloads per day.
+            {t("active_download_limits_desc")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Type</TableHead>
-                <TableHead>Target</TableHead>
-                <TableHead>Daily Limit</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("type")}</TableHead>
+                <TableHead>{t("target")}</TableHead>
+                <TableHead>{t("daily_limit")}</TableHead>
+                <TableHead>{t("actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -311,16 +313,16 @@ export const DownloadLimitManager = () => {
                 <TableRow key={limit.id}>
                   <TableCell>
                     <Badge variant={limit.user_id ? "default" : "secondary"}>
-                      {limit.user_id ? "User" : "Role"}
+                      {limit.user_id ? t("user") : t("role")}
                     </Badge>
                   </TableCell>
                   <TableCell className="font-medium">
                     {limit.user_id 
-                      ? (limit.profiles?.full_name || limit.profiles?.email || "Unknown")
+                      ? (limit.profiles?.full_name || limit.profiles?.email || t("unknown_user"))
                       : limit.role?.toUpperCase()}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">{limit.daily_limit} downloads/day</Badge>
+                    <Badge variant="outline">{limit.daily_limit} {t("downloads")}/day</Badge>
                   </TableCell>
                   <TableCell>
                     <AlertDialog>
@@ -335,15 +337,15 @@ export const DownloadLimitManager = () => {
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Download Limit?</AlertDialogTitle>
+                          <AlertDialogTitle>{t("delete_download_limit")}</AlertDialogTitle>
                           <AlertDialogDescription>
-                            This will remove the custom limit and revert to the default limit of 10 downloads per day.
+                            {t("delete_download_limit_desc")}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
                           <AlertDialogAction onClick={() => deleteLimitMutation.mutate(limit.id)}>
-                            Delete
+                            {t("delete")}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
@@ -356,7 +358,7 @@ export const DownloadLimitManager = () => {
 
           {!limits?.length && (
             <div className="text-center py-8 text-muted-foreground">
-              No custom download limits set. Default limit of 10 downloads per day applies to all users.
+              {t("no_custom_limits")}
             </div>
           )}
         </CardContent>

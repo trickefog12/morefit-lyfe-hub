@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Bell, Mail } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface NotificationPreference {
   id: string;
@@ -14,15 +15,16 @@ interface NotificationPreference {
   email_enabled: boolean;
 }
 
-const ACTION_TYPES = [
-  { value: 'reset_download_limit', label: 'Download Limit Reset' },
-  { value: 'create_download_limit', label: 'Custom Limit Created' },
-  { value: 'delete_download_limit', label: 'Custom Limit Deleted' },
-];
-
 export const NotificationSettings = () => {
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   const [user, setUser] = useState<any>(null);
+
+  const ACTION_TYPES = [
+    { value: 'reset_download_limit', label: t("download_limit_reset_action") },
+    { value: 'create_download_limit', label: t("custom_limit_created_action") },
+    { value: 'delete_download_limit', label: t("custom_limit_deleted_action") },
+  ];
 
   // Get current user
   const { data: currentUser } = useQuery({
@@ -81,11 +83,11 @@ export const NotificationSettings = () => {
       }
     },
     onSuccess: () => {
-      toast.success("Notification preferences updated");
+      toast.success(t("notification_preferences_updated"));
       queryClient.invalidateQueries({ queryKey: ['notification-preferences'] });
     },
     onError: (error: any) => {
-      toast.error(error.message || "Failed to update preferences");
+      toast.error(error.message || t("notification_preferences_failed"));
     }
   });
 
@@ -100,11 +102,11 @@ export const NotificationSettings = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5" />
-            Email Notifications
+            {t("email_notifications_admin")}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8 text-muted-foreground">Loading preferences...</div>
+          <div className="text-center py-8 text-muted-foreground">{t("loading_preferences")}</div>
         </CardContent>
       </Card>
     );
@@ -115,17 +117,17 @@ export const NotificationSettings = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bell className="h-5 w-5" />
-          Email Notifications
+          {t("email_notifications_admin")}
         </CardTitle>
         <CardDescription>
-          Configure which admin actions trigger email notifications
+          {t("email_notifications_admin_desc")}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Mail className="h-4 w-4" />
-            <span>You'll receive emails at: {currentUser?.email}</span>
+            <span>{t("receive_emails_at").replace("{email}", currentUser?.email || "")}</span>
           </div>
 
           <div className="space-y-4">
@@ -139,7 +141,7 @@ export const NotificationSettings = () => {
                     {actionType.label}
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Receive notifications when this action is performed
+                    {t("receive_notifications_when")}
                   </p>
                 </div>
                 <Switch
@@ -156,7 +158,7 @@ export const NotificationSettings = () => {
 
           <div className="pt-4 border-t">
             <p className="text-xs text-muted-foreground">
-              Note: Notifications are sent immediately when actions are performed. Make sure your email address is correct and check your spam folder if you don't receive notifications.
+              {t("notification_note")}
             </p>
           </div>
         </div>

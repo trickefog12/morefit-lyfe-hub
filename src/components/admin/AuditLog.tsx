@@ -36,6 +36,7 @@ import { format } from "date-fns";
 import { Shield, Trash2, Plus, Filter, X, Download, FileText, ChevronLeft, ChevronRight } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AuditLog {
   id: string;
@@ -49,6 +50,7 @@ interface AuditLog {
 }
 
 export const AuditLog = () => {
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   const [actionTypeFilter, setActionTypeFilter] = useState<string>("all");
   const [adminEmailFilter, setAdminEmailFilter] = useState<string>("");
@@ -140,11 +142,11 @@ export const AuditLog = () => {
             const IconComponent = getSeverityIcon(severity);
             
             toast({
-              title: "New Admin Action",
+              title: t("new_admin_action"),
               description: (
                 <div className="flex items-center gap-2">
                   <IconComponent className="h-4 w-4" />
-                  <span>{log.admin_email} performed: {getActionLabel(log.action_type)}</span>
+                  <span>{log.admin_email} {t("performed_action").replace("{action}", getActionLabel(log.action_type))}</span>
                 </div>
               ),
               variant: severity,
@@ -188,11 +190,11 @@ export const AuditLog = () => {
   const getActionLabel = (actionType: string) => {
     switch (actionType) {
       case 'reset_download_limit':
-        return 'Reset Limit';
+        return t("reset_limit_action");
       case 'create_download_limit':
-        return 'Create Limit';
+        return t("create_limit_action");
       case 'delete_download_limit':
-        return 'Delete Limit';
+        return t("delete_limit_action");
       default:
         return actionType;
     }
@@ -247,18 +249,18 @@ export const AuditLog = () => {
     }
 
     // Prepare CSV headers
-    const headers = ["Timestamp", "Admin Email", "Action Type", "Target", "Details"];
+    const headers = [t("timestamp"), t("admin_email"), t("action_type"), t("target"), t("details")];
     
     // Prepare CSV rows
     const rows = logs.map(log => {
       const timestamp = format(new Date(log.created_at), "MMM d, yyyy h:mm a");
       const target = log.target_user_id 
-        ? `User: ${log.details?.target_email || "Unknown"}`
+        ? `${t("user")}: ${log.details?.target_email || t("unknown_user")}`
         : log.target_role 
-        ? `Role: ${log.target_role.toUpperCase()}`
+        ? `${t("role")}: ${log.target_role.toUpperCase()}`
         : "-";
       const details = log.details?.daily_limit 
-        ? `Limit: ${log.details.daily_limit} downloads/day`
+        ? `${t("limit_label").replace("{limit}", log.details.daily_limit.toString())}`
         : "-";
       
       return [timestamp, log.admin_email, getActionLabel(log.action_type), target, details];
@@ -291,20 +293,20 @@ export const AuditLog = () => {
     
     // Add title
     doc.setFontSize(18);
-    doc.text("Admin Audit Log", 14, 22);
+    doc.text(t("admin_audit_log"), 14, 22);
     
     // Add export date
     doc.setFontSize(11);
-    doc.text(`Generated: ${format(new Date(), "MMM d, yyyy h:mm a")}`, 14, 30);
+    doc.text(t("generated_at").replace("{date}", format(new Date(), "MMM d, yyyy h:mm a")), 14, 30);
     
     // Add filter info if any
     if (hasActiveFilters) {
-      let filterText = "Filters: ";
+      let filterText = `${t("filters_label").replace("{filters}", "")} `;
       const filters = [];
-      if (actionTypeFilter !== "all") filters.push(`Action: ${getActionLabel(actionTypeFilter)}`);
-      if (adminEmailFilter) filters.push(`Email: ${adminEmailFilter}`);
-      if (startDate) filters.push(`From: ${format(new Date(startDate), "MMM d, yyyy")}`);
-      if (endDate) filters.push(`To: ${format(new Date(endDate), "MMM d, yyyy")}`);
+      if (actionTypeFilter !== "all") filters.push(`${t("action")}: ${getActionLabel(actionTypeFilter)}`);
+      if (adminEmailFilter) filters.push(`${t("admin_email")}: ${adminEmailFilter}`);
+      if (startDate) filters.push(t("from_date").replace("{date}", format(new Date(startDate), "MMM d, yyyy")));
+      if (endDate) filters.push(t("to_date").replace("{date}", format(new Date(endDate), "MMM d, yyyy")));
       filterText += filters.join(", ");
       doc.setFontSize(9);
       doc.text(filterText, 14, 36);
@@ -314,12 +316,12 @@ export const AuditLog = () => {
     const tableData = logs.map(log => {
       const timestamp = format(new Date(log.created_at), "MMM d, yyyy h:mm a");
       const target = log.target_user_id 
-        ? `User: ${log.details?.target_email || "Unknown"}`
+        ? `${t("user")}: ${log.details?.target_email || t("unknown_user")}`
         : log.target_role 
-        ? `Role: ${log.target_role.toUpperCase()}`
+        ? `${t("role")}: ${log.target_role.toUpperCase()}`
         : "-";
       const details = log.details?.daily_limit 
-        ? `${log.details.daily_limit} downloads/day`
+        ? `${log.details.daily_limit} ${t("downloads")}/day`
         : "-";
       
       return [timestamp, log.admin_email, getActionLabel(log.action_type), target, details];
@@ -328,7 +330,7 @@ export const AuditLog = () => {
     // Add table
     autoTable(doc, {
       startY: hasActiveFilters ? 40 : 35,
-      head: [["Timestamp", "Admin", "Action", "Target", "Details"]],
+      head: [[t("timestamp"), t("admin_label"), t("action"), t("target"), t("details")]],
       body: tableData,
       styles: { fontSize: 8 },
       headStyles: { fillColor: [71, 85, 105] },
@@ -340,7 +342,7 @@ export const AuditLog = () => {
   };
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading audit logs...</div>;
+    return <div className="text-center py-8">{t("loading_audit_logs")}</div>;
   }
 
   return (
@@ -349,37 +351,37 @@ export const AuditLog = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Filter className="h-5 w-5" />
-            Filters
+            {t("filters")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-2">
-              <Label>Action Type</Label>
+              <Label>{t("action_type")}</Label>
               <Select value={actionTypeFilter} onValueChange={setActionTypeFilter}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Actions</SelectItem>
-                  <SelectItem value="reset_download_limit">Reset Limit</SelectItem>
-                  <SelectItem value="create_download_limit">Create Limit</SelectItem>
-                  <SelectItem value="delete_download_limit">Delete Limit</SelectItem>
+                  <SelectItem value="all">{t("all_actions")}</SelectItem>
+                  <SelectItem value="reset_download_limit">{t("reset_limit_action")}</SelectItem>
+                  <SelectItem value="create_download_limit">{t("create_limit_action")}</SelectItem>
+                  <SelectItem value="delete_download_limit">{t("delete_limit_action")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label>Admin Email</Label>
+              <Label>{t("admin_email")}</Label>
               <Input
-                placeholder="Search by email..."
+                placeholder={t("search_by_email")}
                 value={adminEmailFilter}
                 onChange={(e) => setAdminEmailFilter(e.target.value)}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Start Date</Label>
+              <Label>{t("start_date")}</Label>
               <Input
                 type="date"
                 value={startDate}
@@ -388,7 +390,7 @@ export const AuditLog = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>End Date</Label>
+              <Label>{t("end_date")}</Label>
               <Input
                 type="date"
                 value={endDate}
@@ -401,7 +403,7 @@ export const AuditLog = () => {
             <div className="mt-4">
               <Button variant="outline" size="sm" onClick={clearFilters}>
                 <X className="h-4 w-4 mr-2" />
-                Clear Filters
+                {t("clear_filters")}
               </Button>
             </div>
           )}
@@ -412,21 +414,21 @@ export const AuditLog = () => {
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
-              <CardTitle>Admin Audit Log</CardTitle>
+              <CardTitle>{t("admin_audit_log")}</CardTitle>
               <CardDescription>
-                Track all administrative actions including download limit resets and custom limit changes
-                {logs && ` (${logs.length} ${logs.length === 1 ? 'entry' : 'entries'})`}
+                {t("admin_audit_log_desc")}
+                {logs && ` (${logs.length} ${logs.length === 1 ? t("entry") : t("entries")})`}
               </CardDescription>
             </div>
             {logs && logs.length > 0 && (
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={exportToCSV}>
                   <FileText className="h-4 w-4 mr-2" />
-                  Export CSV
+                  {t("export_csv")}
                 </Button>
                 <Button variant="outline" size="sm" onClick={exportToPDF}>
                   <Download className="h-4 w-4 mr-2" />
-                  Export PDF
+                  {t("export_pdf")}
                 </Button>
               </div>
             )}
@@ -436,11 +438,11 @@ export const AuditLog = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Timestamp</TableHead>
-                <TableHead>Admin</TableHead>
-                <TableHead>Action</TableHead>
-                <TableHead>Target</TableHead>
-                <TableHead>Details</TableHead>
+                <TableHead>{t("timestamp")}</TableHead>
+                <TableHead>{t("admin_label")}</TableHead>
+                <TableHead>{t("action")}</TableHead>
+                <TableHead>{t("target")}</TableHead>
+                <TableHead>{t("details")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -461,9 +463,9 @@ export const AuditLog = () => {
                   <TableCell>
                     {log.target_user_id && (
                       <div className="text-sm">
-                        <div className="font-medium">User</div>
+                        <div className="font-medium">{t("user")}</div>
                         <div className="text-muted-foreground">
-                          {log.details?.target_email || "Unknown"}
+                          {log.details?.target_email || t("unknown_user")}
                         </div>
                       </div>
                     )}
@@ -479,7 +481,7 @@ export const AuditLog = () => {
                   <TableCell>
                     {log.details?.daily_limit && (
                       <span className="text-sm">
-                        Limit: {log.details.daily_limit} downloads/day
+                        {t("limit_label").replace("{limit}", log.details.daily_limit.toString())}
                       </span>
                     )}
                   </TableCell>
@@ -491,15 +493,15 @@ export const AuditLog = () => {
           {!logs?.length && (
             <div className="text-center py-8 text-muted-foreground">
               {hasActiveFilters 
-                ? "No audit logs match the selected filters."
-                : "No audit logs found. Admin actions will appear here."}
+                ? t("no_audit_logs_filters")
+                : t("no_audit_logs_found")}
             </div>
           )}
 
           {logs && logs.length > 0 && totalPages > 1 && (
             <div className="mt-4 flex items-center justify-between">
               <div className="text-sm text-muted-foreground">
-                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalCount)} of {totalCount} entries
+                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalCount)} of {totalCount} {totalCount === 1 ? t("entry") : t("entries")}
               </div>
               <div className="flex items-center gap-2">
                 <Button
