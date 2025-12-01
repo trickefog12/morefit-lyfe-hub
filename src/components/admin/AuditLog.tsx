@@ -511,7 +511,7 @@ export const AuditLog = () => {
                   disabled={currentPage === 1}
                 >
                   <ChevronLeft className="h-4 w-4 mr-1" />
-                  Previous
+                  {t("previous")}
                 </Button>
                 <div className="flex items-center gap-1">
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -545,7 +545,7 @@ export const AuditLog = () => {
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
                 >
-                  Next
+                  {t("next")}
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
               </div>
