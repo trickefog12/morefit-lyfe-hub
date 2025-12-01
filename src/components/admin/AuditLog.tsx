@@ -195,6 +195,16 @@ export const AuditLog = () => {
         return t("create_limit_action");
       case 'delete_download_limit':
         return t("delete_limit_action");
+      case 'approve_review':
+        return t("approve_review");
+      case 'unapprove_review':
+        return t("unapprove_review");
+      case 'delete_review':
+        return t("delete_review");
+      case 'update_product':
+        return t("update_product");
+      case 'toggle_product_status':
+        return t("toggle_product_status");
       default:
         return actionType;
     }
@@ -205,13 +215,19 @@ export const AuditLog = () => {
       case 'delete_download_limit':
       case 'delete_user':
       case 'revoke_access':
+      case 'delete_review':
         return 'destructive';
       case 'reset_download_limit':
       case 'modify_limit':
+      case 'unapprove_review':
         return 'warning';
       case 'create_download_limit':
       case 'grant_access':
+      case 'approve_review':
         return 'success';
+      case 'update_product':
+      case 'toggle_product_status':
+        return 'default';
       default:
         return 'default';
     }
@@ -367,6 +383,11 @@ export const AuditLog = () => {
                   <SelectItem value="reset_download_limit">{t("reset_limit_action")}</SelectItem>
                   <SelectItem value="create_download_limit">{t("create_limit_action")}</SelectItem>
                   <SelectItem value="delete_download_limit">{t("delete_limit_action")}</SelectItem>
+                  <SelectItem value="approve_review">{t("approve_review")}</SelectItem>
+                  <SelectItem value="unapprove_review">{t("unapprove_review")}</SelectItem>
+                  <SelectItem value="delete_review">{t("delete_review")}</SelectItem>
+                  <SelectItem value="update_product">{t("update_product")}</SelectItem>
+                  <SelectItem value="toggle_product_status">{t("toggle_product_status")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -483,6 +504,33 @@ export const AuditLog = () => {
                       <span className="text-sm">
                         {t("limit_label").replace("{limit}", log.details.daily_limit.toString())}
                       </span>
+                    )}
+                    {log.details?.rating && (
+                      <div className="text-sm">
+                        <div className="font-medium">{t("review_rating")}: {log.details.rating}⭐</div>
+                        {log.details.reviewer_email && (
+                          <div className="text-muted-foreground">
+                            {t("review_by")}: {log.details.reviewer_name || log.details.reviewer_email}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {log.details?.product_sku && (
+                      <div className="text-sm">
+                        <div className="font-medium">{t("product_sku")}: {log.details.product_sku}</div>
+                        {log.details.product_name_en && (
+                          <div className="text-muted-foreground">
+                            {log.details.product_name_en}
+                          </div>
+                        )}
+                        {log.details.new_status && (
+                          <div className="text-muted-foreground">
+                            {log.details.new_status === 'active' 
+                              ? t("product_activated") 
+                              : t("product_deactivated")}
+                          </div>
+                        )}
+                      </div>
                     )}
                   </TableCell>
                 </TableRow>
