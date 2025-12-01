@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Product {
   sku: string;
@@ -31,6 +32,7 @@ export const ProductManagement = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { t } = useLanguage();
+  const { user } = useAuth();
 
   const { data: products, isLoading } = useQuery({
     queryKey: ['admin-products'],
@@ -61,6 +63,21 @@ export const ProductManagement = () => {
         .eq('sku', product.sku);
       
       if (error) throw error;
+
+      // Create audit log
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          admin_id: user.id,
+          admin_email: user.email!,
+          action_type: 'update_product',
+          details: {
+            product_sku: product.sku,
+            product_name_en: product.name_en,
+            product_name_el: product.name_el,
+            price: product.price
+          }
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
@@ -74,13 +91,28 @@ export const ProductManagement = () => {
   });
 
   const toggleActiveMutation = useMutation({
-    mutationFn: async ({ sku, active }: { sku: string; active: boolean }) => {
+    mutationFn: async ({ sku, active, product }: { sku: string; active: boolean; product: Product }) => {
       const { error } = await supabase
         .from('products')
         .update({ active })
         .eq('sku', sku);
       
       if (error) throw error;
+
+      // Create audit log
+      if (user) {
+        await supabase.from('audit_logs').insert({
+          admin_id: user.id,
+          admin_email: user.email!,
+          action_type: 'toggle_product_status',
+          details: {
+            product_sku: sku,
+            product_name_en: product.name_en,
+            product_name_el: product.name_el,
+            new_status: active ? 'active' : 'inactive'
+          }
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
@@ -129,7 +161,7 @@ export const ProductManagement = () => {
                           id={`active-${product.sku}`}
                           checked={product.active}
                           onCheckedChange={(checked) => 
-                            toggleActiveMutation.mutate({ sku: product.sku, active: checked })
+                            toggleActiveMutation.mutate({ sku: product.sku, active: checked, product })
                           }
                         />
                       </div>

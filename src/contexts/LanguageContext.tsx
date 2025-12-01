@@ -466,6 +466,18 @@ const translations = {
     previous: "Προηγούμενο",
     next: "Επόμενο",
 
+    // Audit Log Action Types
+    approve_review: "Έγκριση Κριτικής",
+    unapprove_review: "Ακύρωση Έγκρισης Κριτικής",
+    delete_review: "Διαγραφή Κριτικής",
+    update_product: "Ενημέρωση Προϊόντος",
+    toggle_product_status: "Αλλαγή Κατάστασης Προϊόντος",
+    product_activated: "Προϊόν Ενεργοποιήθηκε",
+    product_deactivated: "Προϊόν Απενεργοποιήθηκε",
+    review_id: "ID Κριτικής",
+    review_rating: "Βαθμολογία",
+    review_by: "Κριτική από",
+
     // Common Admin Terms
     na: "Δ/Υ",
     completed: "Ολοκληρώθηκε",
@@ -926,6 +938,18 @@ const translations = {
     // Pagination
     previous: "Previous",
     next: "Next",
+
+    // Audit Log Action Types
+    approve_review: "Approve Review",
+    unapprove_review: "Unapprove Review",
+    delete_review: "Delete Review",
+    update_product: "Update Product",
+    toggle_product_status: "Toggle Product Status",
+    product_activated: "Product Activated",
+    product_deactivated: "Product Deactivated",
+    review_id: "Review ID",
+    review_rating: "Rating",
+    review_by: "Review by",
 
     // Common Admin Terms
     na: "N/A",
