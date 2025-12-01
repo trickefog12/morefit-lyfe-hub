@@ -462,6 +462,10 @@ const translations = {
     ip_remove_failed: "Αποτυχία αφαίρεσης διεύθυνσης IP",
     no_whitelisted_ips: "Δεν υπάρχουν ακόμα IP στο whitelist. Προσθέστε αξιόπιστες IP ή εύρη CIDR για να παρακάμψουν τα όρια ρυθμού.",
 
+    // Pagination
+    previous: "Προηγούμενο",
+    next: "Επόμενο",
+
     // Common Admin Terms
     na: "Δ/Υ",
     completed: "Ολοκληρώθηκε",
@@ -918,6 +922,10 @@ const translations = {
     ip_removed_from_whitelist: "IP address removed from whitelist",
     ip_remove_failed: "Failed to remove IP address",
     no_whitelisted_ips: "No whitelisted IPs yet. Add trusted IPs or CIDR ranges to bypass rate limits.",
+
+    // Pagination
+    previous: "Previous",
+    next: "Next",
 
     // Common Admin Terms
     na: "N/A",
