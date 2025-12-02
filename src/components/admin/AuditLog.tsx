@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle, CheckCircle, AlertTriangle, Info } from "lucide-react";
+import { startOfMonth, subDays, format as formatDateFns } from "date-fns";
 import {
   Table,
   TableBody,
@@ -33,7 +34,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { format } from "date-fns";
-import { Shield, Trash2, Plus, Filter, X, Download, FileText, ChevronLeft, ChevronRight } from "lucide-react";
+import { Shield, Trash2, Plus, Filter, X, Download, FileText, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -57,7 +58,43 @@ export const AuditLog = () => {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [activePreset, setActivePreset] = useState<string | null>(null);
   const itemsPerPage = 25;
+
+  const applyPreset = (preset: string) => {
+    const today = new Date();
+    let start: Date;
+    let end: Date = today;
+
+    switch (preset) {
+      case 'last_7_days':
+        start = subDays(today, 7);
+        break;
+      case 'last_30_days':
+        start = subDays(today, 30);
+        break;
+      case 'this_month':
+        start = startOfMonth(today);
+        break;
+      default:
+        return;
+    }
+
+    setStartDate(formatDateFns(start, 'yyyy-MM-dd'));
+    setEndDate(formatDateFns(end, 'yyyy-MM-dd'));
+    setActivePreset(preset);
+    setCurrentPage(1);
+  };
+
+  const handleStartDateChange = (value: string) => {
+    setStartDate(value);
+    setActivePreset(null);
+  };
+
+  const handleEndDateChange = (value: string) => {
+    setEndDate(value);
+    setActivePreset(null);
+  };
 
   const { data: logsData, isLoading } = useQuery({
     queryKey: ['audit-logs', actionTypeFilter, adminEmailFilter, startDate, endDate, currentPage],
@@ -170,6 +207,7 @@ export const AuditLog = () => {
     setStartDate("");
     setEndDate("");
     setCurrentPage(1);
+    setActivePreset(null);
   };
 
   const hasActiveFilters = actionTypeFilter !== "all" || adminEmailFilter || startDate || endDate;
@@ -406,7 +444,7 @@ export const AuditLog = () => {
               <Input
                 type="date"
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={(e) => handleStartDateChange(e.target.value)}
               />
             </div>
 
@@ -415,19 +453,44 @@ export const AuditLog = () => {
               <Input
                 type="date"
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={(e) => handleEndDateChange(e.target.value)}
               />
             </div>
           </div>
 
-          {hasActiveFilters && (
-            <div className="mt-4">
-              <Button variant="outline" size="sm" onClick={clearFilters}>
-                <X className="h-4 w-4 mr-2" />
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1 mr-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">{t("date_presets")}:</span>
+            </div>
+            <Button
+              variant={activePreset === 'last_7_days' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => applyPreset('last_7_days')}
+            >
+              {t("last_7_days")}
+            </Button>
+            <Button
+              variant={activePreset === 'last_30_days' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => applyPreset('last_30_days')}
+            >
+              {t("last_30_days")}
+            </Button>
+            <Button
+              variant={activePreset === 'this_month' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => applyPreset('this_month')}
+            >
+              {t("this_month")}
+            </Button>
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
+                <X className="h-4 w-4 mr-1" />
                 {t("clear_filters")}
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </CardContent>
       </Card>
 
