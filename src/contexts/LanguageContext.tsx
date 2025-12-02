@@ -466,6 +466,13 @@ const translations = {
     previous: "Προηγούμενο",
     next: "Επόμενο",
 
+    // Date Range Presets
+    date_presets: "Γρήγορη Επιλογή",
+    last_7_days: "Τελευταίες 7 ημέρες",
+    last_30_days: "Τελευταίες 30 ημέρες",
+    this_month: "Αυτός ο μήνας",
+    custom_range: "Προσαρμοσμένο",
+
     // Audit Log Action Types
     approve_review: "Έγκριση Κριτικής",
     unapprove_review: "Ακύρωση Έγκρισης Κριτικής",
@@ -938,6 +945,13 @@ const translations = {
     // Pagination
     previous: "Previous",
     next: "Next",
+
+    // Date Range Presets
+    date_presets: "Quick Select",
+    last_7_days: "Last 7 days",
+    last_30_days: "Last 30 days",
+    this_month: "This month",
+    custom_range: "Custom",
 
     // Audit Log Action Types
     approve_review: "Approve Review",
