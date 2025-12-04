@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle, CheckCircle, AlertTriangle, Info, Volume2 } from "lucide-react";
-import { playNotificationSound } from "@/lib/notificationSound";
+import { playNotificationSound, NotificationSoundType } from "@/lib/notificationSound";
 import { startOfMonth, subDays, format as formatDateFns } from "date-fns";
 import {
   Table,
@@ -189,9 +189,9 @@ export const AuditLog = () => {
             const severity = getActionSeverity(log.action_type);
             const IconComponent = getSeverityIcon(severity);
             
-            // Play notification sound for critical actions (if enabled)
+            // Play notification sound for critical actions (if enabled) with severity-specific tones
             if (auditSoundsEnabled && (severity === 'destructive' || severity === 'warning')) {
-              playNotificationSound();
+              playNotificationSound(severity as NotificationSoundType);
             }
             
             toast({
