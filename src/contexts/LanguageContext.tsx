@@ -228,6 +228,8 @@ const translations = {
     marketing_emails_desc: "Λήψη προσφορών και ενημερώσεων προϊόντων",
     system_updates: "Ενημερώσεις συστήματος",
     system_updates_desc: "Σημαντικές ειδοποιήσεις για το λογαριασμό σας",
+    audit_sounds: "Ήχοι ελέγχου διαχειριστή",
+    audit_sounds_desc: "Αναπαραγωγή ήχου για κρίσιμες ενέργειες διαχειριστή (διαγραφές, επαναφορές)",
     save_settings: "Αποθήκευση ρυθμίσεων",
     
     // Keyboard Shortcuts Modal
@@ -708,6 +710,8 @@ const translations = {
     marketing_emails_desc: "Receive special offers and product updates",
     system_updates: "System Updates",
     system_updates_desc: "Important notifications about your account",
+    audit_sounds: "Admin Audit Sounds",
+    audit_sounds_desc: "Play sound for critical admin actions (deletions, resets)",
     save_settings: "Save Settings",
     
     // Keyboard Shortcuts Modal

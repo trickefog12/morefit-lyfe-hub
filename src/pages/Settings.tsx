@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
-import { Keyboard, Languages, Bell, Save } from "lucide-react";
+import { Keyboard, Languages, Bell, Save, Volume2 } from "lucide-react";
 
 interface KeyboardShortcut {
   id: string;
@@ -34,6 +34,7 @@ export default function Settings() {
     push: false,
     marketing: false,
     updates: true,
+    auditSounds: true,
   });
 
   const [defaultLanguage, setDefaultLanguage] = useState(language);
@@ -237,6 +238,22 @@ export default function Settings() {
                 <Switch
                   checked={notifications.updates}
                   onCheckedChange={() => handleNotificationToggle('updates')}
+                />
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base flex items-center gap-2">
+                    <Volume2 className="h-4 w-4" />
+                    {t("audit_sounds")}
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    {t("audit_sounds_desc")}
+                  </p>
+                </div>
+                <Switch
+                  checked={notifications.auditSounds}
+                  onCheckedChange={() => handleNotificationToggle('auditSounds')}
                 />
               </div>
             </CardContent>
