@@ -60,7 +60,17 @@ export const AuditLog = () => {
   const [endDate, setEndDate] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [activePreset, setActivePreset] = useState<string | null>(null);
+  const [auditSoundsEnabled, setAuditSoundsEnabled] = useState<boolean>(true);
   const itemsPerPage = 25;
+
+  // Load audit sounds preference from localStorage
+  useEffect(() => {
+    const savedNotifications = localStorage.getItem('notification-preferences');
+    if (savedNotifications) {
+      const parsed = JSON.parse(savedNotifications);
+      setAuditSoundsEnabled(parsed.auditSounds !== false);
+    }
+  }, []);
 
   const applyPreset = (preset: string) => {
     const today = new Date();
@@ -179,8 +189,8 @@ export const AuditLog = () => {
             const severity = getActionSeverity(log.action_type);
             const IconComponent = getSeverityIcon(severity);
             
-            // Play notification sound for critical actions (destructive or warning)
-            if (severity === 'destructive' || severity === 'warning') {
+            // Play notification sound for critical actions (if enabled)
+            if (auditSoundsEnabled && (severity === 'destructive' || severity === 'warning')) {
               playNotificationSound();
             }
             
@@ -189,7 +199,7 @@ export const AuditLog = () => {
               description: (
                 <div className="flex items-center gap-2">
                   <IconComponent className="h-4 w-4" />
-                  <Volume2 className={`h-3 w-3 ${severity === 'destructive' || severity === 'warning' ? 'text-current' : 'hidden'}`} />
+                  <Volume2 className={`h-3 w-3 ${auditSoundsEnabled && (severity === 'destructive' || severity === 'warning') ? 'text-current' : 'hidden'}`} />
                   <span>{log.admin_email} {t("performed_action").replace("{action}", getActionLabel(log.action_type))}</span>
                 </div>
               ),
@@ -206,7 +216,7 @@ export const AuditLog = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [queryClient]);
+  }, [queryClient, auditSoundsEnabled]);
 
   const clearFilters = () => {
     setActionTypeFilter("all");
