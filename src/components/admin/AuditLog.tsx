@@ -3,7 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, CheckCircle, AlertTriangle, Info } from "lucide-react";
+import { AlertCircle, CheckCircle, AlertTriangle, Info, Volume2 } from "lucide-react";
+import { playNotificationSound } from "@/lib/notificationSound";
 import { startOfMonth, subDays, format as formatDateFns } from "date-fns";
 import {
   Table,
@@ -178,11 +179,17 @@ export const AuditLog = () => {
             const severity = getActionSeverity(log.action_type);
             const IconComponent = getSeverityIcon(severity);
             
+            // Play notification sound for critical actions (destructive or warning)
+            if (severity === 'destructive' || severity === 'warning') {
+              playNotificationSound();
+            }
+            
             toast({
               title: t("new_admin_action"),
               description: (
                 <div className="flex items-center gap-2">
                   <IconComponent className="h-4 w-4" />
+                  <Volume2 className={`h-3 w-3 ${severity === 'destructive' || severity === 'warning' ? 'text-current' : 'hidden'}`} />
                   <span>{log.admin_email} {t("performed_action").replace("{action}", getActionLabel(log.action_type))}</span>
                 </div>
               ),
