@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
-import { Keyboard, Languages, Bell, Save, Volume2 } from "lucide-react";
+import { Keyboard, Languages, Bell, Save, Volume2, Play } from "lucide-react";
+import { playNotificationSound, NotificationSoundType } from "@/lib/notificationSound";
 
 interface KeyboardShortcut {
   id: string;
@@ -241,20 +242,56 @@ export default function Settings() {
                 />
               </div>
               <Separator />
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label className="text-base flex items-center gap-2">
-                    <Volume2 className="h-4 w-4" />
-                    {t("audit_sounds")}
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    {t("audit_sounds_desc")}
-                  </p>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label className="text-base flex items-center gap-2">
+                      <Volume2 className="h-4 w-4" />
+                      {t("audit_sounds")}
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      {t("audit_sounds_desc")}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={notifications.auditSounds}
+                    onCheckedChange={() => handleNotificationToggle('auditSounds')}
+                  />
                 </div>
-                <Switch
-                  checked={notifications.auditSounds}
-                  onCheckedChange={() => handleNotificationToggle('auditSounds')}
-                />
+                {notifications.auditSounds && (
+                  <div className="pl-6 space-y-2">
+                    <Label className="text-sm text-muted-foreground">{t("preview_sounds")}</Label>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => playNotificationSound('default')}
+                        className="gap-2"
+                      >
+                        <Play className="h-3 w-3" />
+                        {t("sound_default")}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => playNotificationSound('warning')}
+                        className="gap-2 border-yellow-500/50 text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-950"
+                      >
+                        <Play className="h-3 w-3" />
+                        {t("sound_warning")}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => playNotificationSound('destructive')}
+                        className="gap-2 border-destructive/50 text-destructive hover:bg-destructive/10"
+                      >
+                        <Play className="h-3 w-3" />
+                        {t("sound_destructive")}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

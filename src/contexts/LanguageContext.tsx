@@ -230,6 +230,10 @@ const translations = {
     system_updates_desc: "Σημαντικές ειδοποιήσεις για το λογαριασμό σας",
     audit_sounds: "Ήχοι ελέγχου διαχειριστή",
     audit_sounds_desc: "Αναπαραγωγή ήχου για κρίσιμες ενέργειες διαχειριστή (διαγραφές, επαναφορές)",
+    preview_sounds: "Προεπισκόπηση ήχων",
+    sound_default: "Προεπιλογή",
+    sound_warning: "Προειδοποίηση",
+    sound_destructive: "Κρίσιμο",
     save_settings: "Αποθήκευση ρυθμίσεων",
     
     // Keyboard Shortcuts Modal
@@ -712,6 +716,10 @@ const translations = {
     system_updates_desc: "Important notifications about your account",
     audit_sounds: "Admin Audit Sounds",
     audit_sounds_desc: "Play sound for critical admin actions (deletions, resets)",
+    preview_sounds: "Preview sounds",
+    sound_default: "Default",
+    sound_warning: "Warning",
+    sound_destructive: "Destructive",
     save_settings: "Save Settings",
     
     // Keyboard Shortcuts Modal
