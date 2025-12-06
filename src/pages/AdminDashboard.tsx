@@ -16,6 +16,7 @@ import { AuditLog } from "@/components/admin/AuditLog";
 import { AdminActivityWidget } from "@/components/admin/AdminActivityWidget";
 import { NotificationSettings } from "@/components/admin/NotificationSettings";
 import { IPWhitelistManager } from "@/components/admin/IPWhitelistManager";
+import { TwoFactorSetup } from "@/components/admin/TwoFactorSetup";
 import { ShoppingBag, DollarSign, Star, Users, BarChart, Package, Upload, Settings, Shield } from "lucide-react";
 import { NotificationPanel } from "@/components/admin/NotificationPanel";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -170,6 +171,7 @@ const AdminDashboard = () => {
 
           <TabsContent value="limits">
             <div className="space-y-6">
+              <TwoFactorSetup />
               <DownloadLimitManager />
               <NotificationSettings />
               <IPWhitelistManager />
