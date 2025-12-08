@@ -24,14 +24,14 @@ const getDeviceType = (): string => {
   return 'desktop';
 };
 
-// Get current user ID (if authenticated)
-const getCurrentUserId = async (): Promise<string | null> => {
-  const { data: { user } } = await supabase.auth.getUser();
-  return user?.id || null;
+// Check if user is authenticated
+const isAuthenticated = async (): Promise<boolean> => {
+  const { data: { session } } = await supabase.auth.getSession();
+  return !!session;
 };
 
 /**
- * Track a custom event
+ * Track a custom event via edge function with rate limiting
  */
 export async function trackEvent(
   eventName: string,
@@ -39,41 +39,77 @@ export async function trackEvent(
   properties?: Record<string, any>
 ) {
   try {
-    const userId = await getCurrentUserId();
-    
-    await supabase.from('analytics_events').insert({
-      event_type: eventType,
-      event_name: eventName,
-      user_id: userId,
-      session_id: getSessionId(),
-      properties: properties || {},
-      page_path: window.location.pathname,
-      referrer: document.referrer || null,
-      user_agent: navigator.userAgent,
-      device_type: getDeviceType(),
+    // Only track for authenticated users
+    const authenticated = await isAuthenticated();
+    if (!authenticated) {
+      console.log('Analytics skipped: user not authenticated');
+      return;
+    }
+
+    const { error } = await supabase.functions.invoke('track-analytics', {
+      body: {
+        type: 'event',
+        data: {
+          event_type: eventType,
+          event_name: eventName,
+          session_id: getSessionId(),
+          properties: properties || {},
+          page_path: window.location.pathname,
+          referrer: document.referrer || null,
+          user_agent: navigator.userAgent,
+          device_type: getDeviceType(),
+        }
+      }
     });
+
+    if (error) {
+      // Handle rate limiting gracefully
+      if (error.message?.includes('429') || error.message?.includes('Rate limit')) {
+        console.log('Analytics rate limited, event skipped');
+        return;
+      }
+      console.error('Analytics tracking error:', error);
+    }
   } catch (error) {
     console.error('Analytics tracking error:', error);
   }
 }
 
 /**
- * Track a page view
+ * Track a page view via edge function with rate limiting
  */
 export async function trackPageView(
   pagePath: string,
   pageTitle: string
 ) {
   try {
-    const userId = await getCurrentUserId();
-    
-    await supabase.from('analytics_page_views').insert({
-      page_path: pagePath,
-      page_title: pageTitle,
-      user_id: userId,
-      session_id: getSessionId(),
-      referrer: document.referrer || null,
+    // Only track for authenticated users
+    const authenticated = await isAuthenticated();
+    if (!authenticated) {
+      console.log('Page view skipped: user not authenticated');
+      return;
+    }
+
+    const { error } = await supabase.functions.invoke('track-analytics', {
+      body: {
+        type: 'page_view',
+        data: {
+          page_path: pagePath,
+          page_title: pageTitle,
+          session_id: getSessionId(),
+          referrer: document.referrer || null,
+        }
+      }
     });
+
+    if (error) {
+      // Handle rate limiting gracefully
+      if (error.message?.includes('429') || error.message?.includes('Rate limit')) {
+        console.log('Analytics rate limited, page view skipped');
+        return;
+      }
+      console.error('Page view tracking error:', error);
+    }
   } catch (error) {
     console.error('Page view tracking error:', error);
   }
