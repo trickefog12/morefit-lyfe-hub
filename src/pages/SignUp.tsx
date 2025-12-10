@@ -198,7 +198,15 @@ const SignUp = () => {
                           name="password"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>{t("password")}</FormLabel>
+                              <div className="flex items-center justify-between">
+                                <FormLabel>{t("password")}</FormLabel>
+                                <Link
+                                  to="/forgot-password"
+                                  className="text-xs text-primary hover:underline"
+                                >
+                                  {t("forgot_password")}
+                                </Link>
+                              </div>
                               <FormControl>
                                 <PasswordInput placeholder="••••••••" {...field} />
                               </FormControl>
