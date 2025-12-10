@@ -5,7 +5,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Check, Zap } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,6 +13,7 @@ import { signupSchema, loginSchema, type SignupInput, type LoginInput } from "@/
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEffect, useState } from "react";
+import { PasswordStrengthIndicator } from "@/components/PasswordStrengthIndicator";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -137,6 +137,7 @@ const SignUp = () => {
                             <FormControl>
                               <Input type="password" placeholder="••••••••" {...field} />
                             </FormControl>
+                            <PasswordStrengthIndicator password={field.value} />
                             <FormMessage />
                           </FormItem>
                           )}
