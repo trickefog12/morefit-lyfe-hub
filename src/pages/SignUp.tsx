@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Link, useNavigate } from "react-router-dom";
@@ -135,7 +136,7 @@ const SignUp = () => {
                           <FormItem>
                             <FormLabel>{t("password")}</FormLabel>
                             <FormControl>
-                              <Input type="password" placeholder="••••••••" {...field} />
+                              <PasswordInput placeholder="••••••••" {...field} />
                             </FormControl>
                             <PasswordStrengthIndicator password={field.value} />
                             <FormMessage />
@@ -199,7 +200,7 @@ const SignUp = () => {
                             <FormItem>
                               <FormLabel>{t("password")}</FormLabel>
                               <FormControl>
-                                <Input type="password" placeholder="••••••••" {...field} />
+                                <PasswordInput placeholder="••••••••" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
