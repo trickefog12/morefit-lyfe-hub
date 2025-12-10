@@ -31,27 +31,40 @@ const ProductDetail = () => {
   const product = products.find((p) => p.sku === sku);
 
   const handleBuyNow = async () => {
+    console.log("[BuyNow] Button clicked, user:", user?.id, "product:", product?.sku);
+    
     if (!user) {
+      console.log("[BuyNow] No user, redirecting to signup");
       toast.error(language === "el" ? "Πρέπει να συνδεθείτε για να αγοράσετε" : "You must be logged in to purchase");
       navigate("/signup");
       return;
     }
 
     setIsCheckingOut(true);
+    console.log("[BuyNow] Starting checkout for product:", product?.sku);
+    
     try {
+      console.log("[BuyNow] Invoking create-checkout-session...");
       const { data, error } = await supabase.functions.invoke("create-checkout-session", {
         body: { productSku: product?.sku },
       });
 
-      if (error) throw error;
+      console.log("[BuyNow] Response:", { data, error });
+
+      if (error) {
+        console.error("[BuyNow] Error from function:", error);
+        throw error;
+      }
 
       if (data?.url) {
+        console.log("[BuyNow] Opening checkout URL:", data.url);
         window.open(data.url, "_blank");
       } else {
+        console.error("[BuyNow] No checkout URL returned");
         throw new Error("No checkout URL returned");
       }
     } catch (error: any) {
-      console.error("Checkout error:", error);
+      console.error("[BuyNow] Checkout error:", error);
       toast.error(language === "el" ? "Σφάλμα κατά τη δημιουργία πληρωμής" : "Error creating checkout session");
     } finally {
       setIsCheckingOut(false);
