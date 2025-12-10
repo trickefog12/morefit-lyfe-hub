@@ -69,8 +69,8 @@ serve(async (req) => {
 
     // Construct URLs server-side to prevent open redirect attacks
     const origin = req.headers.get("origin") || Deno.env.get("SUPABASE_URL")?.replace('/rest/v1', '') || "http://localhost:5173";
-    const successUrl = `${origin}/purchase-success?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${origin}/purchase-cancelled`;
+    const successUrl = `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${origin}/payment-canceled`;
 
     // Fetch product details from database (never trust client data)
     const { data: product, error: productError } = await supabase
