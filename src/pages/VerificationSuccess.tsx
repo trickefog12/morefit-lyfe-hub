@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +10,28 @@ const VerificationSuccess = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const [countdown, setCountdown] = useState(5);
+  const welcomeEmailSent = useRef(false);
+
+  useEffect(() => {
+    // Send welcome email once on mount
+    const sendWelcomeEmail = async () => {
+      if (welcomeEmailSent.current) return;
+      welcomeEmailSent.current = true;
+
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user?.id) {
+          await supabase.functions.invoke("send-welcome-email", {
+            body: { userId: user.id },
+          });
+        }
+      } catch (error) {
+        console.error("Failed to send welcome email");
+      }
+    };
+
+    sendWelcomeEmail();
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
