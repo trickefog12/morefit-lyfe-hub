@@ -1,4 +1,5 @@
-import { useParams, Link } from "react-router-dom";
+import { useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -6,11 +7,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { products } from "@/data/products";
-import { ArrowLeft, CheckCircle, Star } from "lucide-react";
+import { ArrowLeft, CheckCircle, Star, Loader2 } from "lucide-react";
 import programStrength from "@/assets/program-strength.jpg";
 import mealGuide from "@/assets/meal-guide.jpg";
 import coachingSession from "@/assets/coaching-session.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const getImageForProduct = (product: any) => {
   if (product.category === "transformation") return mealGuide;
@@ -21,7 +25,38 @@ const getImageForProduct = (product: any) => {
 const ProductDetail = () => {
   const { sku } = useParams();
   const { language, t } = useLanguage();
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
   const product = products.find((p) => p.sku === sku);
+
+  const handleBuyNow = async () => {
+    if (!user) {
+      toast.error(language === "el" ? "Πρέπει να συνδεθείτε για να αγοράσετε" : "You must be logged in to purchase");
+      navigate("/signup");
+      return;
+    }
+
+    setIsCheckingOut(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+        body: { productSku: product?.sku },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (error: any) {
+      console.error("Checkout error:", error);
+      toast.error(language === "el" ? "Σφάλμα κατά τη δημιουργία πληρωμής" : "Error creating checkout session");
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
 
   if (!product) {
     return (
@@ -100,8 +135,20 @@ const ProductDetail = () => {
                 </div>
               </div>
 
-              <Button size="lg" className="w-full md:w-auto bg-primary hover:bg-primary-glow text-lg px-12 mb-4">
-                {t("buy_now_price")} - {currencySymbol}{product.price}
+              <Button 
+                size="lg" 
+                className="w-full md:w-auto bg-primary hover:bg-primary-glow text-lg px-12 mb-4"
+                onClick={handleBuyNow}
+                disabled={isCheckingOut || authLoading}
+              >
+                {isCheckingOut ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {language === "el" ? "Φόρτωση..." : "Loading..."}
+                  </>
+                ) : (
+                  <>{t("buy_now_price")} - {currencySymbol}{product.price}</>
+                )}
               </Button>
 
               <p className="text-sm text-muted-foreground">
@@ -199,8 +246,20 @@ const ProductDetail = () => {
                   ? "Μην χάσεις την ευκαιρία να επενδύσεις στον εαυτό σου. Ξεκίνα το ταξίδι μεταμόρφωσης σήμερα!"
                   : "Don't miss the opportunity to invest in yourself. Start your transformation journey today!"}
               </p>
-              <Button size="lg" className="bg-primary hover:bg-primary-glow text-lg px-12">
-                {language === "el" ? "Αγόρασε Τώρα" : "Buy Now"} - {currencySymbol}{product.price}
+              <Button 
+                size="lg" 
+                className="bg-primary hover:bg-primary-glow text-lg px-12"
+                onClick={handleBuyNow}
+                disabled={isCheckingOut || authLoading}
+              >
+                {isCheckingOut ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {language === "el" ? "Φόρτωση..." : "Loading..."}
+                  </>
+                ) : (
+                  <>{language === "el" ? "Αγόρασε Τώρα" : "Buy Now"} - {currencySymbol}{product.price}</>
+                )}
               </Button>
             </CardContent>
           </Card>
