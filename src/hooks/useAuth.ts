@@ -9,6 +9,8 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
+  const isEmailVerified = user?.email_confirmed_at != null;
+
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -44,19 +46,15 @@ export const useAuth = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Account created!",
-        description: "You've been automatically logged in.",
-      });
-
-      return { data, error: null };
+      // Don't show "logged in" message since email needs verification
+      return { data, error: null, needsVerification: true };
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to create account",
         variant: "destructive",
       });
-      return { data: null, error };
+      return { data: null, error, needsVerification: false };
     }
   };
 
@@ -69,19 +67,24 @@ export const useAuth = () => {
 
       if (error) throw error;
 
+      // Check if email is verified
+      if (!data.user?.email_confirmed_at) {
+        return { data, error: null, needsVerification: true };
+      }
+
       toast({
         title: "Welcome back!",
         description: "You've been successfully logged in.",
       });
 
-      return { data, error: null };
+      return { data, error: null, needsVerification: false };
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to log in",
         variant: "destructive",
       });
-      return { data: null, error };
+      return { data: null, error, needsVerification: false };
     }
   };
 
@@ -103,12 +106,37 @@ export const useAuth = () => {
     }
   };
 
+  const resendVerificationEmail = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+        }
+      });
+
+      if (error) throw error;
+
+      return { error: null };
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to resend verification email",
+        variant: "destructive",
+      });
+      return { error };
+    }
+  };
+
   return {
     user,
     session,
     loading,
+    isEmailVerified,
     signUp,
     signIn,
     signOut,
+    resendVerificationEmail,
   };
 };
