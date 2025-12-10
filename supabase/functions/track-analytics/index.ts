@@ -22,6 +22,34 @@ interface RateLimitEntry {
 // In-memory rate limit store (resets on function restart, which is fine for this use case)
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
+// Input sanitization to prevent XSS in stored data
+function sanitizeString(input: string | null | undefined, maxLength: number = 500): string | null {
+  if (input == null) return null;
+  // Remove potential XSS characters and limit length
+  return String(input)
+    .slice(0, maxLength)
+    .replace(/[<>"'&]/g, (char) => {
+      const entities: Record<string, string> = {
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        '&': '&amp;',
+      };
+      return entities[char] || char;
+    });
+}
+
+function sanitizeUrl(input: string | null | undefined, maxLength: number = 2000): string | null {
+  if (input == null) return null;
+  const sanitized = String(input).slice(0, maxLength);
+  // Only allow http, https protocols or relative paths
+  if (sanitized.startsWith('http://') || sanitized.startsWith('https://') || sanitized.startsWith('/')) {
+    return sanitized.replace(/[<>"']/g, '');
+  }
+  return null;
+}
+
 function checkRateLimit(key: string, maxRequests: number): { allowed: boolean; remaining: number; resetIn: number } {
   const now = Date.now();
   const entry = rateLimitStore.get(key);
@@ -135,15 +163,15 @@ Deno.serve(async (req) => {
       }
 
       const { error } = await serviceClient.from('analytics_events').insert({
-        event_type: data.event_type,
-        event_name: data.event_name,
+        event_type: sanitizeString(data.event_type, 100),
+        event_name: sanitizeString(data.event_name, 200),
         user_id: userId,
-        session_id: data.session_id,
+        session_id: sanitizeString(data.session_id, 100),
         properties: data.properties || {},
-        page_path: data.page_path,
-        referrer: data.referrer,
-        user_agent: data.user_agent,
-        device_type: data.device_type,
+        page_path: sanitizeUrl(data.page_path, 500),
+        referrer: sanitizeUrl(data.referrer, 2000),
+        user_agent: sanitizeString(data.user_agent, 500),
+        device_type: sanitizeString(data.device_type, 50),
       });
 
       if (error) {
@@ -163,11 +191,11 @@ Deno.serve(async (req) => {
       }
 
       const { error } = await serviceClient.from('analytics_page_views').insert({
-        page_path: data.page_path,
-        page_title: data.page_title,
+        page_path: sanitizeUrl(data.page_path, 500),
+        page_title: sanitizeString(data.page_title, 200),
         user_id: userId,
-        session_id: data.session_id,
-        referrer: data.referrer,
+        session_id: sanitizeString(data.session_id, 100),
+        referrer: sanitizeUrl(data.referrer, 2000),
       });
 
       if (error) {
