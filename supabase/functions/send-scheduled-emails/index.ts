@@ -40,9 +40,24 @@ interface PurchaseWithToken extends Purchase {
   download_token: string;
 }
 
+const cronSecret = Deno.env.get("CRON_SECRET");
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Validate cron secret for authentication
+  const providedSecret = req.headers.get("x-cron-secret");
+  if (!cronSecret || !providedSecret || providedSecret !== cronSecret) {
+    console.log("Unauthorized request - invalid or missing cron secret");
+    return new Response(
+      JSON.stringify({ error: "Unauthorized" }),
+      {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      }
+    );
   }
 
   try {
