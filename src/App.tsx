@@ -22,6 +22,7 @@ const MealPlans = lazy(() => import("./pages/MealPlans"));
 const SignUp = lazy(() => import("./pages/SignUp"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const VerificationSuccess = lazy(() => import("./pages/VerificationSuccess"));
 const MyPurchases = lazy(() => import("./pages/MyPurchases"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Privacy = lazy(() => import("./pages/Privacy"));
@@ -62,6 +63,7 @@ const AppContent = () => {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/verification-success" element={<VerificationSuccess />} />
           <Route path="/my-purchases" element={<MyPurchases />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/privacy" element={<Privacy />} />

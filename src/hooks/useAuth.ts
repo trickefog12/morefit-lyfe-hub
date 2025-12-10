@@ -37,7 +37,7 @@ export const useAuth = () => {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: `${window.location.origin}/verification-success`,
           data: {
             full_name: fullName
           }
@@ -112,7 +112,7 @@ export const useAuth = () => {
         type: 'signup',
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: `${window.location.origin}/verification-success`,
         }
       });
 
