@@ -26,6 +26,7 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const TestWebhook = lazy(() => import("./pages/TestWebhook"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
+const PaymentCanceled = lazy(() => import("./pages/PaymentCanceled"));
 const MobileFeatures = lazy(() => import("./pages/MobileFeatures"));
 const HapticDemo = lazy(() => import("./pages/HapticDemo"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
@@ -63,6 +64,7 @@ const AppContent = () => {
           <Route path="/terms" element={<Terms />} />
           <Route path="/test-webhook" element={<TestWebhook />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-canceled" element={<PaymentCanceled />} />
           <Route path="/mobile-features" element={<MobileFeatures />} />
           <Route path="/haptic-demo" element={<HapticDemo />} />
           <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
