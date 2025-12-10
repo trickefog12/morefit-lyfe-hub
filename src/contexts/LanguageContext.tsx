@@ -220,6 +220,17 @@ const translations = {
     go_to_home: "Μετάβαση στην αρχική",
     error: "Σφάλμα",
     
+    // Email Verification
+    verify_email_title: "Επαλήθευση Email",
+    verify_email_sent: "Ελέγξτε το email σας",
+    verify_email_sent_desc: "Σας στείλαμε ένα email επαλήθευσης. Κάντε κλικ στον σύνδεσμο για να ενεργοποιήσετε τον λογαριασμό σας.",
+    resend_verification: "Επαναποστολή email επαλήθευσης",
+    resending: "Επαναποστολή...",
+    verification_sent: "Email απεστάλη",
+    verification_sent_desc: "Ελέγξτε τα εισερχόμενα και τα ανεπιθύμητα.",
+    email_not_verified: "Το email σας δεν έχει επαληθευτεί",
+    email_not_verified_desc: "Παρακαλώ ελέγξτε τα εισερχόμενά σας και κάντε κλικ στον σύνδεσμο επαλήθευσης.",
+    
     // Toast Messages
     toast_sign_in_required: "Παρακαλώ συνδεθείτε για να αφήσετε κριτική",
     toast_review_submitted: "Η κριτική υποβλήθηκε! Θα εμφανιστεί μετά την έγκριση.",
@@ -766,6 +777,17 @@ const translations = {
     redirecting_home: "You will be redirected to the home page...",
     go_to_home: "Go to home",
     error: "Error",
+    
+    // Email Verification
+    verify_email_title: "Verify Your Email",
+    verify_email_sent: "Check your email",
+    verify_email_sent_desc: "We've sent you a verification email. Click the link to activate your account.",
+    resend_verification: "Resend verification email",
+    resending: "Resending...",
+    verification_sent: "Email sent",
+    verification_sent_desc: "Check your inbox and spam folder.",
+    email_not_verified: "Your email is not verified",
+    email_not_verified_desc: "Please check your inbox and click the verification link.",
     
     // Toast Messages
     toast_sign_in_required: "Please sign in to leave a review",

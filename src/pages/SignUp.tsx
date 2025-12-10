@@ -15,12 +15,18 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEffect, useState } from "react";
 import { PasswordStrengthIndicator } from "@/components/PasswordStrengthIndicator";
+import { Mail, CheckCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const SignUp = () => {
   const navigate = useNavigate();
-  const { user, signUp, signIn, loading } = useAuth();
+  const { user, isEmailVerified, signUp, signIn, resendVerificationEmail, loading } = useAuth();
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showVerificationMessage, setShowVerificationMessage] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState("");
+  const [isResending, setIsResending] = useState(false);
 
   const signupForm = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
@@ -41,17 +47,18 @@ const SignUp = () => {
   });
 
   useEffect(() => {
-    if (user && !loading) {
+    if (user && isEmailVerified && !loading) {
       navigate("/");
     }
-  }, [user, loading, navigate]);
+  }, [user, isEmailVerified, loading, navigate]);
 
   const onSignup = async (data: SignupInput) => {
     setIsSubmitting(true);
     try {
-      const { error } = await signUp(data.email, data.password, data.fullName);
-      if (!error) {
-        navigate("/");
+      const { error, needsVerification } = await signUp(data.email, data.password, data.fullName);
+      if (!error && needsVerification) {
+        setVerificationEmail(data.email);
+        setShowVerificationMessage(true);
       }
     } finally {
       setIsSubmitting(false);
@@ -61,8 +68,11 @@ const SignUp = () => {
   const onLogin = async (data: LoginInput) => {
     setIsSubmitting(true);
     try {
-      const { error } = await signIn(data.email, data.password);
-      if (!error) {
+      const { error, needsVerification } = await signIn(data.email, data.password);
+      if (!error && needsVerification) {
+        setVerificationEmail(data.email);
+        setShowVerificationMessage(true);
+      } else if (!error && !needsVerification) {
         navigate("/");
       }
     } finally {
@@ -70,10 +80,71 @@ const SignUp = () => {
     }
   };
 
+  const handleResendVerification = async () => {
+    if (!verificationEmail) return;
+    setIsResending(true);
+    try {
+      const { error } = await resendVerificationEmail(verificationEmail);
+      if (!error) {
+        toast({
+          title: t("verification_sent"),
+          description: t("verification_sent_desc"),
+        });
+      }
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">{t("loading")}</div>
+      </div>
+    );
+  }
+
+  // Show verification message screen
+  if (showVerificationMessage) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 py-16">
+          <div className="container mx-auto px-4 lg:px-8">
+            <Card className="max-w-md mx-auto">
+              <CardContent className="pt-8 pb-8 text-center">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Mail className="w-8 h-8 text-primary" />
+                </div>
+                <h1 className="text-2xl font-bold mb-2">{t("verify_email_sent")}</h1>
+                <p className="text-muted-foreground mb-6">
+                  {t("verify_email_sent_desc")}
+                </p>
+                <p className="text-sm text-muted-foreground mb-6">
+                  {verificationEmail}
+                </p>
+                <div className="space-y-3">
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleResendVerification}
+                    disabled={isResending}
+                  >
+                    {isResending ? t("resending") : t("resend_verification")}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full"
+                    onClick={() => setShowVerificationMessage(false)}
+                  >
+                    {t("back_to_login")}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
