@@ -520,6 +520,16 @@ const translations = {
     completed: "Ολοκληρώθηκε",
     admin_role: "ΔΙΑΧΕΙΡΙΣΤΗΣ",
     user_role: "ΧΡΗΣΤΗΣ",
+    
+    // Password Strength
+    password_min_length: "Τουλάχιστον 8 χαρακτήρες",
+    password_uppercase: "Τουλάχιστον ένα κεφαλαίο γράμμα",
+    password_lowercase: "Τουλάχιστον ένα πεζό γράμμα",
+    password_number: "Τουλάχιστον έναν αριθμό",
+    password_weak: "Αδύναμος",
+    password_fair: "Μέτριος",
+    password_good: "Καλός",
+    password_strong: "Ισχυρός",
   },
   en: {
     // Navigation
@@ -1030,6 +1040,16 @@ const translations = {
     completed: "Completed",
     admin_role: "ADMIN",
     user_role: "USER",
+    
+    // Password Strength
+    password_min_length: "At least 8 characters",
+    password_uppercase: "At least one uppercase letter",
+    password_lowercase: "At least one lowercase letter",
+    password_number: "At least one number",
+    password_weak: "Weak",
+    password_fair: "Fair",
+    password_good: "Good",
+    password_strong: "Strong",
   },
 };
 
