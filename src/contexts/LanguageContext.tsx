@@ -228,6 +228,10 @@ const translations = {
     resending: "Επαναποστολή...",
     verification_sent: "Email απεστάλη",
     verification_sent_desc: "Ελέγξτε τα εισερχόμενα και τα ανεπιθύμητα.",
+    verification_success_title: "Email Επαληθεύτηκε!",
+    verification_success_desc: "Ο λογαριασμός σας είναι τώρα ενεργός. Μπορείτε να συνδεθείτε.",
+    redirecting_to_login: "Ανακατεύθυνση στη σύνδεση",
+    go_to_login: "Μετάβαση στη σύνδεση",
     email_not_verified: "Το email σας δεν έχει επαληθευτεί",
     email_not_verified_desc: "Παρακαλώ ελέγξτε τα εισερχόμενά σας και κάντε κλικ στον σύνδεσμο επαλήθευσης.",
     
@@ -786,6 +790,10 @@ const translations = {
     resending: "Resending...",
     verification_sent: "Email sent",
     verification_sent_desc: "Check your inbox and spam folder.",
+    verification_success_title: "Email Verified!",
+    verification_success_desc: "Your account is now active. You can sign in.",
+    redirecting_to_login: "Redirecting to login",
+    go_to_login: "Go to login",
     email_not_verified: "Your email is not verified",
     email_not_verified_desc: "Please check your inbox and click the verification link.",
     
