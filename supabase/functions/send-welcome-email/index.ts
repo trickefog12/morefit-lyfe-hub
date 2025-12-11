@@ -143,10 +143,10 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Get user profile
+    // Get user profile and check if welcome email was already sent
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("email, full_name")
+      .select("email, full_name, welcome_email_sent")
       .eq("id", userId)
       .single();
 
@@ -155,6 +155,15 @@ const handler = async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ error: "User profile not found" }),
         { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Check if welcome email was already sent
+    if (profile.welcome_email_sent) {
+      console.log("Welcome email already sent to user");
+      return new Response(
+        JSON.stringify({ success: true, message: "Welcome email already sent" }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
@@ -177,6 +186,15 @@ const handler = async (req: Request): Promise<Response> => {
       subject: "Welcome to MoreFitLyfe! 🎉",
       html,
     });
+
+    // Mark welcome email as sent
+    await supabase
+      .from("profiles")
+      .update({ 
+        welcome_email_sent: true, 
+        welcome_email_sent_at: new Date().toISOString() 
+      })
+      .eq("id", userId);
 
     console.log("Welcome email sent successfully");
 
