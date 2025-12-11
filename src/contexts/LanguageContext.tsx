@@ -384,6 +384,13 @@ const translations = {
     reset_limit: "Επαναφορά Ορίου",
     download_limit_reset_success: "Το όριο λήψεων επαναφέρθηκε με επιτυχία",
     download_limit_reset_failed: "Αποτυχία επαναφοράς ορίου λήψεων",
+    resend_welcome_email: "Επαναποστολή Email Καλωσορίσματος",
+    resend_welcome_email_confirm_title: "Επαναποστολή Email Καλωσορίσματος;",
+    resend_welcome_email_confirm_desc: "Αυτό θα στείλει ένα νέο email καλωσορίσματος στον/στην {user}.",
+    resend_welcome_email_success: "Το email καλωσορίσματος στάλθηκε με επιτυχία",
+    resend_welcome_email_failed: "Αποτυχία αποστολής email καλωσορίσματος",
+    welcome_email_sent: "Στάλθηκε",
+    welcome_email_not_sent: "Δεν στάλθηκε",
 
     // Review Moderation
     pending_reviews: "Εκκρεμείς Κριτικές",
@@ -946,6 +953,13 @@ const translations = {
     reset_limit: "Reset Limit",
     download_limit_reset_success: "Download limit reset successfully",
     download_limit_reset_failed: "Failed to reset download limit",
+    resend_welcome_email: "Resend Welcome Email",
+    resend_welcome_email_confirm_title: "Resend Welcome Email?",
+    resend_welcome_email_confirm_desc: "This will send a new welcome email to {user}.",
+    resend_welcome_email_success: "Welcome email sent successfully",
+    resend_welcome_email_failed: "Failed to send welcome email",
+    welcome_email_sent: "Sent",
+    welcome_email_not_sent: "Not Sent",
 
     // Review Moderation
     pending_reviews: "Pending Reviews",
