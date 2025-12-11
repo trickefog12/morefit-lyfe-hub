@@ -17,7 +17,8 @@ import { AdminActivityWidget } from "@/components/admin/AdminActivityWidget";
 import { NotificationSettings } from "@/components/admin/NotificationSettings";
 import { IPWhitelistManager } from "@/components/admin/IPWhitelistManager";
 import { TwoFactorSetup } from "@/components/admin/TwoFactorSetup";
-import { ShoppingBag, DollarSign, Star, Users, BarChart, Package, Upload, Settings, Shield } from "lucide-react";
+import { EmailTemplateEditor } from "@/components/admin/EmailTemplateEditor";
+import { ShoppingBag, DollarSign, Star, Users, BarChart, Package, Upload, Settings, Shield, Mail } from "lucide-react";
 import { NotificationPanel } from "@/components/admin/NotificationPanel";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -39,7 +40,7 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-10">
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-11">
             <TabsTrigger value="overview" className="gap-2">
               <BarChart className="h-4 w-4" />
               <span className="hidden sm:inline">{t("admin_overview")}</span>
@@ -63,6 +64,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="users" className="gap-2">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">{t("admin_users")}</span>
+            </TabsTrigger>
+            <TabsTrigger value="emails" className="gap-2">
+              <Mail className="h-4 w-4" />
+              <span className="hidden sm:inline">{t("admin_emails")}</span>
             </TabsTrigger>
             <TabsTrigger value="revenue" className="gap-2">
               <DollarSign className="h-4 w-4" />
@@ -159,6 +164,10 @@ const AdminDashboard = () => {
 
           <TabsContent value="users">
             <UserManagement />
+          </TabsContent>
+
+          <TabsContent value="emails">
+            <EmailTemplateEditor />
           </TabsContent>
 
           <TabsContent value="revenue">

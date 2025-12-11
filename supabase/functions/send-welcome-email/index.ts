@@ -167,15 +167,40 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Fetch custom email template
+    const { data: template } = await supabase
+      .from("email_templates")
+      .select("*")
+      .eq("template_type", "welcome")
+      .single();
+
     // Get the origin from the request headers or use a default
     const origin = req.headers.get("origin") || "https://morefitlyfe.com";
     const programsUrl = `${origin}/programs`;
 
-    // Render the email template
+    // Use custom template values or defaults
+    const emailSubject = template?.subject || "Welcome to MoreFitLyfe! 🎉";
+    const customerName = profile.full_name || "Fitness Enthusiast";
+
+    // Render the email template with custom values
     const html = await renderAsync(
       React.createElement(WelcomeEmail, {
-        customerName: profile.full_name || "Fitness Enthusiast",
+        customerName,
         programsUrl,
+        heading: template?.heading,
+        greetingPrefix: template?.greeting_prefix,
+        introText: template?.intro_text,
+        bodyText: template?.body_text,
+        ctaButtonText: template?.cta_button_text,
+        featuresHeading: template?.features_heading,
+        feature1: template?.feature_1,
+        feature2: template?.feature_2,
+        feature3: template?.feature_3,
+        footerText: template?.footer_text,
+        signature: template?.signature,
+        primaryColor: template?.primary_color,
+        backgroundColor: template?.background_color,
+        textColor: template?.text_color,
       })
     );
 
@@ -183,7 +208,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "MoreFitLyfe <onboarding@resend.dev>",
       to: [profile.email],
-      subject: "Welcome to MoreFitLyfe! 🎉",
+      subject: emailSubject,
       html,
     });
 
