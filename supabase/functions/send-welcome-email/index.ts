@@ -31,7 +31,24 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    
+    // Create client with anon key to verify the authenticated user
+    const authHeader = req.headers.get("Authorization");
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader || "" } }
+    });
+    
+    // Verify the authenticated user
+    const { data: { user: authUser }, error: authError } = await supabaseAuth.auth.getUser();
+    
+    if (authError || !authUser) {
+      console.log("Unauthorized: No valid user session");
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
 
     const { userId }: WelcomeEmailRequest = await req.json();
 
@@ -42,6 +59,18 @@ const handler = async (req: Request): Promise<Response> => {
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
+
+    // Verify that the authenticated user matches the requested userId
+    if (authUser.id !== userId) {
+      console.log("Forbidden: User ID mismatch");
+      return new Response(
+        JSON.stringify({ error: "Forbidden" }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Use service role client for database operations
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Get user profile
     const { data: profile, error: profileError } = await supabase
