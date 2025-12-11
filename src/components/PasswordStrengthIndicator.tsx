@@ -1,7 +1,8 @@
 import { useMemo } from "react";
-import { Check, X } from "lucide-react";
+import { Check, X, AlertTriangle, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
+import { usePasswordBreachCheck } from "@/hooks/usePasswordBreachCheck";
 
 interface PasswordStrengthIndicatorProps {
   password: string;
@@ -15,6 +16,7 @@ interface Requirement {
 
 export const PasswordStrengthIndicator = ({ password }: PasswordStrengthIndicatorProps) => {
   const { t } = useLanguage();
+  const { isBreached, isChecking, breachCount } = usePasswordBreachCheck(password);
 
   const requirements: Requirement[] = useMemo(() => [
     { key: "length", label: t("password_min_length"), test: (p) => p.length >= 8 },
@@ -38,6 +40,31 @@ export const PasswordStrengthIndicator = ({ password }: PasswordStrengthIndicato
 
   return (
     <div className="space-y-3 mt-2">
+      {/* Password breach warning */}
+      {isBreached && (
+        <div className="flex items-start gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/20">
+          <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+          <div className="text-sm">
+            <p className="font-medium text-destructive">{t("password_compromised")}</p>
+            <p className="text-destructive/80 text-xs mt-0.5">
+              {t("password_compromised_desc")} 
+              {breachCount && breachCount > 1000 
+                ? ` (${(breachCount / 1000).toFixed(0)}K+ ${t("password_times_seen")})`
+                : breachCount && ` (${breachCount} ${t("password_times_seen")})`
+              }
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Checking indicator */}
+      {isChecking && password.length >= 4 && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Loader2 className="h-3 w-3 animate-spin" />
+          <span>{t("password_checking_breach")}</span>
+        </div>
+      )}
+
       {/* Strength bar */}
       <div className="space-y-1">
         <div className="flex gap-1">

@@ -613,6 +613,10 @@ const translations = {
     password_fair: "Μέτριος",
     password_good: "Καλός",
     password_strong: "Ισχυρός",
+    password_compromised: "Παραβιασμένος κωδικός",
+    password_compromised_desc: "Αυτός ο κωδικός έχει εμφανιστεί σε διαρροές δεδομένων. Επιλέξτε έναν διαφορετικό.",
+    password_checking_breach: "Έλεγχος ασφαλείας κωδικού...",
+    password_times_seen: "φορές εντοπισμένος",
   },
   en: {
     // Navigation
@@ -1216,6 +1220,10 @@ const translations = {
     password_fair: "Fair",
     password_good: "Good",
     password_strong: "Strong",
+    password_compromised: "Compromised password",
+    password_compromised_desc: "This password has appeared in data breaches. Please choose a different one.",
+    password_checking_breach: "Checking password security...",
+    password_times_seen: "times seen",
   },
 };
 
