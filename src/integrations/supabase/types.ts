@@ -184,6 +184,75 @@ export type Database = {
           },
         ]
       }
+      email_templates: {
+        Row: {
+          background_color: string
+          body_text: string
+          created_at: string
+          cta_button_text: string
+          feature_1: string
+          feature_2: string
+          feature_3: string
+          features_heading: string
+          footer_text: string
+          greeting_prefix: string
+          heading: string
+          id: string
+          intro_text: string
+          primary_color: string
+          signature: string
+          subject: string
+          template_type: string
+          text_color: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          background_color?: string
+          body_text?: string
+          created_at?: string
+          cta_button_text?: string
+          feature_1?: string
+          feature_2?: string
+          feature_3?: string
+          features_heading?: string
+          footer_text?: string
+          greeting_prefix?: string
+          heading?: string
+          id?: string
+          intro_text?: string
+          primary_color?: string
+          signature?: string
+          subject?: string
+          template_type?: string
+          text_color?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          background_color?: string
+          body_text?: string
+          created_at?: string
+          cta_button_text?: string
+          feature_1?: string
+          feature_2?: string
+          feature_3?: string
+          features_heading?: string
+          footer_text?: string
+          greeting_prefix?: string
+          heading?: string
+          id?: string
+          intro_text?: string
+          primary_color?: string
+          signature?: string
+          subject?: string
+          template_type?: string
+          text_color?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       ip_whitelist: {
         Row: {
           added_by: string | null
