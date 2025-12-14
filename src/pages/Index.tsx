@@ -31,6 +31,7 @@ const Index = () => {
               src={heroMobile}
               alt="Δυναμική προπόνηση - Γυναίκα σε δράση"
               className="h-full w-full object-cover"
+              fetchPriority="high"
             />
           </picture>
           <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/60 to-transparent" />
