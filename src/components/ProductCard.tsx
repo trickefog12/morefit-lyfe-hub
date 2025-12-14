@@ -40,6 +40,9 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           src={getImageForProduct(product)}
           alt={productName}
           className="h-full w-full object-cover transition-transform group-hover:scale-105"
+          loading="lazy"
+          width={406}
+          height={406}
         />
         <Badge className="absolute top-3 right-3 bg-primary/90 backdrop-blur-sm">
           {currencySymbol}{product.price}
