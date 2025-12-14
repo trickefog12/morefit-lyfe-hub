@@ -11,26 +11,29 @@ export interface Review {
   };
 }
 
+// Standalone fetch function for deferred loading
+export async function fetchReviews(): Promise<Review[]> {
+  const { data, error } = await supabase
+    .from("reviews")
+    .select(`
+      id,
+      rating,
+      comment,
+      created_at,
+      profiles (
+        full_name
+      )
+    `)
+    .eq("approved", true)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data as Review[];
+}
+
 export function useReviews() {
   return useQuery({
     queryKey: ["reviews"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("reviews")
-        .select(`
-          id,
-          rating,
-          comment,
-          created_at,
-          profiles (
-            full_name
-          )
-        `)
-        .eq("approved", true)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return data as Review[];
-    },
+    queryFn: fetchReviews,
   });
 }

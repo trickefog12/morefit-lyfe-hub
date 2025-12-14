@@ -1,21 +1,39 @@
+import { lazy, Suspense, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
-import { ReviewForm } from "@/components/ReviewForm";
 import { products } from "@/data/products";
 import { CheckCircle, Star, TrendingUp, Users } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useReviews } from "@/hooks/useReviews";
 import heroDesktop from "@/assets/hero-desktop.jpg";
 import heroMobile from "@/assets/hero-mobile.jpg";
+
+// Lazy load ReviewForm to defer loading of react-hook-form and zod
+const ReviewForm = lazy(() => import("@/components/ReviewForm").then(m => ({ default: m.ReviewForm })));
 
 const Index = () => {
   const { t } = useLanguage();
   const featuredProducts = products.slice(0, 3);
-  const { data: reviews, isLoading } = useReviews();
+  
+  // Defer reviews fetch until after initial render to improve TTI
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    // Delay the import to allow main thread to complete initial render
+    const timer = setTimeout(() => {
+      import("@/hooks/useReviews").then(({ fetchReviews }) => {
+        fetchReviews().then(data => {
+          setReviews(data || []);
+          setIsLoading(false);
+        }).catch(() => setIsLoading(false));
+      });
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -205,7 +223,9 @@ const Index = () => {
             <h3 className="text-2xl font-bold mb-6 text-center">{t("leave_review")}</h3>
             <Card>
               <CardContent className="pt-6">
-                <ReviewForm />
+                <Suspense fallback={<div className="text-center text-muted-foreground py-4">{t("loading_reviews")}</div>}>
+                  <ReviewForm />
+                </Suspense>
               </CardContent>
             </Card>
           </div>
