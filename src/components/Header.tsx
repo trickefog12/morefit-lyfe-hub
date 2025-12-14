@@ -183,7 +183,7 @@ export const Header = () => {
                       toggleLanguage();
                     }}
                     className="gap-2"
-                    aria-label="Toggle language"
+                    aria-label={language === "el" ? "EN - Switch to English" : "ΕΛ - Αλλαγή σε Ελληνικά"}
                   >
                     <Languages className="h-4 w-4" />
                     {language === "el" ? "EN" : "ΕΛ"}
@@ -211,7 +211,7 @@ export const Header = () => {
                       toggleLanguage();
                     }}
                     className="gap-2"
-                    aria-label="Toggle language"
+                    aria-label={language === "el" ? "EN - Switch to English" : "ΕΛ - Αλλαγή σε Ελληνικά"}
                   >
                     <Languages className="h-4 w-4" />
                     {language === "el" ? "EN" : "ΕΛ"}
