@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     sourcemap: true,
-    cssCodeSplit: false,
+    cssCodeSplit: true,
     modulePreload: {
       polyfill: true,
     },
