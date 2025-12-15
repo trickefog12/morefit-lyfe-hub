@@ -8,8 +8,10 @@ import { ProductCard } from "@/components/ProductCard";
 import { products } from "@/data/products";
 import { CheckCircle, Star, TrendingUp, Users } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import heroDesktop from "@/assets/hero-desktop.jpg";
-import heroMobile from "@/assets/hero-mobile.jpg";
+import heroDesktopWebp from "@/assets/hero-desktop.webp";
+import heroDesktopJpg from "@/assets/hero-desktop.jpg";
+import heroMobileWebp from "@/assets/hero-mobile.webp";
+import heroMobileJpg from "@/assets/hero-mobile.jpg";
 
 // Lazy load ReviewForm to defer loading of react-hook-form and zod
 const ReviewForm = lazy(() => import("@/components/ReviewForm").then(m => ({ default: m.ReviewForm })));
@@ -44,9 +46,11 @@ const Index = () => {
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <picture>
-            <source media="(min-width: 768px)" srcSet={heroDesktop} />
+            <source media="(min-width: 768px)" srcSet={heroDesktopWebp} type="image/webp" />
+            <source media="(min-width: 768px)" srcSet={heroDesktopJpg} type="image/jpeg" />
+            <source srcSet={heroMobileWebp} type="image/webp" />
             <img
-              src={heroMobile}
+              src={heroMobileJpg}
               alt="Δυναμική προπόνηση - Γυναίκα σε δράση"
               className="h-full w-full object-cover"
               fetchPriority="high"
