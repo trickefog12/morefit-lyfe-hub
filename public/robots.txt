@@ -12,3 +12,12 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /my-purchases
+Disallow: /settings
+Disallow: /payment-success
+Disallow: /payment-canceled
+Disallow: /verification-success
+Disallow: /reset-password
+
+Sitemap: https://morefitlyfe.com/sitemap.xml
