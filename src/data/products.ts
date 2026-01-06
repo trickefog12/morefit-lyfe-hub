@@ -180,7 +180,7 @@ export const products: Product[] = [
   },
   {
     sku: "MFL-MOB",
-    name: "Πρόγραμμα Κινητικότητας για Γραφειακούς",
+    name: "Πρόγραμμα Κινητικότητας για Υπαλλήλους Γραφείου",
     nameEn: "Mobility Program for Desk Workers",
     price: 15,
     shortBenefit: "Απαλλαγή από πόνους λόγω καθιστικής ζωής",
