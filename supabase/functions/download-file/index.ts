@@ -169,8 +169,8 @@ serve(async (req) => {
     console.log("Valid purchase found");
 
     // Get the file from storage
-    // Files are stored as: {token}/{product_sku}.pdf
-    const filePath = `${token}/${purchase.products.sku}.pdf`;
+    // Files are stored as: products/{product_sku}.pdf (one file per product)
+    const filePath = `products/${purchase.products.sku}.pdf`;
     
     const { data: fileData, error: storageError } = await supabaseClient
       .storage
