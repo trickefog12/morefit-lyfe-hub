@@ -17,18 +17,18 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 220 13% 13%;
 
-    --primary: 160 84% 39%;
+    --primary: 160 84% 28%;
     --primary-foreground: 0 0% 100%;
     
-    --primary-glow: 160 84% 50%;
+    --primary-glow: 160 84% 38%;
 
-    --secondary: 24 95% 53%;
+    --secondary: 24 95% 38%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 220 13% 95%;
     --muted-foreground: 220 9% 46%;
 
-    --accent: 24 95% 53%;
+    --accent: 24 95% 38%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -36,13 +36,13 @@ All colors MUST be HSL.
 
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 160 84% 39%;
+    --ring: 160 84% 28%;
 
     --radius: 0.75rem;
     
-    --gradient-primary: linear-gradient(135deg, hsl(160 84% 39%), hsl(160 84% 50%));
-    --gradient-hero: linear-gradient(135deg, hsl(160 84% 39% / 0.95), hsl(24 95% 53% / 0.85));
-    --shadow-glow: 0 10px 40px -10px hsl(160 84% 39% / 0.3);
+    --gradient-primary: linear-gradient(135deg, hsl(160 84% 28%), hsl(160 84% 38%));
+    --gradient-hero: linear-gradient(135deg, hsl(160 84% 28% / 0.95), hsl(24 95% 38% / 0.85));
+    --shadow-glow: 0 10px 40px -10px hsl(160 84% 28% / 0.3);
     --shadow-card: 0 4px 20px -4px hsl(220 13% 13% / 0.1);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -73,18 +73,18 @@ All colors MUST be HSL.
     --popover: 220 13% 13%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 160 84% 39%;
+    --primary: 160 84% 28%;
     --primary-foreground: 0 0% 100%;
     
-    --primary-glow: 160 84% 50%;
+    --primary-glow: 160 84% 38%;
 
-    --secondary: 24 95% 53%;
+    --secondary: 24 95% 38%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 220 13% 18%;
     --muted-foreground: 220 9% 60%;
 
-    --accent: 24 95% 53%;
+    --accent: 24 95% 38%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -92,7 +92,7 @@ All colors MUST be HSL.
 
     --border: 220 13% 18%;
     --input: 220 13% 18%;
-    --ring: 160 84% 39%;
+    --ring: 160 84% 28%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
