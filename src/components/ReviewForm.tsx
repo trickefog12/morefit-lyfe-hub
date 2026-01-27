@@ -42,6 +42,27 @@ export function ReviewForm() {
 
     setIsSubmitting(true);
     try {
+      // Check content moderation before saving
+      const moderationResponse = await supabase.functions.invoke('moderate-review', {
+        body: { comment: data.comment }
+      });
+
+      if (moderationResponse.error) {
+        throw new Error(t("toast_review_failed"));
+      }
+
+      const moderationResult = moderationResponse.data;
+      
+      if (!moderationResult.approved) {
+        if (moderationResult.reason === 'spam_pattern') {
+          toast.error(t("toast_review_blocked_spam"));
+        } else {
+          toast.error(t("toast_review_blocked"));
+        }
+        return;
+      }
+
+      // Content is clean - save the review (will be auto-approved)
       const { error } = await supabase.from("reviews").insert({
         user_id: user.id,
         rating: data.rating,

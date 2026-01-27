@@ -69,7 +69,7 @@ const translations = {
     submit: "Υποβολή",
     submitting: "Υποβολή...",
     review_success: "Επιτυχία!",
-    review_success_desc: "Η κριτική σου υποβλήθηκε με επιτυχία και θα αναρτηθεί μετά από έγκριση.",
+    review_success_desc: "Η κριτική σας δημοσιεύτηκε!",
     review_error: "Σφάλμα",
     review_error_desc: "Κάτι πήγε στραβά. Παρακαλώ δοκίμασε ξανά.",
     
@@ -237,8 +237,10 @@ const translations = {
     
     // Toast Messages
     toast_sign_in_required: "Παρακαλώ συνδεθείτε για να αφήσετε κριτική",
-    toast_review_submitted: "Η κριτική υποβλήθηκε! Θα εμφανιστεί μετά την έγκριση.",
+    toast_review_submitted: "Η κριτική σας δημοσιεύτηκε!",
     toast_review_failed: "Αποτυχία υποβολής κριτικής",
+    toast_review_blocked: "Παρακαλώ αναθεωρήστε την κριτική σας. Κάποιες λέξεις δεν είναι κατάλληλες για την κοινότητά μας.",
+    toast_review_blocked_spam: "Παρακαλώ γράψτε μια πιο φυσική κριτική χωρίς υπερβολικά κεφαλαία ή επαναλαμβανόμενους χαρακτήρες.",
     toast_settings_saved: "Οι ρυθμίσεις αποθηκεύτηκαν",
     toast_settings_saved_desc: "Οι προτιμήσεις σας ενημερώθηκαν επιτυχώς",
     toast_language_changed: "Η γλώσσα άλλαξε",
@@ -597,6 +599,12 @@ const translations = {
     review_id: "ID Κριτικής",
     review_rating: "Βαθμολογία",
     review_by: "Κριτική από",
+    
+    // Review Moderation
+    all_reviews: "Όλες οι Κριτικές",
+    all_reviews_desc: "Οι κριτικές δημοσιεύονται αυτόματα. Μπορείτε να διαγράψετε ακατάλληλες κριτικές.",
+    published: "Δημοσιευμένη",
+    no_reviews_yet_admin: "Δεν υπάρχουν κριτικές ακόμα.",
 
     // Common Admin Terms
     na: "Δ/Υ",
@@ -676,9 +684,11 @@ const translations = {
     submit: "Submit",
     submitting: "Submitting...",
     review_success: "Success!",
-    review_success_desc: "Your review has been submitted successfully and will be posted after approval.",
+    review_success_desc: "Your review has been published!",
     review_error: "Error",
     review_error_desc: "Something went wrong. Please try again.",
+    toast_review_blocked: "Please revise your review. Some words aren't appropriate for our community.",
+    toast_review_blocked_spam: "Please write a more natural review without excessive capitals or repeated characters.",
     
     // Footer
     footer_description: "Specialized training and nutrition programs for real transformation.",
@@ -1204,6 +1214,12 @@ const translations = {
     review_id: "Review ID",
     review_rating: "Rating",
     review_by: "Review by",
+    
+    // Review Moderation
+    all_reviews: "All Reviews",
+    all_reviews_desc: "Reviews are published automatically. You can delete inappropriate reviews.",
+    published: "Published",
+    no_reviews_yet_admin: "No reviews yet.",
 
     // Common Admin Terms
     na: "N/A",
