@@ -24,7 +24,6 @@ export async function fetchReviews(): Promise<Review[]> {
         full_name
       )
     `)
-    .eq("approved", true)
     .order("created_at", { ascending: false });
 
   if (error) throw error;
