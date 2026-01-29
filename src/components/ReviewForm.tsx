@@ -54,6 +54,19 @@ export function ReviewForm() {
       const moderationResult = moderationResponse.data;
       
       if (!moderationResult.approved) {
+        // Send alert to admins about blocked content
+        try {
+          await supabase.functions.invoke('send-moderation-alert', {
+            body: {
+              blockedContent: data.comment,
+              reason: moderationResult.reason,
+              userEmail: user.email || 'Unknown'
+            }
+          });
+        } catch (alertError) {
+          console.error('Failed to send moderation alert:', alertError);
+        }
+
         if (moderationResult.reason === 'spam_pattern') {
           toast.error(t("toast_review_blocked_spam"));
         } else {
