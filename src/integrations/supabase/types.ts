@@ -542,7 +542,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      reviews_public: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          id: string | null
+          rating: number | null
+          reviewer_name: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
