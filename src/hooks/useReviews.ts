@@ -6,23 +6,19 @@ export interface Review {
   rating: number;
   comment: string;
   created_at: string;
-  profiles: {
-    full_name: string | null;
-  };
+  reviewer_name: string;
 }
 
-// Standalone fetch function for deferred loading
+// Standalone fetch function for deferred loading - uses secure view that hides user_id
 export async function fetchReviews(): Promise<Review[]> {
   const { data, error } = await supabase
-    .from("reviews")
+    .from("reviews_public")
     .select(`
       id,
       rating,
       comment,
       created_at,
-      profiles (
-        full_name
-      )
+      reviewer_name
     `)
     .order("created_at", { ascending: false });
 
