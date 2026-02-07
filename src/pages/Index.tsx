@@ -15,6 +15,7 @@ import heroMobileJpg from "@/assets/hero-mobile.jpg";
 
 // Lazy load ReviewForm to defer loading of react-hook-form and zod
 const ReviewForm = lazy(() => import("@/components/ReviewForm"));
+import { ReviewsSkeleton } from "@/components/ReviewsSkeleton";
 
 const Index = () => {
   const { t } = useLanguage();
@@ -190,7 +191,7 @@ const Index = () => {
           
           {/* Display Reviews */}
           {isLoading ? (
-            <div className="text-center text-muted-foreground">{t("loading_reviews")}</div>
+            <ReviewsSkeleton />
           ) : reviews && reviews.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
               {reviews.slice(0, 6).map((review) => (
