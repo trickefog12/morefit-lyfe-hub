@@ -16,6 +16,7 @@ import heroMobileJpg from "@/assets/hero-mobile.jpg";
 // Lazy load ReviewForm to defer loading of react-hook-form and zod
 const ReviewForm = lazy(() => import("@/components/ReviewForm"));
 import { ReviewsSkeleton } from "@/components/ReviewsSkeleton";
+import { ProductsSkeleton } from "@/components/ProductsSkeleton";
 
 const Index = () => {
   const { t } = useLanguage();
