@@ -162,3 +162,5 @@ export function ReviewForm() {
     </Form>
   );
 }
+
+export default ReviewForm;

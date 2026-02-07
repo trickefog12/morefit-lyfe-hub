@@ -14,7 +14,7 @@ import heroMobileWebp from "@/assets/hero-mobile.webp";
 import heroMobileJpg from "@/assets/hero-mobile.jpg";
 
 // Lazy load ReviewForm to defer loading of react-hook-form and zod
-const ReviewForm = lazy(() => import("@/components/ReviewForm").then(m => ({ default: m.ReviewForm })));
+const ReviewForm = lazy(() => import("@/components/ReviewForm"));
 
 const Index = () => {
   const { t } = useLanguage();
