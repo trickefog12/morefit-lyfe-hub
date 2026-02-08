@@ -12,6 +12,13 @@ import heroDesktopWebp from "@/assets/hero-desktop.webp";
 import heroDesktopJpg from "@/assets/hero-desktop.jpg";
 import heroMobileWebp from "@/assets/hero-mobile.webp";
 import heroMobileJpg from "@/assets/hero-mobile.jpg";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 // Lazy load ReviewForm to defer loading of react-hook-form and zod
 const ReviewForm = lazy(() => import("@/components/ReviewForm"));
@@ -194,29 +201,43 @@ const Index = () => {
           {isLoading ? (
             <ReviewsSkeleton />
           ) : reviews && reviews.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16">
-              {reviews.slice(0, 6).map((review) => (
-                <Card key={review.id}>
-                  <CardContent className="pt-8">
-                    <div className="flex gap-1 mb-4">
-                      {[...Array(5)].map((_, i) => (
-                        <Star 
-                          key={i} 
-                          className={`h-5 w-5 ${
-                            i < review.rating 
-                              ? "fill-secondary text-secondary" 
-                              : "text-muted-foreground"
-                          }`} 
-                        />
-                      ))}
-                    </div>
-                    <p className="text-muted-foreground mb-4">"{review.comment}"</p>
-                    <p className="font-semibold">
-                      {review.profiles?.full_name || t("anonymous")}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="max-w-5xl mx-auto mb-16 px-12">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-4">
+                  {reviews.slice(0, 9).map((review) => (
+                    <CarouselItem key={review.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                      <Card className="h-full">
+                        <CardContent className="pt-8 h-full flex flex-col">
+                          <div className="flex gap-1 mb-4">
+                            {[...Array(5)].map((_, i) => (
+                              <Star 
+                                key={i} 
+                                className={`h-5 w-5 ${
+                                  i < review.rating 
+                                    ? "fill-secondary text-secondary" 
+                                    : "text-muted-foreground"
+                                }`} 
+                              />
+                            ))}
+                          </div>
+                          <p className="text-muted-foreground mb-4 flex-grow line-clamp-4">"{review.comment}"</p>
+                          <p className="font-semibold">
+                            {review.reviewer_name || t("anonymous")}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious />
+                <CarouselNext />
+              </Carousel>
             </div>
           ) : (
             <div className="text-center text-muted-foreground mb-16">
