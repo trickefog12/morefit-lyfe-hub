@@ -12,6 +12,7 @@ import heroDesktopWebp from "@/assets/hero-desktop.webp";
 import heroDesktopJpg from "@/assets/hero-desktop.jpg";
 import heroMobileWebp from "@/assets/hero-mobile.webp";
 import heroMobileJpg from "@/assets/hero-mobile.jpg";
+import Autoplay from "embla-carousel-autoplay";
 import {
   Carousel,
   CarouselContent,
@@ -207,6 +208,12 @@ const Index = () => {
                   align: "start",
                   loop: true,
                 }}
+                plugins={[
+                  Autoplay({
+                    delay: 5000,
+                    stopOnInteraction: true,
+                  }),
+                ]}
                 className="w-full"
               >
                 <CarouselContent className="-ml-4">
