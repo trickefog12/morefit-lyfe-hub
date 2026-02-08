@@ -38,6 +38,8 @@ const Index = () => {
   // Defer reviews fetch until after initial render to improve TTI
   const [reviews, setReviews] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [carouselApi, setCarouselApi] = useState<any>(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
   
   useEffect(() => {
     // Delay the import to allow main thread to complete initial render
@@ -51,6 +53,21 @@ const Index = () => {
     }, 100);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (!carouselApi) return;
+
+    const handleSelect = () => {
+      setCurrentSlide(carouselApi.selectedScrollSnap());
+    };
+
+    carouselApi.on("select", handleSelect);
+    handleSelect();
+
+    return () => {
+      carouselApi.off("select", handleSelect);
+    };
+  }, [carouselApi]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -214,6 +231,7 @@ const Index = () => {
                   loop: true,
                 }}
                 plugins={[autoplayPlugin.current]}
+                setApi={setCarouselApi}
                 className="w-full"
               >
                 <CarouselContent className="-ml-4">
@@ -245,6 +263,21 @@ const Index = () => {
                 <CarouselPrevious />
                 <CarouselNext />
               </Carousel>
+              {/* Dot Indicators */}
+              <div className="flex justify-center gap-2 mt-6">
+                {reviews.slice(0, 9).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => carouselApi?.scrollTo(index)}
+                    className={`h-2 rounded-full transition-all ${
+                      index === currentSlide
+                        ? "w-8 bg-primary"
+                        : "w-2 bg-muted-foreground/40 hover:bg-muted-foreground/60"
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
             </div>
           ) : (
             <div className="text-center text-muted-foreground mb-16">
