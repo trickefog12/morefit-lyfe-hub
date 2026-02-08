@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useEffect, useRef } from "react";
+import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,68 +6,20 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { products } from "@/data/products";
-import { CheckCircle, Star, TrendingUp, Users } from "lucide-react";
+import { CheckCircle, TrendingUp, Users } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import heroDesktopWebp from "@/assets/hero-desktop.webp";
 import heroDesktopJpg from "@/assets/hero-desktop.jpg";
 import heroMobileWebp from "@/assets/hero-mobile.webp";
 import heroMobileJpg from "@/assets/hero-mobile.jpg";
-import Autoplay from "embla-carousel-autoplay";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { TestimonialCarousel } from "@/components/TestimonialCarousel";
 
 // Lazy load ReviewForm to defer loading of react-hook-form and zod
 const ReviewForm = lazy(() => import("@/components/ReviewForm"));
-import { ReviewsSkeleton } from "@/components/ReviewsSkeleton";
-import { ProductsSkeleton } from "@/components/ProductsSkeleton";
 
 const Index = () => {
   const { t } = useLanguage();
   const featuredProducts = products.slice(0, 3);
-  
-  // Create autoplay plugin ref to avoid recreating on each render
-  const autoplayPlugin = useRef(
-    Autoplay({ delay: 5000, stopOnInteraction: true })
-  );
-  
-  // Defer reviews fetch until after initial render to improve TTI
-  const [reviews, setReviews] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [carouselApi, setCarouselApi] = useState<any>(null);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  
-  useEffect(() => {
-    // Delay the import to allow main thread to complete initial render
-    const timer = setTimeout(() => {
-      import("@/hooks/useReviews").then(({ fetchReviews }) => {
-        fetchReviews().then(data => {
-          setReviews(data || []);
-          setIsLoading(false);
-        }).catch(() => setIsLoading(false));
-      });
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (!carouselApi) return;
-
-    const handleSelect = () => {
-      setCurrentSlide(carouselApi.selectedScrollSnap());
-    };
-
-    carouselApi.on("select", handleSelect);
-    handleSelect();
-
-    return () => {
-      carouselApi.off("select", handleSelect);
-    };
-  }, [carouselApi]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -220,70 +172,7 @@ const Index = () => {
             <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("testimonials_title")}</h2>
           </div>
           
-          {/* Display Reviews */}
-          {isLoading ? (
-            <ReviewsSkeleton />
-          ) : reviews && reviews.length > 0 ? (
-            <div className="max-w-5xl mx-auto mb-16 px-12">
-              <Carousel
-                opts={{
-                  align: "start",
-                  loop: true,
-                }}
-                plugins={[autoplayPlugin.current]}
-                setApi={setCarouselApi}
-                className="w-full"
-              >
-                <CarouselContent className="-ml-4">
-                  {reviews.slice(0, 9).map((review) => (
-                    <CarouselItem key={review.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
-                      <Card className="h-full">
-                        <CardContent className="pt-8 h-full flex flex-col">
-                          <div className="flex gap-1 mb-4">
-                            {[...Array(5)].map((_, i) => (
-                              <Star 
-                                key={i} 
-                                className={`h-5 w-5 ${
-                                  i < review.rating 
-                                    ? "fill-secondary text-secondary" 
-                                    : "text-muted-foreground"
-                                }`} 
-                              />
-                            ))}
-                          </div>
-                          <p className="text-muted-foreground mb-4 flex-grow line-clamp-4">"{review.comment}"</p>
-                          <p className="font-semibold">
-                            {review.reviewer_name || t("anonymous")}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
-              </Carousel>
-              {/* Dot Indicators */}
-              <div className="flex justify-center gap-2 mt-6">
-                {reviews.slice(0, 9).map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => carouselApi?.scrollTo(index)}
-                    className={`h-2 rounded-full transition-all ${
-                      index === currentSlide
-                        ? "w-8 bg-primary"
-                        : "w-2 bg-muted-foreground/40 hover:bg-muted-foreground/60"
-                    }`}
-                    aria-label={`Go to slide ${index + 1}`}
-                  />
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="text-center text-muted-foreground mb-16">
-              {t("no_reviews_yet")}
-            </div>
-          )}
+          <TestimonialCarousel />
 
           {/* Review Form */}
           <div className="max-w-2xl mx-auto">
