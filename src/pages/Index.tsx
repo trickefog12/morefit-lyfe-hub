@@ -6,10 +6,10 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { products } from "@/data/products";
-import { CheckCircle, TrendingUp, Users } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HeroSection } from "@/components/HeroSection";
 import { TestimonialCarousel } from "@/components/TestimonialCarousel";
+import HowItWorksSection from "@/components/HowItWorksSection";
 
 // Lazy load ReviewForm to defer loading of react-hook-form and zod
 const ReviewForm = lazy(() => import("@/components/ReviewForm"));
@@ -66,58 +66,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("how_it_works")}</h2>
-            <p className="text-lg text-muted-foreground">
-              {t("how_it_works_subtitle")}
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <Card className="text-center">
-              <CardContent className="pt-12 pb-8">
-                <div className="mb-6 flex justify-center">
-                  <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-                    <TrendingUp className="h-8 w-8 text-primary" />
-                  </div>
-                </div>
-                <h3 className="text-xl font-bold mb-3">{t("step1_title")}</h3>
-                <p className="text-muted-foreground">
-                  {t("step1_description")}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="text-center">
-              <CardContent className="pt-12 pb-8">
-                <div className="mb-6 flex justify-center">
-                  <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Users className="h-8 w-8 text-primary" />
-                  </div>
-                </div>
-                <h3 className="text-xl font-bold mb-3">{t("step2_title")}</h3>
-                <p className="text-muted-foreground">
-                  {t("step2_description")}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="text-center">
-              <CardContent className="pt-12 pb-8">
-                <div className="mb-6 flex justify-center">
-                  <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-                    <CheckCircle className="h-8 w-8 text-primary" />
-                  </div>
-                </div>
-                <h3 className="text-xl font-bold mb-3">{t("step3_title")}</h3>
-                <p className="text-muted-foreground">
-                  {t("step3_description")}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
+      <HowItWorksSection />
 
       {/* Customer Reviews */}
       <section className="py-20 bg-muted/30">
