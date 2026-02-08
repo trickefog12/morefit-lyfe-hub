@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
+import { SectionHeading } from "@/components/SectionHeading";
 import { products } from "@/data/products";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -12,7 +13,7 @@ const FeaturedProductsSection = () => {
     <section className="py-20">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("featured_title")}</h2>
+          <SectionHeading>{t("featured_title")}</SectionHeading>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {t("featured_description")}
           </p>
