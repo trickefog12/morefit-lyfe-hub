@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useEffect } from "react";
+import { lazy, Suspense, useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,6 +29,11 @@ import { ProductsSkeleton } from "@/components/ProductsSkeleton";
 const Index = () => {
   const { t } = useLanguage();
   const featuredProducts = products.slice(0, 3);
+  
+  // Create autoplay plugin ref to avoid recreating on each render
+  const autoplayPlugin = useRef(
+    Autoplay({ delay: 5000, stopOnInteraction: true })
+  );
   
   // Defer reviews fetch until after initial render to improve TTI
   const [reviews, setReviews] = useState<any[]>([]);
@@ -208,12 +213,7 @@ const Index = () => {
                   align: "start",
                   loop: true,
                 }}
-                plugins={[
-                  Autoplay({
-                    delay: 5000,
-                    stopOnInteraction: true,
-                  }),
-                ]}
+                plugins={[autoplayPlugin.current]}
                 className="w-full"
               >
                 <CarouselContent className="-ml-4">
