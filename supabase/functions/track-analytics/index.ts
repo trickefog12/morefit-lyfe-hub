@@ -2,17 +2,23 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
   'Content-Security-Policy': "default-src 'none'",
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
 };
 
+// Allowed analytics types
+const ALLOWED_TYPES = new Set(['event', 'page_view']);
+const ALLOWED_EVENT_TYPES = new Set(['interaction', 'navigation', 'conversion', 'error', 'performance', 'custom']);
+const MAX_PROPERTIES_SIZE = 4096; // 4KB max for properties JSON
+const MAX_PROPERTIES_KEYS = 20;
+
 // Rate limit configuration
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const MAX_EVENTS_PER_WINDOW = 30; // 30 events per minute per user
-const MAX_PAGE_VIEWS_PER_WINDOW = 20; // 20 page views per minute per user
+const MAX_EVENTS_PER_WINDOW = 30;
+const MAX_PAGE_VIEWS_PER_WINDOW = 20;
 
 interface RateLimitEntry {
   count: number;
@@ -38,6 +44,42 @@ function sanitizeString(input: string | null | undefined, maxLength: number = 50
       };
       return entities[char] || char;
     });
+}
+
+function sanitizeProperties(input: unknown): Record<string, unknown> | null {
+  if (input == null) return {};
+  if (typeof input !== 'object' || Array.isArray(input)) return {};
+  
+  const json = JSON.stringify(input);
+  if (json.length > MAX_PROPERTIES_SIZE) return {};
+  
+  const obj = input as Record<string, unknown>;
+  const keys = Object.keys(obj);
+  if (keys.length > MAX_PROPERTIES_KEYS) {
+    // Truncate to max keys
+    const truncated: Record<string, unknown> = {};
+    for (const key of keys.slice(0, MAX_PROPERTIES_KEYS)) {
+      truncated[sanitizeString(key, 100) || key] = typeof obj[key] === 'string' 
+        ? sanitizeString(obj[key] as string, 500) 
+        : obj[key];
+    }
+    return truncated;
+  }
+  
+  // Sanitize string values within properties
+  const sanitized: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    const safeKey = sanitizeString(key, 100) || key;
+    sanitized[safeKey] = typeof value === 'string' ? sanitizeString(value, 500) : value;
+  }
+  return sanitized;
+}
+
+function validateDuration(input: unknown): number | null {
+  if (input == null) return null;
+  const num = Number(input);
+  if (isNaN(num) || num < 0 || num > 86400) return null; // max 24 hours
+  return Math.round(num);
 }
 
 function sanitizeUrl(input: string | null | undefined, maxLength: number = 2000): string | null {
@@ -115,15 +157,41 @@ Deno.serve(async (req) => {
     }
 
     const userId = user.id;
-    const body = await req.json();
-    const { type, data } = body;
-
-    if (!type || !data) {
+    
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
       return new Response(
-        JSON.stringify({ error: 'Missing type or data' }),
+        JSON.stringify({ error: 'Invalid JSON body' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    if (typeof body !== 'object' || body === null || Array.isArray(body)) {
+      return new Response(
+        JSON.stringify({ error: 'Request body must be an object' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { type, data } = body as { type: unknown; data: unknown };
+
+    if (typeof type !== 'string' || !ALLOWED_TYPES.has(type)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid analytics type. Allowed: event, page_view' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+      return new Response(
+        JSON.stringify({ error: 'Data must be an object' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const d = data as Record<string, unknown>;
 
     // Apply rate limiting based on event type
     const rateLimitKey = `${userId}_${type}`;
@@ -154,24 +222,31 @@ Deno.serve(async (req) => {
     const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
 
     if (type === 'event') {
-      // Validate required fields
-      if (!data.event_type || !data.event_name) {
+      // Validate required fields with type checks
+      if (typeof d.event_type !== 'string' || typeof d.event_name !== 'string') {
         return new Response(
-          JSON.stringify({ error: 'Missing required event fields' }),
+          JSON.stringify({ error: 'event_type and event_name must be strings' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      if (!ALLOWED_EVENT_TYPES.has(d.event_type)) {
+        return new Response(
+          JSON.stringify({ error: `Invalid event_type. Allowed: ${[...ALLOWED_EVENT_TYPES].join(', ')}` }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
       const { error } = await serviceClient.from('analytics_events').insert({
-        event_type: sanitizeString(data.event_type, 100),
-        event_name: sanitizeString(data.event_name, 200),
+        event_type: sanitizeString(d.event_type, 100),
+        event_name: sanitizeString(d.event_name, 200),
         user_id: userId,
-        session_id: sanitizeString(data.session_id, 100),
-        properties: data.properties || {},
-        page_path: sanitizeUrl(data.page_path, 500),
-        referrer: sanitizeUrl(data.referrer, 2000),
-        user_agent: sanitizeString(data.user_agent, 500),
-        device_type: sanitizeString(data.device_type, 50),
+        session_id: sanitizeString(d.session_id as string, 100),
+        properties: sanitizeProperties(d.properties),
+        page_path: sanitizeUrl(d.page_path as string, 500),
+        referrer: sanitizeUrl(d.referrer as string, 2000),
+        user_agent: sanitizeString(d.user_agent as string, 500),
+        device_type: sanitizeString(d.device_type as string, 50),
       });
 
       if (error) {
@@ -182,20 +257,20 @@ Deno.serve(async (req) => {
         );
       }
     } else if (type === 'page_view') {
-      // Validate required fields
-      if (!data.page_path) {
+      if (typeof d.page_path !== 'string' || !d.page_path) {
         return new Response(
-          JSON.stringify({ error: 'Missing required page_path' }),
+          JSON.stringify({ error: 'page_path must be a non-empty string' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
       const { error } = await serviceClient.from('analytics_page_views').insert({
-        page_path: sanitizeUrl(data.page_path, 500),
-        page_title: sanitizeString(data.page_title, 200),
+        page_path: sanitizeUrl(d.page_path, 500),
+        page_title: sanitizeString(d.page_title as string, 200),
         user_id: userId,
-        session_id: sanitizeString(data.session_id, 100),
-        referrer: sanitizeUrl(data.referrer, 2000),
+        session_id: sanitizeString(d.session_id as string, 100),
+        referrer: sanitizeUrl(d.referrer as string, 2000),
+        duration_seconds: validateDuration(d.duration_seconds),
       });
 
       if (error) {
@@ -205,11 +280,6 @@ Deno.serve(async (req) => {
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-    } else {
-      return new Response(
-        JSON.stringify({ error: 'Invalid analytics type' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
     }
 
     return new Response(
