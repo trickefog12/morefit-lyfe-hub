@@ -32,14 +32,16 @@ export const TestimonialCarousel = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      import("@/hooks/useReviews").then(({ fetchReviews }) => {
-        fetchReviews()
-          .then((data) => {
-            setReviews(data || []);
-            setIsLoading(false);
-          })
-          .catch(() => setIsLoading(false));
-      });
+      import("@/hooks/useReviews")
+        .then(({ fetchReviews }) => {
+          fetchReviews()
+            .then((data) => {
+              setReviews(data || []);
+              setIsLoading(false);
+            })
+            .catch(() => setIsLoading(false));
+        })
+        .catch(() => setIsLoading(false));
     }, 100);
     return () => clearTimeout(timer);
   }, []);

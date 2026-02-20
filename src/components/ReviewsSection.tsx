@@ -1,11 +1,22 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, Component, type ReactNode } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SectionHeading } from "@/components/SectionHeading";
 import { TestimonialCarousel } from "@/components/TestimonialCarousel";
 
+// Error boundary to catch dynamic import failures (e.g. offline)
+class LazyErrorBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  render() { return this.state.hasError ? this.props.fallback : this.props.children; }
+}
+
 // Lazy load ReviewForm to defer loading of react-hook-form and zod
-const ReviewForm = lazy(() => import("@/components/ReviewForm"));
+const ReviewForm = lazy(() =>
+  import("@/components/ReviewForm").catch(() => ({
+    default: () => <div className="text-center text-muted-foreground py-4">Unable to load review form. Please refresh the page.</div>,
+  }))
+);
 
 const ReviewsSection = () => {
   const { t } = useLanguage();
@@ -24,9 +35,11 @@ const ReviewsSection = () => {
           <SectionHeading level="h3" className="text-center">{t("leave_review")}</SectionHeading>
           <Card>
             <CardContent className="pt-6">
-              <Suspense fallback={<div className="text-center text-muted-foreground py-4">{t("loading_reviews")}</div>}>
-                <ReviewForm />
-              </Suspense>
+              <LazyErrorBoundary fallback={<div className="text-center text-muted-foreground py-4">Unable to load review form. Please refresh the page.</div>}>
+                <Suspense fallback={<div className="text-center text-muted-foreground py-4">{t("loading_reviews")}</div>}>
+                  <ReviewForm />
+                </Suspense>
+              </LazyErrorBoundary>
             </CardContent>
           </Card>
         </div>
