@@ -1,12 +1,57 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
+  'Content-Security-Policy': "default-src 'none'",
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
 };
 
-// English profanity list (common offensive words)
+// Constants
+const MAX_COMMENT_LENGTH = 2000;
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const MAX_REQUESTS_PER_WINDOW = 10;
+
+// Rate limit store
+interface RateLimitEntry {
+  count: number;
+  windowStart: number;
+}
+const rateLimitStore = new Map<string, RateLimitEntry>();
+
+function checkRateLimit(key: string): { allowed: boolean; remaining: number; resetIn: number } {
+  const now = Date.now();
+  const entry = rateLimitStore.get(key);
+
+  if (!entry || now - entry.windowStart >= RATE_LIMIT_WINDOW_MS) {
+    rateLimitStore.set(key, { count: 1, windowStart: now });
+    return { allowed: true, remaining: MAX_REQUESTS_PER_WINDOW - 1, resetIn: RATE_LIMIT_WINDOW_MS };
+  }
+
+  if (entry.count >= MAX_REQUESTS_PER_WINDOW) {
+    const resetIn = RATE_LIMIT_WINDOW_MS - (now - entry.windowStart);
+    return { allowed: false, remaining: 0, resetIn };
+  }
+
+  entry.count++;
+  const resetIn = RATE_LIMIT_WINDOW_MS - (now - entry.windowStart);
+  return { allowed: true, remaining: MAX_REQUESTS_PER_WINDOW - entry.count, resetIn };
+}
+
+function sanitizeString(input: string, maxLength: number): string {
+  return String(input)
+    .slice(0, maxLength)
+    .replace(/[<>"'&]/g, (char) => {
+      const entities: Record<string, string> = {
+        '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;', '&': '&amp;',
+      };
+      return entities[char] || char;
+    });
+}
+
+// English profanity list
 const englishProfanity = [
   'fuck', 'shit', 'ass', 'bitch', 'bastard', 'damn', 'crap', 'dick', 'cock', 
   'pussy', 'cunt', 'whore', 'slut', 'fag', 'nigger', 'nigga', 'retard', 
@@ -15,9 +60,8 @@ const englishProfanity = [
   'twat', 'bollocks', 'arse', 'bugger', 'bloody', 'scam', 'fraud', 'fake'
 ];
 
-// Greek profanity list (common offensive words in Greek with variants)
+// Greek profanity list
 const greekProfanity = [
-  // Main profanity with variants
   'γαμώ', 'γαμω', 'γαμημένο', 'γαμημενο', 'γαμημένη', 'γαμημενη', 'γάμα', 'γαμα', 'γαμήσου', 'γαμησου',
   'σκατά', 'σκατα', 'σκατό', 'σκατο', 'σκατένιος', 'σκατενιος',
   'μαλάκας', 'μαλακας', 'μαλάκα', 'μαλακα', 'μαλακία', 'μαλακια', 'μαλακίες', 'μαλακιες', 'μαλακισμένος', 'μαλακισμενος',
@@ -40,7 +84,6 @@ const greekProfanity = [
   'ψυχοπαθής', 'ψυχοπαθης', 'ψυχάκιας', 'ψυχακιας',
   'απατεώνας', 'απατεωνας', 'απάτη', 'απατη',
   'κλέφτης', 'κλεφτης', 'κλέφτρα', 'κλεφτρα',
-  // Additional common offensive terms
   'κωλο', 'κώλος', 'κωλος', 'κωλόπαιδο', 'κωλοπαιδο',
   'μπάσταρδος', 'μπασταρδος', 'μπαστάρδα', 'μπασταρδα',
   'ζώο', 'ζωο', 'ζώα', 'ζωα',
@@ -48,78 +91,52 @@ const greekProfanity = [
   'βρομιάρη', 'βρομιαρη', 'βρόμα', 'βρομα'
 ];
 
-// Common l33t speak substitutions
 const leetSubstitutions: Record<string, string> = {
   '0': 'o', '1': 'i', '3': 'e', '4': 'a', '5': 's', 
   '7': 't', '8': 'b', '@': 'a', '$': 's', '!': 'i'
 };
 
-// Normalize text for comparison (handle l33t speak, spacing tricks)
 function normalizeText(text: string): string {
   let normalized = text.toLowerCase();
-  
-  // Replace l33t speak characters
   for (const [leet, char] of Object.entries(leetSubstitutions)) {
     normalized = normalized.split(leet).join(char);
   }
-  
-  // Remove spaces between letters (to catch "f u c k" style evasion)
   normalized = normalized.replace(/\s+/g, '');
-  
-  // Remove repeated characters (to catch "fuuuuck" style)
   normalized = normalized.replace(/(.)\1{2,}/g, '$1$1');
-  
   return normalized;
 }
 
-// Check for spam patterns
 function hasSpamPatterns(text: string): boolean {
-  // Excessive caps (more than 70% uppercase in text longer than 10 chars)
   const alphaChars = text.replace(/[^a-zA-Zα-ωΑ-Ω]/g, '');
   if (alphaChars.length > 10) {
     const upperCount = (alphaChars.match(/[A-ZΑ-Ω]/g) || []).length;
-    if (upperCount / alphaChars.length > 0.7) {
-      return true;
-    }
+    if (upperCount / alphaChars.length > 0.7) return true;
   }
-  
-  // Excessive repeated characters (more than 5 of the same character)
-  if (/(.)\1{5,}/i.test(text)) {
-    return true;
-  }
-  
+  if (/(.)\1{5,}/i.test(text)) return true;
   return false;
 }
 
-// Check if text contains profanity
 function containsProfanity(text: string): { found: boolean; reason?: string } {
   const normalized = normalizeText(text);
   const originalLower = text.toLowerCase();
   
-  // Check English profanity
   for (const word of englishProfanity) {
     if (normalized.includes(word) || originalLower.includes(word)) {
       return { found: true, reason: 'inappropriate_language' };
     }
   }
-  
-  // Check Greek profanity
   for (const word of greekProfanity) {
     if (normalized.includes(word) || originalLower.includes(word)) {
       return { found: true, reason: 'inappropriate_language' };
     }
   }
-  
-  // Check for spam patterns
   if (hasSpamPatterns(text)) {
     return { found: true, reason: 'spam_pattern' };
   }
-  
   return { found: false };
 }
 
-serve(async (req) => {
-  // Handle CORS preflight
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -149,7 +166,42 @@ serve(async (req) => {
       );
     }
 
-    const { comment } = await req.json();
+    // Rate limiting per user
+    const rateLimit = checkRateLimit(user.id);
+    if (!rateLimit.allowed) {
+      console.log('Rate limit exceeded for review moderation');
+      return new Response(
+        JSON.stringify({ approved: false, reason: 'rate_limit_exceeded' }),
+        { 
+          status: 429, 
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json',
+            'Retry-After': Math.ceil(rateLimit.resetIn / 1000).toString(),
+          } 
+        }
+      );
+    }
+
+    // Parse and validate body
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return new Response(
+        JSON.stringify({ approved: false, reason: 'invalid_json' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (typeof body !== 'object' || body === null || Array.isArray(body)) {
+      return new Response(
+        JSON.stringify({ approved: false, reason: 'invalid_input' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { comment } = body as { comment: unknown };
     
     if (!comment || typeof comment !== 'string') {
       return new Response(
@@ -158,7 +210,17 @@ serve(async (req) => {
       );
     }
 
-    const result = containsProfanity(comment);
+    // Enforce length limit
+    if (comment.length > MAX_COMMENT_LENGTH) {
+      return new Response(
+        JSON.stringify({ approved: false, reason: 'comment_too_long' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Sanitize before moderation check
+    const sanitizedComment = sanitizeString(comment, MAX_COMMENT_LENGTH);
+    const result = containsProfanity(sanitizedComment);
     
     if (result.found) {
       return new Response(
@@ -172,6 +234,7 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
+    console.error('Review moderation error');
     return new Response(
       JSON.stringify({ approved: false, reason: 'server_error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
