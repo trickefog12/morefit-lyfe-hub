@@ -11,6 +11,7 @@ import { useDeepLinking } from "@/hooks/useDeepLinking";
 import { useStatusBar } from "@/hooks/useStatusBar";
 import { usePageViewTracking } from "@/hooks/useAnalytics";
 import { lazy, Suspense } from "react";
+import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
 
 // Eager load home page for instant display
 import Index from "./pages/Index";
@@ -83,16 +84,18 @@ const AppContent = () => {
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <LanguageProvider>
-      <BrowserRouter>
-        <TooltipProvider>
-          <SplashScreenManager />
-          <AppContent />
-        </TooltipProvider>
-      </BrowserRouter>
-    </LanguageProvider>
-  </QueryClientProvider>
+  <GlobalErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <LanguageProvider>
+        <BrowserRouter>
+          <TooltipProvider>
+            <SplashScreenManager />
+            <AppContent />
+          </TooltipProvider>
+        </BrowserRouter>
+      </LanguageProvider>
+    </QueryClientProvider>
+  </GlobalErrorBoundary>
 );
 
 export default App;
