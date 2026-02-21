@@ -11,3 +11,6 @@ verify_jwt = true
 
 [functions.admin-resend-welcome-email]
 verify_jwt = true
+
+[functions.cleanup-analytics]
+verify_jwt = false
