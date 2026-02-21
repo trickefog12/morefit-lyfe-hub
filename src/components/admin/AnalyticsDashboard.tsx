@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Database, Trash2, Clock, BarChart3 } from "lucide-react";
+import { format } from "date-fns";
 import {
   Table,
   TableBody,
@@ -23,7 +25,6 @@ export const AnalyticsDashboard = () => {
       
       if (error) throw error;
       
-      // Count page views by path
       const counts: Record<string, number> = {};
       data.forEach(view => {
         counts[view.page_path] = (counts[view.page_path] || 0) + 1;
@@ -46,7 +47,6 @@ export const AnalyticsDashboard = () => {
       
       if (error) throw error;
       
-      // Count events
       const counts: Record<string, number> = {};
       data.forEach(event => {
         const key = `${event.event_type}: ${event.event_name}`;
@@ -60,8 +60,82 @@ export const AnalyticsDashboard = () => {
     }
   });
 
+  const { data: retentionStats } = useQuery({
+    queryKey: ['admin-retention-stats'],
+    queryFn: async () => {
+      const [eventsRes, viewsRes, oldestEventRes, oldestViewRes] = await Promise.all([
+        supabase.from('analytics_events').select('id', { count: 'exact', head: true }),
+        supabase.from('analytics_page_views').select('id', { count: 'exact', head: true }),
+        supabase.from('analytics_events').select('created_at').order('created_at', { ascending: true }).limit(1),
+        supabase.from('analytics_page_views').select('created_at').order('created_at', { ascending: true }).limit(1),
+      ]);
+
+      const oldestEvent = oldestEventRes.data?.[0]?.created_at;
+      const oldestView = oldestViewRes.data?.[0]?.created_at;
+      const oldest = oldestEvent && oldestView
+        ? (oldestEvent < oldestView ? oldestEvent : oldestView)
+        : oldestEvent || oldestView;
+
+      return {
+        totalEvents: eventsRes.count ?? 0,
+        totalPageViews: viewsRes.count ?? 0,
+        oldestRecord: oldest ? new Date(oldest) : null,
+        retentionDays: 90,
+      };
+    },
+    refetchInterval: 60000,
+  });
+
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="space-y-4">
+      {/* Data Retention Summary */}
+      <Card className="border-primary/20 bg-primary/5">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <Database className="h-5 w-5 text-primary" />
+            <CardTitle className="text-lg">Data Retention</CardTitle>
+          </div>
+          <CardDescription>Auto-cleanup runs daily — records older than 90 days are removed</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <BarChart3 className="h-3.5 w-3.5" />
+                <span>Total Events</span>
+              </div>
+              <span className="text-2xl font-bold">{retentionStats?.totalEvents ?? '—'}</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <BarChart3 className="h-3.5 w-3.5" />
+                <span>Total Page Views</span>
+              </div>
+              <span className="text-2xl font-bold">{retentionStats?.totalPageViews ?? '—'}</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Clock className="h-3.5 w-3.5" />
+                <span>Oldest Record</span>
+              </div>
+              <span className="text-sm font-medium">
+                {retentionStats?.oldestRecord
+                  ? format(retentionStats.oldestRecord, 'MMM d, yyyy')
+                  : 'No data'}
+              </span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Trash2 className="h-3.5 w-3.5" />
+                <span>Retention Policy</span>
+              </div>
+              <Badge variant="outline" className="w-fit">{retentionStats?.retentionDays ?? 90} days</Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-4 md:grid-cols-2">
       <Card>
         <CardHeader>
           <CardTitle>Top Pages</CardTitle>
@@ -115,6 +189,7 @@ export const AnalyticsDashboard = () => {
           </Table>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 };
