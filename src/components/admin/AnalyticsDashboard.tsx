@@ -1,9 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Database, Trash2, Clock, BarChart3 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Database, Trash2, Clock, BarChart3, Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "@/hooks/use-toast";
 import {
   Table,
   TableBody,
@@ -14,6 +17,31 @@ import {
 } from "@/components/ui/table";
 
 export const AnalyticsDashboard = () => {
+  const [isRunningCleanup, setIsRunningCleanup] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleRunCleanup = async () => {
+    setIsRunningCleanup(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('cleanup-analytics');
+      if (error) throw error;
+      toast({
+        title: "Cleanup complete",
+        description: `Deleted ${data.deleted.analytics_events} events and ${data.deleted.analytics_page_views} page views.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ['admin-retention-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-page-views'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-top-events'] });
+    } catch (err: any) {
+      toast({
+        title: "Cleanup failed",
+        description: err.message || "An error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRunningCleanup(false);
+    }
+  };
   const { data: pageViews } = useQuery({
     queryKey: ['admin-page-views'],
     queryFn: async () => {
@@ -91,9 +119,24 @@ export const AnalyticsDashboard = () => {
       {/* Data Retention Summary */}
       <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <Database className="h-5 w-5 text-primary" />
-            <CardTitle className="text-lg">Data Retention</CardTitle>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Database className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">Data Retention</CardTitle>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRunCleanup}
+              disabled={isRunningCleanup}
+            >
+              {isRunningCleanup ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-1" />
+              ) : (
+                <Trash2 className="h-4 w-4 mr-1" />
+              )}
+              Run Cleanup Now
+            </Button>
           </div>
           <CardDescription>Auto-cleanup runs daily — records older than 90 days are removed</CardDescription>
         </CardHeader>
