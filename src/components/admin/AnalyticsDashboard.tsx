@@ -4,6 +4,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Database, Trash2, Clock, BarChart3, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
@@ -124,19 +135,32 @@ export const AnalyticsDashboard = () => {
               <Database className="h-5 w-5 text-primary" />
               <CardTitle className="text-lg">Data Retention</CardTitle>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRunCleanup}
-              disabled={isRunningCleanup}
-            >
-              {isRunningCleanup ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-1" />
-              ) : (
-                <Trash2 className="h-4 w-4 mr-1" />
-              )}
-              Run Cleanup Now
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" size="sm" disabled={isRunningCleanup}>
+                  {isRunningCleanup ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 mr-1" />
+                  )}
+                  Run Cleanup Now
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Run Analytics Cleanup?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete all analytics events and page views older than 90 days. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleRunCleanup}>
+                    Yes, run cleanup
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
           <CardDescription>Auto-cleanup runs daily — records older than 90 days are removed</CardDescription>
         </CardHeader>
