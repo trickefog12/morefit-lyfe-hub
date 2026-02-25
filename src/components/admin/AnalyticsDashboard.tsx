@@ -39,6 +39,7 @@ import {
 
 export const AnalyticsDashboard = () => {
   const [isRunningCleanup, setIsRunningCleanup] = useState(false);
+  const [trendDays, setTrendDays] = useState<7 | 30 | 90>(30);
   const queryClient = useQueryClient();
 
   const handleRunCleanup = async () => {
@@ -110,11 +111,11 @@ export const AnalyticsDashboard = () => {
   });
 
   const { data: dailyTrends } = useQuery({
-    queryKey: ['admin-daily-trends'],
+    queryKey: ['admin-daily-trends', trendDays],
     queryFn: async () => {
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      const since = thirtyDaysAgo.toISOString();
+      const daysAgo = new Date();
+      daysAgo.setDate(daysAgo.getDate() - trendDays);
+      const since = daysAgo.toISOString();
 
       const [eventsRes, viewsRes] = await Promise.all([
         supabase
@@ -256,8 +257,25 @@ export const AnalyticsDashboard = () => {
       {/* Daily Trends Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Daily Trends (Last 30 Days)</CardTitle>
-          <CardDescription>Events and page views per day</CardDescription>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <CardTitle>Daily Trends</CardTitle>
+              <CardDescription>Events and page views per day</CardDescription>
+            </div>
+            <div className="flex gap-1">
+              {([7, 30, 90] as const).map(d => (
+                <Button
+                  key={d}
+                  size="sm"
+                  variant={trendDays === d ? "default" : "outline"}
+                  onClick={() => setTrendDays(d)}
+                  className="text-xs h-7 px-2.5"
+                >
+                  {d}d
+                </Button>
+              ))}
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {dailyTrends && dailyTrends.length > 0 ? (
