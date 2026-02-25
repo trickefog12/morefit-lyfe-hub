@@ -5,6 +5,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -97,6 +107,47 @@ export const AnalyticsDashboard = () => {
         .sort((a, b) => b.count - a.count)
         .slice(0, 10);
     }
+  });
+
+  const { data: dailyTrends } = useQuery({
+    queryKey: ['admin-daily-trends'],
+    queryFn: async () => {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const since = thirtyDaysAgo.toISOString();
+
+      const [eventsRes, viewsRes] = await Promise.all([
+        supabase
+          .from('analytics_events')
+          .select('created_at')
+          .gte('created_at', since)
+          .order('created_at', { ascending: true })
+          .limit(1000),
+        supabase
+          .from('analytics_page_views')
+          .select('created_at')
+          .gte('created_at', since)
+          .order('created_at', { ascending: true })
+          .limit(1000),
+      ]);
+
+      const eventsByDay: Record<string, number> = {};
+      const viewsByDay: Record<string, number> = {};
+
+      eventsRes.data?.forEach(e => {
+        const day = format(new Date(e.created_at!), 'MMM d');
+        eventsByDay[day] = (eventsByDay[day] || 0) + 1;
+      });
+      viewsRes.data?.forEach(v => {
+        const day = format(new Date(v.created_at!), 'MMM d');
+        viewsByDay[day] = (viewsByDay[day] || 0) + 1;
+      });
+
+      const allDays = new Set([...Object.keys(eventsByDay), ...Object.keys(viewsByDay)]);
+      return Array.from(allDays)
+        .sort((a, b) => new Date(a + ' 2025').getTime() - new Date(b + ' 2025').getTime())
+        .map(day => ({ day, events: eventsByDay[day] || 0, pageViews: viewsByDay[day] || 0 }));
+    },
   });
 
   const { data: retentionStats } = useQuery({
@@ -199,6 +250,57 @@ export const AnalyticsDashboard = () => {
               <Badge variant="outline" className="w-fit">{retentionStats?.retentionDays ?? 90} days</Badge>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Daily Trends Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Daily Trends (Last 30 Days)</CardTitle>
+          <CardDescription>Events and page views per day</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {dailyTrends && dailyTrends.length > 0 ? (
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={dailyTrends} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
+                <XAxis dataKey="day" tick={{ fontSize: 11 }} className="text-muted-foreground" />
+                <YAxis tick={{ fontSize: 11 }} className="text-muted-foreground" allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                  }}
+                />
+                <Legend wrapperStyle={{ fontSize: '12px' }} />
+                <Line
+                  type="monotone"
+                  dataKey="events"
+                  name="Events"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 4 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="pageViews"
+                  name="Page Views"
+                  stroke="hsl(var(--secondary-foreground))"
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 4 }}
+                  strokeDasharray="4 2"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-[280px] text-muted-foreground text-sm">
+              No trend data available yet
+            </div>
+          )}
         </CardContent>
       </Card>
 
