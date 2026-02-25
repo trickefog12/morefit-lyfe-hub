@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, ShoppingBag, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -10,6 +12,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { format } from "date-fns";
 
 interface RevenueByProduct {
   product_sku: string;
@@ -19,6 +31,7 @@ interface RevenueByProduct {
 }
 
 export const RevenueReports = () => {
+  const [revenueDays, setRevenueDays] = useState<7 | 30 | 90>(30);
   const { data: totalRevenue } = useQuery({
     queryKey: ['admin-total-revenue'],
     queryFn: async () => {
@@ -83,7 +96,33 @@ export const RevenueReports = () => {
     }
   });
 
+  const { data: dailyRevenue } = useQuery({
+    queryKey: ['admin-daily-revenue', revenueDays],
+    queryFn: async () => {
+      const daysAgo = new Date();
+      daysAgo.setDate(daysAgo.getDate() - revenueDays);
+
+      const { data, error } = await supabase
+        .from('purchases')
+        .select('purchased_at, amount_paid')
+        .eq('status', 'completed')
+        .gte('purchased_at', daysAgo.toISOString())
+        .order('purchased_at', { ascending: true });
+
+      if (error) throw error;
+
+      const byDay: Record<string, number> = {};
+      data.forEach(p => {
+        const day = format(new Date(p.purchased_at), 'MMM d');
+        byDay[day] = (byDay[day] || 0) + p.amount_paid;
+      });
+
+      return Object.entries(byDay).map(([day, revenue]) => ({ day, revenue: +revenue.toFixed(2) }));
+    }
+  });
+
   return (
+
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
@@ -121,6 +160,56 @@ export const RevenueReports = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Daily Revenue Bar Chart */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <CardTitle>Daily Revenue</CardTitle>
+              <CardDescription>Revenue per day</CardDescription>
+            </div>
+            <div className="flex gap-1">
+              {([7, 30, 90] as const).map(d => (
+                <Button
+                  key={d}
+                  size="sm"
+                  variant={revenueDays === d ? "default" : "outline"}
+                  onClick={() => setRevenueDays(d)}
+                  className="text-xs h-7 px-2.5"
+                >
+                  {d}d
+                </Button>
+              ))}
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {dailyRevenue && dailyRevenue.length > 0 ? (
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={dailyRevenue} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
+                <XAxis dataKey="day" tick={{ fontSize: 11 }} />
+                <YAxis tick={{ fontSize: 11 }} allowDecimals={false} tickFormatter={v => `$${v}`} />
+                <Tooltip
+                  formatter={(value: number) => [`$${value.toFixed(2)}`, 'Revenue']}
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                  }}
+                />
+                <Bar dataKey="revenue" name="Revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-[260px] text-muted-foreground text-sm">
+              No revenue data for this period
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
