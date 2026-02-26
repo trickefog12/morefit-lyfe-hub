@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, ShoppingBag, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { DollarSign, ShoppingBag, TrendingUp, TrendingDown, Minus, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -150,8 +150,26 @@ export const RevenueReports = () => {
     }
   });
 
-  return (
+  const handleExportCSV = () => {
+    if (!revenueByProduct?.length) return;
+    const headers = ['Product', 'Sales', 'Revenue ($)', 'Avg. Price ($)'];
+    const rows = revenueByProduct.map(p => [
+      p.product_name,
+      p.total_sales,
+      p.total_revenue.toFixed(2),
+      (p.total_revenue / p.total_sales).toFixed(2),
+    ]);
+    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `revenue-by-product.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
+  return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
@@ -256,8 +274,22 @@ export const RevenueReports = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Revenue by Product</CardTitle>
-          <CardDescription>Performance breakdown by product</CardDescription>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <CardTitle>Revenue by Product</CardTitle>
+              <CardDescription>Performance breakdown by product</CardDescription>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleExportCSV}
+              disabled={!revenueByProduct?.length}
+              className="gap-1.5"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Export CSV
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
