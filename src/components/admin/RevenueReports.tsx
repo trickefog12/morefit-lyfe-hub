@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, ShoppingBag, TrendingUp } from "lucide-react";
+import { DollarSign, ShoppingBag, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -80,19 +80,48 @@ export const RevenueReports = () => {
   });
 
   const { data: monthlyRevenue } = useQuery({
-    queryKey: ['admin-monthly-revenue'],
+    queryKey: ['admin-monthly-revenue', revenueDays],
     queryFn: async () => {
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const daysAgo = new Date();
+      daysAgo.setDate(daysAgo.getDate() - revenueDays);
       
       const { data, error } = await supabase
         .from('purchases')
         .select('amount_paid')
         .eq('status', 'completed')
-        .gte('purchased_at', thirtyDaysAgo.toISOString());
+        .gte('purchased_at', daysAgo.toISOString());
       
       if (error) throw error;
       return data.reduce((sum, p) => sum + p.amount_paid, 0);
+    }
+  });
+
+  const { data: periodGrowth } = useQuery({
+    queryKey: ['admin-period-growth', revenueDays],
+    queryFn: async () => {
+      const now = new Date();
+      const currentStart = new Date();
+      currentStart.setDate(now.getDate() - revenueDays);
+      const previousStart = new Date();
+      previousStart.setDate(now.getDate() - revenueDays * 2);
+
+      const { data, error } = await supabase
+        .from('purchases')
+        .select('purchased_at, amount_paid')
+        .eq('status', 'completed')
+        .gte('purchased_at', previousStart.toISOString());
+
+      if (error) throw error;
+
+      const current = data
+        .filter(p => new Date(p.purchased_at) >= currentStart)
+        .reduce((sum, p) => sum + p.amount_paid, 0);
+      const previous = data
+        .filter(p => new Date(p.purchased_at) < currentStart)
+        .reduce((sum, p) => sum + p.amount_paid, 0);
+
+      if (previous === 0) return current > 0 ? 100 : null;
+      return +((( current - previous) / previous) * 100).toFixed(1);
     }
   });
 
@@ -138,12 +167,26 @@ export const RevenueReports = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Last 30 Days</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Last {revenueDays} Days</CardTitle>
+            {periodGrowth === null || periodGrowth === undefined ? (
+              <Minus className="h-4 w-4 text-muted-foreground" />
+            ) : periodGrowth >= 0 ? (
+              <TrendingUp className="h-4 w-4 text-chart-2" />
+            ) : (
+              <TrendingDown className="h-4 w-4 text-destructive" />
+            )}
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${monthlyRevenue?.toFixed(2) || '0.00'}</div>
-            <p className="text-xs text-muted-foreground">Recent revenue</p>
+            <div className="flex items-center gap-1 mt-1">
+              {periodGrowth !== null && periodGrowth !== undefined ? (
+                <span className={`text-xs font-medium ${periodGrowth >= 0 ? 'text-chart-2' : 'text-destructive'}`}>
+                  {periodGrowth >= 0 ? '+' : ''}{periodGrowth}% vs prev period
+                </span>
+              ) : (
+                <p className="text-xs text-muted-foreground">No prior period data</p>
+              )}
+            </div>
           </CardContent>
         </Card>
 
