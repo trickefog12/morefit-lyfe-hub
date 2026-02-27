@@ -150,6 +150,20 @@ export const RevenueReports = () => {
     }
   });
 
+  const handleExportDailyCSV = () => {
+    if (!dailyRevenue?.length) return;
+    const headers = ['Date', 'Revenue ($)'];
+    const rows = dailyRevenue.map(d => [d.day, d.revenue.toFixed(2)]);
+    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `daily-revenue-${revenueDays}d.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleExportCSV = () => {
     if (!revenueByProduct?.length) return;
     const headers = ['Product', 'Sales', 'Revenue ($)', 'Avg. Price ($)'];
@@ -230,18 +244,30 @@ export const RevenueReports = () => {
               <CardTitle>Daily Revenue</CardTitle>
               <CardDescription>Revenue per day</CardDescription>
             </div>
-            <div className="flex gap-1">
-              {([7, 30, 90] as const).map(d => (
-                <Button
-                  key={d}
-                  size="sm"
-                  variant={revenueDays === d ? "default" : "outline"}
-                  onClick={() => setRevenueDays(d)}
-                  className="text-xs h-7 px-2.5"
-                >
-                  {d}d
-                </Button>
-              ))}
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleExportDailyCSV}
+                disabled={!dailyRevenue?.length}
+                className="gap-1.5"
+              >
+                <Download className="h-3.5 w-3.5" />
+                Export CSV
+              </Button>
+              <div className="flex gap-1">
+                {([7, 30, 90] as const).map(d => (
+                  <Button
+                    key={d}
+                    size="sm"
+                    variant={revenueDays === d ? "default" : "outline"}
+                    onClick={() => setRevenueDays(d)}
+                    className="text-xs h-7 px-2.5"
+                  >
+                    {d}d
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
         </CardHeader>
