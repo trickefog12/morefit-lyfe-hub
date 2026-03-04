@@ -2,8 +2,10 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, ShoppingBag, TrendingUp, TrendingDown, Minus, Download } from "lucide-react";
+import { DollarSign, ShoppingBag, TrendingUp, TrendingDown, Minus, Download, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import {
   Table,
   TableBody,
@@ -164,6 +166,93 @@ export const RevenueReports = () => {
     URL.revokeObjectURL(url);
   };
 
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    // Header
+    doc.setFontSize(20);
+    doc.setTextColor(30, 30, 30);
+    doc.text('Revenue Report', 14, 20);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generated on ${dateStr}`, 14, 28);
+
+    // Summary stats
+    doc.setFontSize(13);
+    doc.setTextColor(30, 30, 30);
+    doc.text('Summary', 14, 42);
+
+    const totalUnits = revenueByProduct?.reduce((sum, p) => sum + p.total_sales, 0) || 0;
+    const summaryData = [
+      ['Total Revenue (All-time)', `$${(totalRevenue || 0).toFixed(2)}`],
+      [`Revenue (Last ${revenueDays} Days)`, `$${(monthlyRevenue || 0).toFixed(2)}`],
+      ['Total Units Sold', String(totalUnits)],
+      ['Period Growth vs Prior Period', periodGrowth != null ? `${periodGrowth >= 0 ? '+' : ''}${periodGrowth}%` : 'N/A'],
+    ];
+
+    autoTable(doc, {
+      startY: 46,
+      head: [['Metric', 'Value']],
+      body: summaryData,
+      theme: 'grid',
+      headStyles: { fillColor: [40, 40, 40], textColor: 255, fontSize: 10 },
+      bodyStyles: { fontSize: 10 },
+      columnStyles: { 1: { halign: 'right' } },
+      margin: { left: 14, right: 14 },
+    });
+
+    // Daily Revenue table
+    if (dailyRevenue && dailyRevenue.length > 0) {
+      const afterSummary = (doc as any).lastAutoTable.finalY + 12;
+      doc.setFontSize(13);
+      doc.setTextColor(30, 30, 30);
+      doc.text(`Daily Revenue (Last ${revenueDays} Days)`, 14, afterSummary);
+
+      autoTable(doc, {
+        startY: afterSummary + 4,
+        head: [['Date', 'Revenue ($)']],
+        body: dailyRevenue.map(d => [d.day, `$${d.revenue.toFixed(2)}`]),
+        theme: 'striped',
+        headStyles: { fillColor: [40, 40, 40], textColor: 255, fontSize: 10 },
+        bodyStyles: { fontSize: 9 },
+        columnStyles: { 1: { halign: 'right' } },
+        margin: { left: 14, right: 14 },
+      });
+    }
+
+    // Product breakdown table
+    if (revenueByProduct && revenueByProduct.length > 0) {
+      const afterDaily = (doc as any).lastAutoTable.finalY + 12;
+      // Add new page if not enough space
+      if (afterDaily > 240) doc.addPage();
+      const tableY = afterDaily > 240 ? 20 : afterDaily;
+      doc.setFontSize(13);
+      doc.setTextColor(30, 30, 30);
+      doc.text('Revenue by Product', 14, tableY);
+
+      autoTable(doc, {
+        startY: tableY + 4,
+        head: [['Product', 'Sales', 'Revenue ($)', 'Avg. Price ($)']],
+        body: revenueByProduct.map(p => [
+          p.product_name,
+          p.total_sales,
+          `$${p.total_revenue.toFixed(2)}`,
+          `$${(p.total_revenue / p.total_sales).toFixed(2)}`,
+        ]),
+        theme: 'striped',
+        headStyles: { fillColor: [40, 40, 40], textColor: 255, fontSize: 10 },
+        bodyStyles: { fontSize: 9 },
+        columnStyles: { 1: { halign: 'right' }, 2: { halign: 'right' }, 3: { halign: 'right' } },
+        margin: { left: 14, right: 14 },
+      });
+    }
+
+    doc.save(`revenue-report-${revenueDays}d.pdf`);
+  };
+
   const handleExportCSV = () => {
     if (!revenueByProduct?.length) return;
     const headers = ['Product', 'Sales', 'Revenue ($)', 'Avg. Price ($)'];
@@ -305,16 +394,28 @@ export const RevenueReports = () => {
               <CardTitle>Revenue by Product</CardTitle>
               <CardDescription>Performance breakdown by product</CardDescription>
             </div>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleExportCSV}
-              disabled={!revenueByProduct?.length}
-              className="gap-1.5"
-            >
-              <Download className="h-3.5 w-3.5" />
-              Export CSV
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleExportCSV}
+                disabled={!revenueByProduct?.length}
+                className="gap-1.5"
+              >
+                <Download className="h-3.5 w-3.5" />
+                Export CSV
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleExportPDF}
+                disabled={!revenueByProduct?.length}
+                className="gap-1.5"
+              >
+                <FileText className="h-3.5 w-3.5" />
+                Export PDF
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
