@@ -2,8 +2,11 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, ShoppingBag, TrendingUp, TrendingDown, Minus, Download, FileText } from "lucide-react";
+import { DollarSign, ShoppingBag, TrendingUp, TrendingDown, Minus, Download, FileText, CalendarIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
@@ -23,7 +26,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { format } from "date-fns";
+import { format, subDays, startOfDay, endOfDay } from "date-fns";
+import type { DateRange } from "react-day-picker";
 
 interface RevenueByProduct {
   product_sku: string;
@@ -33,7 +37,39 @@ interface RevenueByProduct {
 }
 
 export const RevenueReports = () => {
-  const [revenueDays, setRevenueDays] = useState<7 | 30 | 90>(30);
+  const [preset, setPreset] = useState<7 | 30 | 90 | null>(30);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+
+  // Derived date boundaries used by all queries
+  const rangeStart: Date = dateRange?.from
+    ? startOfDay(dateRange.from)
+    : subDays(new Date(), preset ?? 30);
+  const rangeEnd: Date = dateRange?.to
+    ? endOfDay(dateRange.to)
+    : new Date();
+
+  const isCustomRange = !!dateRange?.from;
+  const rangeLabel = isCustomRange
+    ? `${format(rangeStart, 'MMM d, yyyy')} – ${format(rangeEnd, 'MMM d, yyyy')}`
+    : `Last ${preset} Days`;
+
+  const handlePreset = (days: 7 | 30 | 90) => {
+    setPreset(days);
+    setDateRange(undefined);
+  };
+
+  const handleDateRangeSelect = (range: DateRange | undefined) => {
+    setDateRange(range);
+    if (range?.from) setPreset(null);
+    if (range?.from && range?.to) setCalendarOpen(false);
+  };
+
+  const handleClearRange = () => {
+    setDateRange(undefined);
+    setPreset(30);
+  };
+
   const { data: totalRevenue } = useQuery({
     queryKey: ['admin-total-revenue'],
     queryFn: async () => {
@@ -41,27 +77,22 @@ export const RevenueReports = () => {
         .from('purchases')
         .select('amount_paid')
         .eq('status', 'completed');
-      
       if (error) throw error;
       return data.reduce((sum, p) => sum + p.amount_paid, 0);
     }
   });
 
   const { data: revenueByProduct } = useQuery({
-    queryKey: ['admin-revenue-by-product'],
+    queryKey: ['admin-revenue-by-product', rangeStart.toISOString(), rangeEnd.toISOString()],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('purchases')
-        .select(`
-          product_sku,
-          amount_paid,
-          products!inner(name_en)
-        `)
-        .eq('status', 'completed');
-      
+        .select(`product_sku, amount_paid, products!inner(name_en)`)
+        .eq('status', 'completed')
+        .gte('purchased_at', rangeStart.toISOString())
+        .lte('purchased_at', rangeEnd.toISOString());
       if (error) throw error;
-      
-      // Group by product
+
       const grouped: Record<string, RevenueByProduct> = {};
       data.forEach(purchase => {
         const sku = purchase.product_sku;
@@ -76,50 +107,43 @@ export const RevenueReports = () => {
         grouped[sku].total_sales++;
         grouped[sku].total_revenue += purchase.amount_paid;
       });
-      
       return Object.values(grouped).sort((a, b) => b.total_revenue - a.total_revenue);
     }
   });
 
-  const { data: monthlyRevenue } = useQuery({
-    queryKey: ['admin-monthly-revenue', revenueDays],
+  const { data: periodRevenue } = useQuery({
+    queryKey: ['admin-period-revenue', rangeStart.toISOString(), rangeEnd.toISOString()],
     queryFn: async () => {
-      const daysAgo = new Date();
-      daysAgo.setDate(daysAgo.getDate() - revenueDays);
-      
       const { data, error } = await supabase
         .from('purchases')
         .select('amount_paid')
         .eq('status', 'completed')
-        .gte('purchased_at', daysAgo.toISOString());
-      
+        .gte('purchased_at', rangeStart.toISOString())
+        .lte('purchased_at', rangeEnd.toISOString());
       if (error) throw error;
       return data.reduce((sum, p) => sum + p.amount_paid, 0);
     }
   });
 
   const { data: periodGrowth } = useQuery({
-    queryKey: ['admin-period-growth', revenueDays],
+    queryKey: ['admin-period-growth', rangeStart.toISOString(), rangeEnd.toISOString()],
     queryFn: async () => {
-      const now = new Date();
-      const currentStart = new Date();
-      currentStart.setDate(now.getDate() - revenueDays);
-      const previousStart = new Date();
-      previousStart.setDate(now.getDate() - revenueDays * 2);
+      const spanMs = rangeEnd.getTime() - rangeStart.getTime();
+      const previousStart = new Date(rangeStart.getTime() - spanMs);
 
       const { data, error } = await supabase
         .from('purchases')
         .select('purchased_at, amount_paid')
         .eq('status', 'completed')
-        .gte('purchased_at', previousStart.toISOString());
-
+        .gte('purchased_at', previousStart.toISOString())
+        .lte('purchased_at', rangeEnd.toISOString());
       if (error) throw error;
 
       const current = data
-        .filter(p => new Date(p.purchased_at) >= currentStart)
+        .filter(p => new Date(p.purchased_at) >= rangeStart)
         .reduce((sum, p) => sum + p.amount_paid, 0);
       const previous = data
-        .filter(p => new Date(p.purchased_at) < currentStart)
+        .filter(p => new Date(p.purchased_at) < rangeStart)
         .reduce((sum, p) => sum + p.amount_paid, 0);
 
       if (previous === 0) return current > 0 ? 100 : null;
@@ -128,18 +152,15 @@ export const RevenueReports = () => {
   });
 
   const { data: dailyRevenue } = useQuery({
-    queryKey: ['admin-daily-revenue', revenueDays],
+    queryKey: ['admin-daily-revenue', rangeStart.toISOString(), rangeEnd.toISOString()],
     queryFn: async () => {
-      const daysAgo = new Date();
-      daysAgo.setDate(daysAgo.getDate() - revenueDays);
-
       const { data, error } = await supabase
         .from('purchases')
         .select('purchased_at, amount_paid')
         .eq('status', 'completed')
-        .gte('purchased_at', daysAgo.toISOString())
+        .gte('purchased_at', rangeStart.toISOString())
+        .lte('purchased_at', rangeEnd.toISOString())
         .order('purchased_at', { ascending: true });
-
       if (error) throw error;
 
       const byDay: Record<string, number> = {};
@@ -147,7 +168,6 @@ export const RevenueReports = () => {
         const day = format(new Date(p.purchased_at), 'MMM d');
         byDay[day] = (byDay[day] || 0) + p.amount_paid;
       });
-
       return Object.entries(byDay).map(([day, revenue]) => ({ day, revenue: +revenue.toFixed(2) }));
     }
   });
@@ -161,7 +181,9 @@ export const RevenueReports = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `daily-revenue-${revenueDays}d.csv`;
+    a.download = isCustomRange
+      ? `daily-revenue-${format(rangeStart, 'yyyy-MM-dd')}-to-${format(rangeEnd, 'yyyy-MM-dd')}.csv`
+      : `daily-revenue-${preset}d.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -171,16 +193,14 @@ export const RevenueReports = () => {
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-    // Header
     doc.setFontSize(20);
     doc.setTextColor(30, 30, 30);
     doc.text('Revenue Report', 14, 20);
 
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
-    doc.text(`Generated on ${dateStr}`, 14, 28);
+    doc.text(`Generated on ${dateStr}  |  Period: ${rangeLabel}`, 14, 28);
 
-    // Summary stats
     doc.setFontSize(13);
     doc.setTextColor(30, 30, 30);
     doc.text('Summary', 14, 42);
@@ -188,8 +208,8 @@ export const RevenueReports = () => {
     const totalUnits = revenueByProduct?.reduce((sum, p) => sum + p.total_sales, 0) || 0;
     const summaryData = [
       ['Total Revenue (All-time)', `$${(totalRevenue || 0).toFixed(2)}`],
-      [`Revenue (Last ${revenueDays} Days)`, `$${(monthlyRevenue || 0).toFixed(2)}`],
-      ['Total Units Sold', String(totalUnits)],
+      [`Revenue (${rangeLabel})`, `$${(periodRevenue || 0).toFixed(2)}`],
+      ['Total Units Sold (Period)', String(totalUnits)],
       ['Period Growth vs Prior Period', periodGrowth != null ? `${periodGrowth >= 0 ? '+' : ''}${periodGrowth}%` : 'N/A'],
     ];
 
@@ -204,13 +224,11 @@ export const RevenueReports = () => {
       margin: { left: 14, right: 14 },
     });
 
-    // Daily Revenue table
     if (dailyRevenue && dailyRevenue.length > 0) {
       const afterSummary = (doc as any).lastAutoTable.finalY + 12;
       doc.setFontSize(13);
       doc.setTextColor(30, 30, 30);
-      doc.text(`Daily Revenue (Last ${revenueDays} Days)`, 14, afterSummary);
-
+      doc.text(`Daily Revenue (${rangeLabel})`, 14, afterSummary);
       autoTable(doc, {
         startY: afterSummary + 4,
         head: [['Date', 'Revenue ($)']],
@@ -223,16 +241,13 @@ export const RevenueReports = () => {
       });
     }
 
-    // Product breakdown table
     if (revenueByProduct && revenueByProduct.length > 0) {
       const afterDaily = (doc as any).lastAutoTable.finalY + 12;
-      // Add new page if not enough space
       if (afterDaily > 240) doc.addPage();
       const tableY = afterDaily > 240 ? 20 : afterDaily;
       doc.setFontSize(13);
       doc.setTextColor(30, 30, 30);
       doc.text('Revenue by Product', 14, tableY);
-
       autoTable(doc, {
         startY: tableY + 4,
         head: [['Product', 'Sales', 'Revenue ($)', 'Avg. Price ($)']],
@@ -250,7 +265,10 @@ export const RevenueReports = () => {
       });
     }
 
-    doc.save(`revenue-report-${revenueDays}d.pdf`);
+    const filename = isCustomRange
+      ? `revenue-report-${format(rangeStart, 'yyyy-MM-dd')}-to-${format(rangeEnd, 'yyyy-MM-dd')}.pdf`
+      : `revenue-report-${preset}d.pdf`;
+    doc.save(filename);
   };
 
   const handleExportCSV = () => {
@@ -274,6 +292,57 @@ export const RevenueReports = () => {
 
   return (
     <div className="space-y-6">
+      {/* Date range controls */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm text-muted-foreground font-medium">Period:</span>
+        {([7, 30, 90] as const).map(d => (
+          <Button
+            key={d}
+            size="sm"
+            variant={preset === d && !isCustomRange ? "default" : "outline"}
+            onClick={() => handlePreset(d)}
+            className="text-xs h-8 px-3"
+          >
+            {d}d
+          </Button>
+        ))}
+
+        <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              size="sm"
+              variant={isCustomRange ? "default" : "outline"}
+              className={cn("h-8 gap-1.5 text-xs", isCustomRange && "pr-2")}
+            >
+              <CalendarIcon className="h-3.5 w-3.5" />
+              {isCustomRange ? rangeLabel : "Custom range"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="range"
+              selected={dateRange}
+              onSelect={handleDateRangeSelect}
+              numberOfMonths={2}
+              disabled={(date) => date > new Date()}
+              initialFocus
+              className={cn("p-3 pointer-events-auto")}
+            />
+          </PopoverContent>
+        </Popover>
+
+        {isCustomRange && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleClearRange}
+            className="h-8 px-2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-3.5 w-3.5" />
+          </Button>
+        )}
+      </div>
+
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -288,17 +357,17 @@ export const RevenueReports = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Last {revenueDays} Days</CardTitle>
+            <CardTitle className="text-sm font-medium truncate pr-1">{rangeLabel}</CardTitle>
             {periodGrowth === null || periodGrowth === undefined ? (
-              <Minus className="h-4 w-4 text-muted-foreground" />
+              <Minus className="h-4 w-4 text-muted-foreground shrink-0" />
             ) : periodGrowth >= 0 ? (
-              <TrendingUp className="h-4 w-4 text-chart-2" />
+              <TrendingUp className="h-4 w-4 text-chart-2 shrink-0" />
             ) : (
-              <TrendingDown className="h-4 w-4 text-destructive" />
+              <TrendingDown className="h-4 w-4 text-destructive shrink-0" />
             )}
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${monthlyRevenue?.toFixed(2) || '0.00'}</div>
+            <div className="text-2xl font-bold">${periodRevenue?.toFixed(2) || '0.00'}</div>
             <div className="flex items-center gap-1 mt-1">
               {periodGrowth !== null && periodGrowth !== undefined ? (
                 <span className={`text-xs font-medium ${periodGrowth >= 0 ? 'text-chart-2' : 'text-destructive'}`}>
@@ -320,7 +389,7 @@ export const RevenueReports = () => {
             <div className="text-2xl font-bold">
               {revenueByProduct?.reduce((sum, p) => sum + p.total_sales, 0) || 0}
             </div>
-            <p className="text-xs text-muted-foreground">Total units</p>
+            <p className="text-xs text-muted-foreground">Units in period</p>
           </CardContent>
         </Card>
       </div>
@@ -331,33 +400,18 @@ export const RevenueReports = () => {
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
               <CardTitle>Daily Revenue</CardTitle>
-              <CardDescription>Revenue per day</CardDescription>
+              <CardDescription>{rangeLabel}</CardDescription>
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleExportDailyCSV}
-                disabled={!dailyRevenue?.length}
-                className="gap-1.5"
-              >
-                <Download className="h-3.5 w-3.5" />
-                Export CSV
-              </Button>
-              <div className="flex gap-1">
-                {([7, 30, 90] as const).map(d => (
-                  <Button
-                    key={d}
-                    size="sm"
-                    variant={revenueDays === d ? "default" : "outline"}
-                    onClick={() => setRevenueDays(d)}
-                    className="text-xs h-7 px-2.5"
-                  >
-                    {d}d
-                  </Button>
-                ))}
-              </div>
-            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleExportDailyCSV}
+              disabled={!dailyRevenue?.length}
+              className="gap-1.5"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Export CSV
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -392,7 +446,7 @@ export const RevenueReports = () => {
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
               <CardTitle>Revenue by Product</CardTitle>
-              <CardDescription>Performance breakdown by product</CardDescription>
+              <CardDescription>{rangeLabel}</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -443,10 +497,10 @@ export const RevenueReports = () => {
               ))}
             </TableBody>
           </Table>
-          
+
           {!revenueByProduct?.length && (
             <div className="text-center py-8 text-muted-foreground">
-              No revenue data yet
+              No revenue data for this period
             </div>
           )}
         </CardContent>
