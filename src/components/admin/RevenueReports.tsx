@@ -20,6 +20,8 @@ import {
 import {
   BarChart,
   Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -396,6 +398,7 @@ export const RevenueReports = () => {
 
       {/* Daily Revenue Bar Chart */}
       <Card>
+
         <CardHeader>
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
@@ -434,6 +437,53 @@ export const RevenueReports = () => {
               </BarChart>
             </ResponsiveContainer>
           ) : (
+            <div className="flex items-center justify-center h-[260px] text-muted-foreground text-sm">
+              No revenue data for this period
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Cumulative Revenue Line Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Cumulative Revenue</CardTitle>
+          <CardDescription>Running total over {rangeLabel}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {dailyRevenue && dailyRevenue.length > 0 ? (() => {
+            let running = 0;
+            const cumulativeData = dailyRevenue.map(d => {
+              running += d.revenue;
+              return { day: d.day, cumulative: +running.toFixed(2) };
+            });
+            return (
+              <ResponsiveContainer width="100%" height={260}>
+                <LineChart data={cumulativeData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
+                  <XAxis dataKey="day" tick={{ fontSize: 11 }} />
+                  <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `$${v}`} />
+                  <Tooltip
+                    formatter={(value: number) => [`$${value.toFixed(2)}`, 'Cumulative Revenue']}
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="cumulative"
+                    stroke="hsl(var(--chart-2))"
+                    strokeWidth={2.5}
+                    dot={false}
+                    activeDot={{ r: 5 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            );
+          })() : (
             <div className="flex items-center justify-center h-[260px] text-muted-foreground text-sm">
               No revenue data for this period
             </div>
