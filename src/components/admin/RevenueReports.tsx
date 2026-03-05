@@ -153,6 +153,38 @@ export const RevenueReports = () => {
     }
   });
 
+  const { data: topCustomers } = useQuery({
+    queryKey: ['admin-top-customers', rangeStart.toISOString(), rangeEnd.toISOString()],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('purchases')
+        .select(`user_id, amount_paid, profiles!inner(email, full_name)`)
+        .eq('status', 'completed')
+        .gte('purchased_at', rangeStart.toISOString())
+        .lte('purchased_at', rangeEnd.toISOString());
+      if (error) throw error;
+
+      const grouped: Record<string, { user_id: string; email: string; full_name: string | null; total_spend: number; order_count: number }> = {};
+      data.forEach(p => {
+        const uid = p.user_id;
+        if (!grouped[uid]) {
+          grouped[uid] = {
+            user_id: uid,
+            email: (p.profiles as any).email,
+            full_name: (p.profiles as any).full_name,
+            total_spend: 0,
+            order_count: 0,
+          };
+        }
+        grouped[uid].total_spend += p.amount_paid;
+        grouped[uid].order_count++;
+      });
+      return Object.values(grouped)
+        .sort((a, b) => b.total_spend - a.total_spend)
+        .slice(0, 10);
+    }
+  });
+
   const { data: dailyRevenue } = useQuery({
     queryKey: ['admin-daily-revenue', rangeStart.toISOString(), rangeEnd.toISOString()],
     queryFn: async () => {
@@ -486,6 +518,49 @@ export const RevenueReports = () => {
           })() : (
             <div className="flex items-center justify-center h-[260px] text-muted-foreground text-sm">
               No revenue data for this period
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Top Customers Table */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <CardTitle>Top Customers</CardTitle>
+              <CardDescription>Ranked by total spend — {rangeLabel}</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {topCustomers && topCustomers.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-8">#</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead className="text-right">Orders</TableHead>
+                  <TableHead className="text-right">Total Spend</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {topCustomers.map((customer, index) => (
+                  <TableRow key={customer.user_id}>
+                    <TableCell className="text-muted-foreground font-mono text-xs">{index + 1}</TableCell>
+                    <TableCell>
+                      <div className="font-medium">{customer.full_name || '—'}</div>
+                      <div className="text-xs text-muted-foreground">{customer.email}</div>
+                    </TableCell>
+                    <TableCell className="text-right">{customer.order_count}</TableCell>
+                    <TableCell className="text-right font-semibold">${customer.total_spend.toFixed(2)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              No customer data for this period
             </div>
           )}
         </CardContent>
