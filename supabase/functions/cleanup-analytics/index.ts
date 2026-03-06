@@ -12,19 +12,15 @@ serve(async (req) => {
   }
 
   try {
-    // Verify cron secret
-    const authHeader = req.headers.get("Authorization");
+    // Require CRON_SECRET — fail closed if it is not configured
     const cronSecret = Deno.env.get("CRON_SECRET");
-    
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      // Also allow service role key
-      const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
-      if (authHeader !== `Bearer ${anonKey}`) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+    const authHeader = req.headers.get("Authorization");
+
+    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const supabaseAdmin = createClient(
