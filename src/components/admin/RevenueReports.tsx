@@ -545,17 +545,31 @@ export const RevenueReports = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {topCustomers.map((customer, index) => (
-                  <TableRow key={customer.user_id}>
-                    <TableCell className="text-muted-foreground font-mono text-xs">{index + 1}</TableCell>
-                    <TableCell>
-                      <div className="font-medium">{customer.full_name || '—'}</div>
-                      <div className="text-xs text-muted-foreground">{customer.email}</div>
-                    </TableCell>
-                    <TableCell className="text-right">{customer.order_count}</TableCell>
-                    <TableCell className="text-right font-semibold">${customer.total_spend.toFixed(2)}</TableCell>
-                  </TableRow>
-                ))}
+                {topCustomers.map((customer, index) => {
+                  const medals = [
+                    { emoji: '🥇', label: 'Gold', color: 'text-yellow-500' },
+                    { emoji: '🥈', label: 'Silver', color: 'text-slate-400' },
+                    { emoji: '🥉', label: 'Bronze', color: 'text-amber-600' },
+                  ];
+                  const medal = medals[index];
+                  return (
+                    <TableRow key={customer.user_id}>
+                      <TableCell className="w-10">
+                        {medal ? (
+                          <span className="text-lg leading-none" title={`${medal.label} – #${index + 1}`}>{medal.emoji}</span>
+                        ) : (
+                          <span className="text-muted-foreground font-mono text-xs">{index + 1}</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-medium">{customer.full_name || '—'}</div>
+                        <div className="text-xs text-muted-foreground">{customer.email}</div>
+                      </TableCell>
+                      <TableCell className="text-right">{customer.order_count}</TableCell>
+                      <TableCell className="text-right font-semibold">${customer.total_spend.toFixed(2)}</TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           ) : (
