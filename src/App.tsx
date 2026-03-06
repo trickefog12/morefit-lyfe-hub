@@ -28,7 +28,7 @@ const MyPurchases = lazy(() => import("./pages/MyPurchases"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
-const TestWebhook = lazy(() => import("./pages/TestWebhook"));
+
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCanceled = lazy(() => import("./pages/PaymentCanceled"));
 const MobileFeatures = lazy(() => import("./pages/MobileFeatures"));
