@@ -554,6 +554,16 @@ export const RevenueReports = () => {
               <CardTitle>Top Customers</CardTitle>
               <CardDescription>Ranked by total spend — {rangeLabel}</CardDescription>
             </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleExportTopCustomersCSV}
+              disabled={!topCustomers?.length}
+              className="gap-1.5"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Export CSV
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
