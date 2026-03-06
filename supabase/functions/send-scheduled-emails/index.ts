@@ -158,6 +158,9 @@ serve(async (req) => {
                 motivationalMessage: randomMessage,
               },
             },
+            headers: {
+              Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+            },
           });
 
           if (emailError) {
