@@ -28,7 +28,7 @@ const MyPurchases = lazy(() => import("./pages/MyPurchases"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
-const TestWebhook = lazy(() => import("./pages/TestWebhook"));
+
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCanceled = lazy(() => import("./pages/PaymentCanceled"));
 const MobileFeatures = lazy(() => import("./pages/MobileFeatures"));
@@ -69,7 +69,7 @@ const AppContent = () => {
           <Route path="/settings" element={<Settings />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
-          <Route path="/test-webhook" element={<AdminRoute><TestWebhook /></AdminRoute>} />
+          
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-canceled" element={<PaymentCanceled />} />
           <Route path="/mobile-features" element={<MobileFeatures />} />
