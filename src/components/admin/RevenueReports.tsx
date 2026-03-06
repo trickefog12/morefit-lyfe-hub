@@ -240,10 +240,12 @@ export const RevenueReports = () => {
     doc.text('Summary', 14, 42);
 
     const totalUnits = revenueByProduct?.reduce((sum, p) => sum + p.total_sales, 0) || 0;
+    const aov = totalUnits > 0 ? (periodRevenue || 0) / totalUnits : null;
     const summaryData = [
       ['Total Revenue (All-time)', `$${(totalRevenue || 0).toFixed(2)}`],
       [`Revenue (${rangeLabel})`, `$${(periodRevenue || 0).toFixed(2)}`],
       ['Total Units Sold (Period)', String(totalUnits)],
+      ['Average Order Value (AOV)', aov != null ? `$${aov.toFixed(2)}` : 'N/A'],
       ['Period Growth vs Prior Period', periodGrowth != null ? `${periodGrowth >= 0 ? '+' : ''}${periodGrowth}%` : 'N/A'],
     ];
 
@@ -295,6 +297,36 @@ export const RevenueReports = () => {
         headStyles: { fillColor: [40, 40, 40], textColor: 255, fontSize: 10 },
         bodyStyles: { fontSize: 9 },
         columnStyles: { 1: { halign: 'right' }, 2: { halign: 'right' }, 3: { halign: 'right' } },
+        margin: { left: 14, right: 14 },
+      });
+    }
+
+    if (topCustomers && topCustomers.length > 0) {
+      const afterProducts = (doc as any).lastAutoTable.finalY + 12;
+      if (afterProducts > 240) doc.addPage();
+      const tableY = afterProducts > 240 ? 20 : afterProducts;
+      doc.setFontSize(13);
+      doc.setTextColor(30, 30, 30);
+      doc.text(`Top Customers (${rangeLabel})`, 14, tableY);
+      const medals = ['#1', '#2', '#3'];
+      autoTable(doc, {
+        startY: tableY + 4,
+        head: [['Rank', 'Name', 'Email', 'Orders', 'Total Spend ($)']],
+        body: topCustomers.map((c, i) => [
+          medals[i] ?? `#${i + 1}`,
+          c.full_name || '—',
+          c.email,
+          c.order_count,
+          `$${c.total_spend.toFixed(2)}`,
+        ]),
+        theme: 'striped',
+        headStyles: { fillColor: [40, 40, 40], textColor: 255, fontSize: 10 },
+        bodyStyles: { fontSize: 9 },
+        columnStyles: {
+          0: { halign: 'center', cellWidth: 14 },
+          3: { halign: 'right' },
+          4: { halign: 'right' },
+        },
         margin: { left: 14, right: 14 },
       });
     }
