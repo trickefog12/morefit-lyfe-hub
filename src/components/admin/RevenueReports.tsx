@@ -400,7 +400,7 @@ export const RevenueReports = () => {
         )}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -447,6 +447,27 @@ export const RevenueReports = () => {
               {revenueByProduct?.reduce((sum, p) => sum + p.total_sales, 0) || 0}
             </div>
             <p className="text-xs text-muted-foreground">Units in period</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Avg. Order Value</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {(() => {
+              const totalUnits = revenueByProduct?.reduce((sum, p) => sum + p.total_sales, 0) || 0;
+              const aov = totalUnits > 0 ? (periodRevenue || 0) / totalUnits : null;
+              return (
+                <>
+                  <div className="text-2xl font-bold">
+                    {aov != null ? `$${aov.toFixed(2)}` : '—'}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Revenue ÷ orders in period</p>
+                </>
+              );
+            })()}
           </CardContent>
         </Card>
       </div>
