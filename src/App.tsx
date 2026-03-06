@@ -69,7 +69,7 @@ const AppContent = () => {
           <Route path="/settings" element={<Settings />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
-          <Route path="/test-webhook" element={<AdminRoute><TestWebhook /></AdminRoute>} />
+          
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-canceled" element={<PaymentCanceled />} />
           <Route path="/mobile-features" element={<MobileFeatures />} />
