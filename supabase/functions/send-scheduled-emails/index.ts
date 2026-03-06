@@ -101,6 +101,9 @@ serve(async (req) => {
               reviewUrl: `${Deno.env.get("SITE_URL") || "https://your-site.com"}/#review`,
             },
           },
+          headers: {
+            Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+          },
         });
 
         if (emailError) {
