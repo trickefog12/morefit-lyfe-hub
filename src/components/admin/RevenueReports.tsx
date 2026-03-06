@@ -324,6 +324,29 @@ export const RevenueReports = () => {
     URL.revokeObjectURL(url);
   };
 
+  const handleExportTopCustomersCSV = () => {
+    if (!topCustomers?.length) return;
+    const medals = ['🥇', '🥈', '🥉'];
+    const headers = ['Rank', 'Name', 'Email', 'Orders', 'Total Spend ($)'];
+    const rows = topCustomers.map((c, i) => [
+      medals[i] ? `${medals[i]} #${i + 1}` : `#${i + 1}`,
+      c.full_name || '',
+      c.email,
+      c.order_count,
+      c.total_spend.toFixed(2),
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = isCustomRange
+      ? `top-customers-${format(rangeStart, 'yyyy-MM-dd')}-to-${format(rangeEnd, 'yyyy-MM-dd')}.csv`
+      : `top-customers-${preset}d.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6">
       {/* Date range controls */}
@@ -531,6 +554,16 @@ export const RevenueReports = () => {
               <CardTitle>Top Customers</CardTitle>
               <CardDescription>Ranked by total spend — {rangeLabel}</CardDescription>
             </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleExportTopCustomersCSV}
+              disabled={!topCustomers?.length}
+              className="gap-1.5"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Export CSV
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
