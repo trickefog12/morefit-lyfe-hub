@@ -38,6 +38,18 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // This function is internal-only — called exclusively by other edge functions
+  // (handle-payment-webhook, send-scheduled-emails) using the service role key.
+  // Reject any request that does not supply the correct service-role authorization.
+  const authHeader = req.headers.get("Authorization") ?? "";
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+  if (!serviceRoleKey || authHeader !== `Bearer ${serviceRoleKey}`) {
+    return new Response(
+      JSON.stringify({ error: "Forbidden" }),
+      { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+
   try {
     const { type, to, data }: EmailRequest = await req.json();
 

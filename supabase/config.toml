@@ -1,5 +1,8 @@
 project_id = "yqsqjdivrylevaczeejd"
 
+[functions.send-purchase-email]
+verify_jwt = false
+
 [functions.handle-payment-webhook]
 verify_jwt = false
 
