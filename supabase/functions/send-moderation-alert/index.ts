@@ -12,10 +12,31 @@ const corsHeaders = {
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
+// Allowlist of valid moderation reasons — never accept arbitrary strings from clients
+const ALLOWED_REASONS = new Set(["inappropriate_language", "spam_pattern"]);
+
+// Rate limiting: max 5 calls per user per hour
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const MAX_CALLS_PER_WINDOW = 5;
+interface RateLimitEntry { count: number; windowStart: number; }
+const rateLimitStore = new Map<string, RateLimitEntry>();
+
+function checkRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitStore.get(userId);
+  if (!entry || now - entry.windowStart >= RATE_LIMIT_WINDOW_MS) {
+    rateLimitStore.set(userId, { count: 1, windowStart: now });
+    return true;
+  }
+  if (entry.count >= MAX_CALLS_PER_WINDOW) return false;
+  entry.count++;
+  return true;
+}
+
 interface ModerationAlertRequest {
   blockedContent: string;
   reason: string;
-  userEmail: string;
+  // userEmail is intentionally NOT read from the request body — sourced from the JWT instead
 }
 
 serve(async (req) => {
@@ -24,25 +45,85 @@ serve(async (req) => {
   }
 
   try {
-    const { blockedContent, reason, userEmail }: ModerationAlertRequest = await req.json();
+    // 1. Validate JWT and extract the caller's identity
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    if (!blockedContent || !reason) {
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // 2. Rate limiting per authenticated user
+    if (!checkRateLimit(user.id)) {
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded" }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // 3. Parse and validate the request body
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return new Response(
+        JSON.stringify({ error: "Invalid JSON" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (typeof body !== "object" || body === null || Array.isArray(body)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid input" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const { blockedContent, reason } = body as ModerationAlertRequest;
+
+    if (!blockedContent || typeof blockedContent !== "string" || blockedContent.trim().length === 0) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
+    // 4. Validate reason against allowlist — reject arbitrary strings
+    if (!reason || !ALLOWED_REASONS.has(reason)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid reason" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // 5. Override userEmail from the validated JWT — never trust the client-supplied value
+    const verifiedUserEmail = user.email ?? "Unknown";
+
     console.log("Processing moderation alert for blocked content");
 
-    // Create service role client to get admin emails
-    const supabaseClient = createClient(
+    // Use service role to read admin records
+    const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
     // Get all admin users
-    const { data: admins, error: adminsError } = await supabaseClient
+    const { data: admins, error: adminsError } = await supabaseAdmin
       .from("user_roles")
       .select("user_id")
       .eq("role", "admin");
@@ -52,9 +133,8 @@ serve(async (req) => {
       throw adminsError;
     }
 
-    // Get emails for admin users
     const adminUserIds = admins?.map((admin: any) => admin.user_id) || [];
-    
+
     if (adminUserIds.length === 0) {
       console.log("No admin users found");
       return new Response(
@@ -63,7 +143,7 @@ serve(async (req) => {
       );
     }
 
-    const { data: profiles, error: profilesError } = await supabaseClient
+    const { data: profiles, error: profilesError } = await supabaseAdmin
       .from("profiles")
       .select("email")
       .in("id", adminUserIds);
@@ -93,14 +173,13 @@ serve(async (req) => {
       timeStyle: "short",
     });
 
-    // Send email to each admin
     const emailPromises = adminEmails.map(async (email: string) => {
       try {
         const html = await renderAsync(
           React.createElement(ModerationAlertEmail, {
             blockedContent,
             reason,
-            userEmail: userEmail || "Anonymous",
+            userEmail: verifiedUserEmail, // Always from the JWT, never from the request body
             timestamp,
             appUrl,
           })
@@ -133,17 +212,13 @@ serve(async (req) => {
     console.log(`Alert results: ${successful} successful, ${failed} failed`);
 
     return new Response(
-      JSON.stringify({
-        message: "Moderation alerts sent",
-        successful,
-        failed,
-      }),
+      JSON.stringify({ message: "Moderation alerts sent", successful, failed }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: any) {
-    console.error("Error in send-moderation-alert function:", error);
+    console.error("Error in send-moderation-alert function");
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: "Internal server error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
