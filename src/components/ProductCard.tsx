@@ -20,6 +20,7 @@ const formatIcons = {
 const getImageForProduct = (product: Product) => {
   if (product.category === "transformation") return mealGuide;
   if (product.category === "coaching") return coachingSession;
+  if (product.category === "mobility") return programMobility;
   return programStrength;
 };
 
