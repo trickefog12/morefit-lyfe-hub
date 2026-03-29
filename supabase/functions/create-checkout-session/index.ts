@@ -67,8 +67,17 @@ serve(async (req) => {
       );
     }
 
-    // Construct URLs server-side to prevent open redirect attacks
-    const origin = req.headers.get("origin") || Deno.env.get("SUPABASE_URL")?.replace('/rest/v1', '') || "http://localhost:5173";
+    // Construct URLs server-side — validate Origin against allowlist to prevent open redirect
+    const ALLOWED_ORIGINS = new Set([
+      "https://morefitlyfe.lovable.app",
+      "https://morefitlyfe.com",
+      "https://www.morefitlyfe.com",
+      "http://localhost:5173",
+    ]);
+    const rawOrigin = req.headers.get("origin") ?? "";
+    const origin = ALLOWED_ORIGINS.has(rawOrigin)
+      ? rawOrigin
+      : (Deno.env.get("SITE_URL") ?? "https://morefitlyfe.lovable.app");
     const successUrl = `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${origin}/payment-canceled`;
 
