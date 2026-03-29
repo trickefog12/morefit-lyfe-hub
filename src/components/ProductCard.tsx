@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { FileText, Video, UserCheck, Sparkles } from "lucide-react";
 import type { Product } from "@/data/products";
 import programStrength from "@/assets/program-strength.jpg";
+import programMobility from "@/assets/program-mobility.jpg";
 import mealGuide from "@/assets/meal-guide.jpg";
 import coachingSession from "@/assets/coaching-session.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -19,6 +20,7 @@ const formatIcons = {
 const getImageForProduct = (product: Product) => {
   if (product.category === "transformation") return mealGuide;
   if (product.category === "coaching") return coachingSession;
+  if (product.category === "mobility") return programMobility;
   return programStrength;
 };
 
