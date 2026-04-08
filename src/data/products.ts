@@ -1,3 +1,10 @@
+export interface ProductFAQ {
+  question: string;
+  questionEn: string;
+  answer: string;
+  answerEn: string;
+}
+
 export interface Product {
   sku: string;
   name: string;
@@ -12,9 +19,24 @@ export interface Product {
   targetAudience: string;
   targetAudienceEn: string;
   duration: string;
+  durationEn: string;
   format: "pdf" | "video" | "coach" | "custom";
   category: "strength" | "transformation" | "mobility" | "coaching";
   image: string;
+  // Structured detail fields
+  level: string;
+  levelEn: string;
+  equipment: string;
+  equipmentEn: string;
+  workoutTime: string;
+  workoutTimeEn: string;
+  daysPerWeek: string;
+  daysPerWeekEn: string;
+  delivery: string;
+  deliveryEn: string;
+  support: string;
+  supportEn: string;
+  faq: ProductFAQ[];
 }
 
 export const products: Product[] = [
@@ -25,15 +47,15 @@ export const products: Product[] = [
     price: 40,
     shortBenefit: "Χτίσε δύναμη με επαγγελματική καθοδήγηση",
     shortBenefitEn: "Build serious strength with professional guidance",
-    description: "Ένα ολοκληρωμένο 12-εβδομαδιαίο πρόγραμμα powerlifting σχεδιασμένο για αρχάριους και ενδιάμεσους αθλητές. Το πρόγραμμα εστιάζει στην ανάπτυξη τεχνικής και δύναμης στα τρία κύρια lifts: squat, bench press και deadlift. Περιλαμβάνει λεπτομερείς οδηγίες για κάθε άσκηση, προοδευτική υπερφόρτιση και στρατηγικές ανάρρωσης.",
-    descriptionEn: "A comprehensive 12-week powerlifting program designed for beginner and intermediate athletes. The program focuses on developing technique and strength in the three main lifts: squat, bench press, and deadlift. Includes detailed instructions for each exercise, progressive overload, and recovery strategies.",
+    description: "Ένα ολοκληρωμένο 12-εβδομαδιαίο πρόγραμμα powerlifting σχεδιασμένο για αρχάριους και ενδιάμεσους αθλητές. Εστιάζει στην ανάπτυξη τεχνικής και δύναμης στα τρία κύρια lifts: squat, bench press και deadlift. Περιλαμβάνει λεπτομερείς οδηγίες, προοδευτική υπερφόρτιση και στρατηγικές ανάρρωσης.",
+    descriptionEn: "A comprehensive 12-week powerlifting program designed for beginner and intermediate athletes. Focuses on developing technique and strength in the three main lifts: squat, bench press, and deadlift. Includes detailed instructions, progressive overload, and recovery strategies.",
     deliverables: [
       "12 εβδομάδες δομημένης προπόνησης",
-      "Λεπτομερείς οδηγίες για squat, bench press, deadlift",
+      "Αναλυτικές οδηγίες για squat, bench press, deadlift",
       "Πρόγραμμα προοδευτικής υπερφόρτισης",
       "Οδηγίες τεχνικής και φόρμας",
       "Στρατηγικές ανάκαμψης",
-      "PDF αρχείο για άμεση λήψη"
+      "PDF αρχείο για άμεση λήψη",
     ],
     deliverablesEn: [
       "12 weeks of structured training",
@@ -41,14 +63,47 @@ export const products: Product[] = [
       "Progressive overload programming",
       "Technique and form guidance",
       "Recovery strategies",
-      "Downloadable PDF file"
+      "Downloadable PDF file",
     ],
     targetAudience: "Αρχάριοι και ενδιάμεσοι αθλητές που θέλουν να αναπτύξουν δύναμη και να βελτιώσουν την τεχνική τους στο powerlifting.",
     targetAudienceEn: "Beginner and intermediate athletes who want to develop strength and improve their powerlifting technique.",
-    duration: "12 εβδομάδες / 12 weeks",
+    duration: "12 εβδομάδες",
+    durationEn: "12 weeks",
     format: "pdf",
     category: "strength",
-    image: "/assets/program-strength.jpg"
+    image: "/assets/program-strength.jpg",
+    level: "Αρχάριο – Ενδιάμεσο",
+    levelEn: "Beginner – Intermediate",
+    equipment: "Μπάρα, δίσκοι, rack, πάγκος",
+    equipmentEn: "Barbell, plates, rack, bench",
+    workoutTime: "60–75 λεπτά",
+    workoutTimeEn: "60–75 minutes",
+    daysPerWeek: "4 ημέρες / εβδομάδα",
+    daysPerWeekEn: "4 days / week",
+    delivery: "Άμεση λήψη PDF μετά την αγορά + email επιβεβαίωσης",
+    deliveryEn: "Instant PDF download after purchase + confirmation email",
+    support: "Email υποστήριξη στο morefitlyfe@gmail.com",
+    supportEn: "Email support at morefitlyfe@gmail.com",
+    faq: [
+      {
+        question: "Χρειάζομαι εμπειρία στο powerlifting;",
+        questionEn: "Do I need powerlifting experience?",
+        answer: "Όχι. Το πρόγραμμα ξεκινά με βασική τεχνική και χτίζει σταδιακά. Αν μπορείς να κάνεις squat με μπάρα, μπορείς να ξεκινήσεις.",
+        answerEn: "No. The program starts with basic technique and builds gradually. If you can squat with a barbell, you can start.",
+      },
+      {
+        question: "Τι γίνεται αν χάσω μια προπόνηση;",
+        questionEn: "What if I miss a workout?",
+        answer: "Το πρόγραμμα είναι ευέλικτο. Μπορείς να μετακινήσεις τις προπονήσεις μέσα στην εβδομάδα χωρίς πρόβλημα.",
+        answerEn: "The program is flexible. You can shift workouts within the week without issues.",
+      },
+      {
+        question: "Περιλαμβάνει πρόγραμμα διατροφής;",
+        questionEn: "Does it include a nutrition plan?",
+        answer: "Περιλαμβάνει γενικές κατευθυντήριες γραμμές διατροφής αλλά όχι εξατομικευμένο πρόγραμμα διατροφής. Για αυτό, κλείσε 1:1 session.",
+        answerEn: "It includes general nutrition guidelines but not a personalized nutrition plan. For that, book a 1:1 session.",
+      },
+    ],
   },
   {
     sku: "MFL-COACH",
@@ -65,7 +120,7 @@ export const products: Product[] = [
       "Εξατομικευμένες συμβουλές",
       "Form check (αν χρειάζεται)",
       "Action plan",
-      "Follow-up email με notes"
+      "Follow-up email με notes",
     ],
     deliverablesEn: [
       "60-minute live video call",
@@ -73,14 +128,47 @@ export const products: Product[] = [
       "Personalized advice",
       "Form check (if needed)",
       "Action plan",
-      "Follow-up email with notes"
+      "Follow-up email with notes",
     ],
-    targetAudience: "Όποιος θέλει προσωπική καθοδήγηση για συγκεκριμένα ζητήματα.",
-    targetAudienceEn: "Anyone wanting personal guidance for specific issues.",
-    duration: "60 λεπτά / 60 minutes",
+    targetAudience: "Όποιος θέλει προσωπική καθοδήγηση για συγκεκριμένα ζητήματα προπόνησης ή διατροφής.",
+    targetAudienceEn: "Anyone wanting personal guidance for specific training or nutrition issues.",
+    duration: "60 λεπτά",
+    durationEn: "60 minutes",
     format: "coach",
     category: "coaching",
-    image: "/assets/coaching-session.jpg"
+    image: "/assets/coaching-session.jpg",
+    level: "Όλα τα επίπεδα",
+    levelEn: "All levels",
+    equipment: "Κανένα — online session",
+    equipmentEn: "None — online session",
+    workoutTime: "60 λεπτά (session)",
+    workoutTimeEn: "60 minutes (session)",
+    daysPerWeek: "1 συνεδρία",
+    daysPerWeekEn: "1 session",
+    delivery: "Κράτηση μέσω email μετά την αγορά — θα επικοινωνήσω εντός 24 ωρών",
+    deliveryEn: "Booking via email after purchase — I'll reach out within 24 hours",
+    support: "Προσωπική υποστήριξη + follow-up email",
+    supportEn: "Personal support + follow-up email",
+    faq: [
+      {
+        question: "Πώς γίνεται η κράτηση;",
+        questionEn: "How does booking work?",
+        answer: "Μετά την αγορά, θα λάβεις email με οδηγίες. Θα βρούμε ώρα που σε βολεύει μέσα σε 1–2 εβδομάδες.",
+        answerEn: "After purchase, you'll receive an email with instructions. We'll find a time that works for you within 1–2 weeks.",
+      },
+      {
+        question: "Τι μπορώ να ρωτήσω στο session;",
+        questionEn: "What can I ask in the session?",
+        answer: "Οτιδήποτε σχετικά με προπόνηση, τεχνική, προγραμματισμό, διατροφή ή στόχους. Εσύ καθορίζεις την ατζέντα.",
+        answerEn: "Anything about training, technique, programming, nutrition, or goals. You set the agenda.",
+      },
+      {
+        question: "Μπορώ να ακυρώσω;",
+        questionEn: "Can I cancel?",
+        answer: "Μπορείς να αλλάξεις ημερομηνία με ειδοποίηση 48 ωρών. Λόγω ψηφιακής αγοράς, δεν γίνεται επιστροφή χρημάτων.",
+        answerEn: "You can reschedule with 48 hours' notice. Due to digital purchase, refunds are not available.",
+      },
+    ],
   },
   {
     sku: "MFL-PL2",
@@ -89,30 +177,63 @@ export const products: Product[] = [
     price: 30,
     shortBenefit: "Χτίσε μυϊκή μάζα και δύναμη ταυτόχρονα",
     shortBenefitEn: "Build muscle mass and strength simultaneously",
-    description: "Ένα ισορροπημένο πρόγραμμα που συνδυάζει προπόνηση δύναμης με υπερτροφία για να μεγιστοποιήσει τόσο τη μυϊκή ανάπτυξη όσο και τα κιλά που σηκώνεις. Ιδανικό για όσους θέλουν να δουν αποτελέσματα στον καθρέφτη και στη μπάρα.",
-    descriptionEn: "A balanced program that combines strength training with hypertrophy to maximize both muscle development and lifting capacity. Perfect for those who want to see results in the mirror and on the bar.",
+    description: "Ένα ισορροπημένο πρόγραμμα που συνδυάζει προπόνηση δύναμης με υπερτροφία για μυϊκή ανάπτυξη και αύξηση δύναμης. Ιδανικό για όσους θέλουν αποτελέσματα στον καθρέφτη και στη μπάρα.",
+    descriptionEn: "A balanced program combining strength training with hypertrophy for muscle development and strength gains. Perfect for those who want results in the mirror and on the bar.",
     deliverables: [
       "12 εβδομάδες εξειδικευμένης προπόνησης",
       "Συνδυασμός δύναμης και υπερτροφίας",
       "Λεπτομερή workout plans",
-      "Καθοδήγηση για progressive overload",
-      "Συμβουλές διατροφής για μυϊκή ανάπτυξη",
-      "PDF με video links"
+      "Καθοδήγηση progressive overload",
+      "Γενικές συμβουλές διατροφής",
+      "PDF με video links",
     ],
     deliverablesEn: [
       "12 weeks of specialized training",
       "Combination of strength and hypertrophy",
       "Detailed workout plans",
       "Progressive overload guidance",
-      "Nutrition tips for muscle growth",
-      "PDF with video links"
+      "General nutrition tips",
+      "PDF with video links",
     ],
     targetAudience: "Αθλητές που θέλουν να αυξήσουν τη μυϊκή μάζα χωρίς να χάσουν τη δύναμή τους.",
     targetAudienceEn: "Athletes who want to increase muscle mass without losing their strength.",
-    duration: "12 εβδομάδες / 12 weeks",
+    duration: "12 εβδομάδες",
+    durationEn: "12 weeks",
     format: "pdf",
     category: "strength",
-    image: "/assets/program-strength.jpg"
+    image: "/assets/program-strength.jpg",
+    level: "Ενδιάμεσο",
+    levelEn: "Intermediate",
+    equipment: "Μπάρα, δίσκοι, αλτήρες, rack, πάγκος, καλώδια",
+    equipmentEn: "Barbell, plates, dumbbells, rack, bench, cables",
+    workoutTime: "60–90 λεπτά",
+    workoutTimeEn: "60–90 minutes",
+    daysPerWeek: "5 ημέρες / εβδομάδα",
+    daysPerWeekEn: "5 days / week",
+    delivery: "Άμεση λήψη PDF μετά την αγορά + email επιβεβαίωσης",
+    deliveryEn: "Instant PDF download after purchase + confirmation email",
+    support: "Email υποστήριξη στο morefitlyfe@gmail.com",
+    supportEn: "Email support at morefitlyfe@gmail.com",
+    faq: [
+      {
+        question: "Ποια η διαφορά από το powerlifting πρόγραμμα;",
+        questionEn: "What's the difference from the powerlifting program?",
+        answer: "Αυτό το πρόγραμμα δίνει ίση βαρύτητα σε μυϊκή ανάπτυξη και δύναμη, ενώ το powerlifting εστιάζει αποκλειστικά στα 3 κύρια lifts.",
+        answerEn: "This program gives equal weight to muscle growth and strength, while the powerlifting one focuses exclusively on the 3 main lifts.",
+      },
+      {
+        question: "Μπορώ να το κάνω σε home gym;",
+        questionEn: "Can I do it in a home gym?",
+        answer: "Χρειάζεσαι βασικό εξοπλισμό γυμναστηρίου. Ένα home gym με rack, πάγκο, μπάρα και αλτήρες αρκεί.",
+        answerEn: "You need basic gym equipment. A home gym with a rack, bench, barbell, and dumbbells is sufficient.",
+      },
+      {
+        question: "Είναι για γυναίκες;",
+        questionEn: "Is it for women?",
+        answer: "Απολύτως. Το πρόγραμμα είναι για κάθε φύλο — η δύναμη και η υπερτροφία ωφελούν όλους.",
+        answerEn: "Absolutely. The program is for any gender — strength and hypertrophy benefit everyone.",
+      },
+    ],
   },
   {
     sku: "MFL-PDF1",
@@ -121,30 +242,63 @@ export const products: Product[] = [
     price: 15,
     shortBenefit: "Προπόνηση οπουδήποτε, χωρίς εξοπλισμό",
     shortBenefitEn: "Train anywhere, no equipment needed",
-    description: "Ένα ευέλικτο πρόγραμμα προπόνησης που μπορείς να ακολουθήσεις στο σπίτι, στο πάρκο ή στο δωμάτιο του ξενοδοχείου. Δεν χρειάζεσαι εξοπλισμό - μόνο το βάρος του σώματός σου και τη θέλησή σου!",
-    descriptionEn: "A flexible training program you can follow at home, in the park, or in your hotel room. No equipment needed - just your bodyweight and determination!",
+    description: "Ένα ευέλικτο πρόγραμμα προπόνησης που μπορείς να ακολουθήσεις στο σπίτι, στο πάρκο ή στο ξενοδοχείο. Δεν χρειάζεσαι εξοπλισμό — μόνο το βάρος του σώματός σου.",
+    descriptionEn: "A flexible training program you can follow at home, in the park, or at the hotel. No equipment needed — just your bodyweight.",
     deliverables: [
       "20+ ασκήσεις με βάρος σώματος",
-      "Προπονήσεις 20-45 λεπτών",
+      "Προπονήσεις 20–45 λεπτών",
       "3 επίπεδα δυσκολίας",
       "Video demonstrations",
-      "Οδηγίες για progression",
-      "Άμεση λήψη PDF"
+      "Οδηγίες progression",
+      "Άμεση λήψη PDF",
     ],
     deliverablesEn: [
       "20+ bodyweight exercises",
-      "20-45 minute workouts",
+      "20–45 minute workouts",
       "3 difficulty levels",
       "Video demonstrations",
       "Progression guidelines",
-      "Instant PDF download"
+      "Instant PDF download",
     ],
     targetAudience: "Ιδανικό για όσους ταξιδεύουν συχνά ή δεν έχουν πρόσβαση σε γυμναστήριο.",
     targetAudienceEn: "Perfect for frequent travelers or those without gym access.",
-    duration: "Flexible / Ευέλικτο",
+    duration: "Ευέλικτο",
+    durationEn: "Flexible",
     format: "pdf",
     category: "strength",
-    image: "/assets/program-strength.jpg"
+    image: "/assets/program-strength.jpg",
+    level: "Αρχάριο – Προχωρημένο",
+    levelEn: "Beginner – Advanced",
+    equipment: "Κανένα — μόνο βάρος σώματος",
+    equipmentEn: "None — bodyweight only",
+    workoutTime: "20–45 λεπτά",
+    workoutTimeEn: "20–45 minutes",
+    daysPerWeek: "3–5 ημέρες / εβδομάδα",
+    daysPerWeekEn: "3–5 days / week",
+    delivery: "Άμεση λήψη PDF μετά την αγορά + email επιβεβαίωσης",
+    deliveryEn: "Instant PDF download after purchase + confirmation email",
+    support: "Email υποστήριξη στο morefitlyfe@gmail.com",
+    supportEn: "Email support at morefitlyfe@gmail.com",
+    faq: [
+      {
+        question: "Χρειάζομαι κάποιο εξοπλισμό;",
+        questionEn: "Do I need any equipment?",
+        answer: "Όχι. Όλες οι ασκήσεις γίνονται με το βάρος σώματός σου. Προαιρετικά, ένα λάστιχο αντίστασης μπορεί να βοηθήσει.",
+        answerEn: "No. All exercises use bodyweight only. Optionally, a resistance band can help.",
+      },
+      {
+        question: "Είναι αρκετά δύσκολο για προχωρημένους;",
+        questionEn: "Is it challenging enough for advanced athletes?",
+        answer: "Ναι, υπάρχουν 3 επίπεδα δυσκολίας. Το τρίτο επίπεδο είναι αρκετά απαιτητικό ακόμα και για έμπειρους αθλητές.",
+        answerEn: "Yes, there are 3 difficulty levels. The third level is quite demanding even for experienced athletes.",
+      },
+      {
+        question: "Πόσο χρόνο χρειάζομαι ανά προπόνηση;",
+        questionEn: "How much time per workout?",
+        answer: "Από 20 λεπτά (γρήγορο circuit) έως 45 λεπτά (πλήρες session). Εσύ επιλέγεις ανάλογα με τον χρόνο σου.",
+        answerEn: "From 20 minutes (quick circuit) to 45 minutes (full session). You choose based on your time.",
+      },
+    ],
   },
   {
     sku: "MFL-PDF2",
@@ -153,30 +307,63 @@ export const products: Product[] = [
     price: 15,
     shortBenefit: "Ολοκληρωμένη προπόνηση με ένα kettlebell",
     shortBenefitEn: "Complete workout with just one kettlebell",
-    description: "Ανακάλυψε τη δύναμη του kettlebell training! Αυτό το πρόγραμμα σου δείχνει πώς να χτίσεις δύναμη, αντοχή και λειτουργική φυσική κατάσταση με ένα απλό kettlebell.",
-    descriptionEn: "Discover the power of kettlebell training! This program shows you how to build strength, endurance, and functional fitness with just one simple kettlebell.",
+    description: "Ανακάλυψε τη δύναμη του kettlebell training! Χτίσε δύναμη, αντοχή και λειτουργική φυσική κατάσταση με ένα kettlebell.",
+    descriptionEn: "Discover the power of kettlebell training! Build strength, endurance, and functional fitness with just one kettlebell.",
     deliverables: [
       "8 εβδομάδες προγράμματος kettlebell",
-      "Τεχνική για 15+ ασκήσεις kettlebell",
+      "Τεχνική για 15+ ασκήσεις",
       "Workouts για όλο το σώμα",
       "Video tutorials",
       "Οδηγίες ασφάλειας",
-      "PDF με εικόνες και οδηγίες"
+      "PDF με εικόνες και οδηγίες",
     ],
     deliverablesEn: [
       "8-week kettlebell program",
-      "Technique for 15+ kettlebell exercises",
+      "Technique for 15+ exercises",
       "Full-body workouts",
       "Video tutorials",
       "Safety guidelines",
-      "PDF with images and instructions"
+      "PDF with images and instructions",
     ],
     targetAudience: "Κατάλληλο για όλα τα επίπεδα που θέλουν να εξερευνήσουν το kettlebell training.",
     targetAudienceEn: "Suitable for all levels wanting to explore kettlebell training.",
-    duration: "8 εβδομάδες / 8 weeks",
+    duration: "8 εβδομάδες",
+    durationEn: "8 weeks",
     format: "pdf",
     category: "strength",
-    image: "/assets/program-strength.jpg"
+    image: "/assets/program-strength.jpg",
+    level: "Αρχάριο – Ενδιάμεσο",
+    levelEn: "Beginner – Intermediate",
+    equipment: "1 kettlebell (συνιστώμενο: 8–16kg γυναίκες, 12–24kg άνδρες)",
+    equipmentEn: "1 kettlebell (recommended: 8–16kg women, 12–24kg men)",
+    workoutTime: "30–45 λεπτά",
+    workoutTimeEn: "30–45 minutes",
+    daysPerWeek: "3–4 ημέρες / εβδομάδα",
+    daysPerWeekEn: "3–4 days / week",
+    delivery: "Άμεση λήψη PDF μετά την αγορά + email επιβεβαίωσης",
+    deliveryEn: "Instant PDF download after purchase + confirmation email",
+    support: "Email υποστήριξη στο morefitlyfe@gmail.com",
+    supportEn: "Email support at morefitlyfe@gmail.com",
+    faq: [
+      {
+        question: "Τι βάρος kettlebell χρειάζομαι;",
+        questionEn: "What kettlebell weight do I need?",
+        answer: "Γυναίκες: 8–16kg, Άνδρες: 12–24kg. Αν δεν ξέρεις, ξεκίνα με το χαμηλότερο και αυξήσε σταδιακά.",
+        answerEn: "Women: 8–16kg, Men: 12–24kg. If unsure, start with the lower weight and increase gradually.",
+      },
+      {
+        question: "Μπορώ να το κάνω στο σπίτι;",
+        questionEn: "Can I do it at home?",
+        answer: "Ναι! Χρειάζεσαι μόνο ένα kettlebell και 2x2 μέτρα χώρο.",
+        answerEn: "Yes! You only need one kettlebell and 2x2 meters of space.",
+      },
+      {
+        question: "Είναι ασφαλές για αρχάριους;",
+        questionEn: "Is it safe for beginners?",
+        answer: "Ναι, το πρόγραμμα ξεκινά με εκμάθηση τεχνικής πριν προχωρήσεις σε πιο σύνθετες ασκήσεις.",
+        answerEn: "Yes, the program starts with technique learning before moving to more complex exercises.",
+      },
+    ],
   },
   {
     sku: "MFL-MOB",
@@ -189,25 +376,58 @@ export const products: Product[] = [
     descriptionEn: "Specially designed for those who spend many hours sitting. Improve mobility, reduce back and neck pain, and feel more energized every day.",
     deliverables: [
       "6 εβδομάδες mobility routines",
-      "Ασκήσεις για γραφείο (5-10 λεπτά)",
+      "Ασκήσεις για γραφείο (5–10 λεπτά)",
       "Stretching routines",
       "Διορθωτικές ασκήσεις",
       "Video demonstrations",
-      "Tips για καλύτερη στάση"
+      "Συμβουλές για καλύτερη στάση",
     ],
     deliverablesEn: [
       "6 weeks of mobility routines",
-      "Office exercises (5-10 minutes)",
+      "Office exercises (5–10 minutes)",
       "Stretching routines",
       "Corrective exercises",
       "Video demonstrations",
-      "Posture improvement tips"
+      "Posture improvement tips",
     ],
     targetAudience: "Γραφειακοί εργαζόμενοι και όποιος έχει καθιστική ζωή.",
     targetAudienceEn: "Office workers and anyone with a sedentary lifestyle.",
-    duration: "6 εβδομάδες / 6 weeks",
+    duration: "6 εβδομάδες",
+    durationEn: "6 weeks",
     format: "pdf",
     category: "mobility",
-    image: "/assets/program-strength.jpg"
-  }
+    image: "/assets/program-strength.jpg",
+    level: "Αρχάριο",
+    levelEn: "Beginner",
+    equipment: "Κανένα — μόνο στρώμα γιόγκα (προαιρετικό)",
+    equipmentEn: "None — just a yoga mat (optional)",
+    workoutTime: "15–30 λεπτά",
+    workoutTimeEn: "15–30 minutes",
+    daysPerWeek: "5–7 ημέρες / εβδομάδα",
+    daysPerWeekEn: "5–7 days / week",
+    delivery: "Άμεση λήψη PDF μετά την αγορά + email επιβεβαίωσης",
+    deliveryEn: "Instant PDF download after purchase + confirmation email",
+    support: "Email υποστήριξη στο morefitlyfe@gmail.com",
+    supportEn: "Email support at morefitlyfe@gmail.com",
+    faq: [
+      {
+        question: "Πόσο χρόνο χρειάζομαι ανά ημέρα;",
+        questionEn: "How much time per day?",
+        answer: "Από 5 λεπτά (micro-routine στο γραφείο) έως 30 λεπτά (πλήρες session). Ακόμα και 10 λεπτά κάνουν διαφορά.",
+        answerEn: "From 5 minutes (micro-routine at the desk) to 30 minutes (full session). Even 10 minutes makes a difference.",
+      },
+      {
+        question: "Θα βοηθήσει τον πόνο στην πλάτη μου;",
+        questionEn: "Will it help my back pain?",
+        answer: "Το πρόγραμμα στοχεύει τα πιο συνηθισμένα προβλήματα καθιστικής ζωής (πλάτη, αυχένας, ισχία). Αν έχεις σοβαρό τραυματισμό, συμβουλεύσου πρώτα γιατρό.",
+        answerEn: "The program targets the most common sedentary issues (back, neck, hips). If you have a serious injury, consult a doctor first.",
+      },
+      {
+        question: "Μπορώ να το κάνω στο γραφείο;",
+        questionEn: "Can I do it at the office?",
+        answer: "Ναι! Υπάρχουν ειδικές ρουτίνες 5–10 λεπτών σχεδιασμένες για να γίνονται δίπλα στο γραφείο σου.",
+        answerEn: "Yes! There are special 5–10 minute routines designed to be done next to your desk.",
+      },
+    ],
+  },
 ];
