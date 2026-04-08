@@ -19,11 +19,17 @@ const translations = {
     signup: "Εγγραφή",
     
     // Hero Section
-    hero_title: "MoreFitLyfe",
-    hero_subtitle: "Γίνε η καλύτερη εκδοχή του εαυτού σου.",
-    hero_description: "Προγράμματα δύναμης, εξατομικευμένα διαιτολόγια και υποστήριξη για πραγματική μεταμόρφωση.",
-    buy_now: "Αγόρασε τώρα",
-    become_member: "Γίνε μέλος",
+    hero_title: "Χτίσε Δύναμη.",
+    hero_subtitle: "Αλλαξε Σώμα.",
+    hero_description: "Ολοκληρωμένα προγράμματα προπόνησης σε PDF — δύναμη, υπερτροφία, κινητικότητα — με οδηγίες βήμα-βήμα και υποστήριξη από coach.",
+    hero_cta1: "Δες Προγράμματα",
+    hero_cta2: "Κλείσε 1:1 Session",
+    hero_bullet1: "Δομημένα προγράμματα 6–12 εβδομάδων με progressive overload",
+    hero_bullet2: "Αναλυτικές οδηγίες τεχνικής για κάθε άσκηση",
+    hero_bullet3: "Προσωπική υποστήριξη μέσω 1:1 coaching sessions",
+    hero_trust1: "Ψηφιακή παράδοση άμεσα",
+    hero_trust2: "Ασφαλείς πληρωμές",
+    hero_trust3: "Υποστήριξη από coach",
     
     // About Section
     about_title: "Γεια, είμαι η Stefania!",
@@ -634,11 +640,17 @@ const translations = {
     signup: "Sign Up",
     
     // Hero Section
-    hero_title: "MoreFitLyfe",
-    hero_subtitle: "Become the best version of yourself.",
-    hero_description: "Strength programs, personalized nutrition, and support for real transformation.",
-    buy_now: "Buy Now",
-    become_member: "Become a Member",
+    hero_title: "Build Strength.",
+    hero_subtitle: "Transform Your Body.",
+    hero_description: "Complete PDF training programs — strength, hypertrophy, mobility — with step-by-step instructions and coach support.",
+    hero_cta1: "View Programs",
+    hero_cta2: "Book 1:1 Session",
+    hero_bullet1: "Structured 6–12 week programs with progressive overload",
+    hero_bullet2: "Detailed technique instructions for every exercise",
+    hero_bullet3: "Personal support through 1:1 coaching sessions",
+    hero_trust1: "Instant digital delivery",
+    hero_trust2: "Secure payments",
+    hero_trust3: "Coach support included",
     
     // About Section
     about_title: "Hi, I'm Stefania!",
