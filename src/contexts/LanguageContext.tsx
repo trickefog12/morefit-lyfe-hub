@@ -52,14 +52,15 @@ const translations = {
     step3_title: "3. Μεταμόρφωση",
     step3_description: "Δες πραγματικά αποτελέσματα και γίνε η καλύτερη έκδοση του εαυτού σου.",
     
-    // Testimonials
-    testimonials_title: "Τι Λένε οι Πελάτες μου",
-    testimonial1: "Το πρόγραμμα powerlifting με βοήθησε να πετύχω PR σε όλα τα lifts! Η Stefania ξέρει τι κάνει.",
-    testimonial1_author: "— Μαρία Κ.",
-    testimonial2: "Το transformation program άλλαξε τη ζωή μου. Έχασα 12 κιλά και αισθάνομαι απίστευτα!",
-    testimonial2_author: "— Ελένη Π.",
-    testimonial3: "Καλύτερη επένδυση που έκανα! Τα προγράμματα είναι σαφή και αποτελεσματικά.",
-    testimonial3_author: "— Γιώργος Μ.",
+    // Social Proof
+    social_proof_title: "Αποτελέσματα από Πραγματικούς Ανθρώπους",
+    social_proof_subtitle: "Δες τι λένε όσοι ακολούθησαν τα προγράμματά μας.",
+    social_proof_disclaimer: "Τα αποτελέσματα διαφέρουν ανά άτομο.",
+    social_proof_cta: "Δες το πρόγραμμα που μου ταιριάζει",
+    social_proof_early_badge: "Νέα Πλατφόρμα",
+    social_proof_early_title: "Γίνε από τους πρώτους που θα δοκιμάσουν τα προγράμματά μου",
+    social_proof_early_description: "Τα προγράμματα μόλις κυκλοφόρησαν. Ξεκίνα τώρα και μοιράσου την εμπειρία σου — η γνώμη σου μετράει.",
+    social_proof_early_cta: "Δες τα Προγράμματα",
     
     // CTA
     cta_title: "Έτοιμος/η να Ξεκινήσεις;",
@@ -673,14 +674,15 @@ const translations = {
     step3_title: "3. Transform",
     step3_description: "See real results and become the best version of yourself.",
     
-    // Testimonials
-    testimonials_title: "What My Clients Say",
-    testimonial1: "The powerlifting program helped me achieve PRs in all my lifts! Stefania knows her stuff.",
-    testimonial1_author: "— Maria K.",
-    testimonial2: "The transformation program changed my life. I lost 12kg and feel amazing!",
-    testimonial2_author: "— Helen P.",
-    testimonial3: "Best investment I've made! The programs are clear and effective.",
-    testimonial3_author: "— George M.",
+    // Social Proof
+    social_proof_title: "Real Results from Real People",
+    social_proof_subtitle: "See what people who followed our programs have to say.",
+    social_proof_disclaimer: "Results vary by individual.",
+    social_proof_cta: "Find the program that fits me",
+    social_proof_early_badge: "New Platform",
+    social_proof_early_title: "Be among the first to try my programs",
+    social_proof_early_description: "The programs just launched. Start now and share your experience — your feedback matters.",
+    social_proof_early_cta: "View Programs",
     
     // CTA
     cta_title: "Ready to Get Started?",
