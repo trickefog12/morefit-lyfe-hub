@@ -5,10 +5,28 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Separator } from "@/components/ui/separator";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { products } from "@/data/products";
-import { ArrowLeft, CheckCircle, Star, Loader2 } from "lucide-react";
+import {
+  CheckCircle,
+  Loader2,
+  Clock,
+  Dumbbell,
+  CalendarDays,
+  Truck,
+  Headphones,
+  BarChart3,
+  ChevronRight,
+  ShieldCheck,
+} from "lucide-react";
 import programStrength from "@/assets/program-strength.jpg";
+import programMobility from "@/assets/program-mobility.jpg";
 import mealGuide from "@/assets/meal-guide.jpg";
 import coachingSession from "@/assets/coaching-session.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -19,6 +37,7 @@ import { toast } from "sonner";
 const getImageForProduct = (product: any) => {
   if (product.category === "transformation") return mealGuide;
   if (product.category === "coaching") return coachingSession;
+  if (product.category === "mobility") return programMobility;
   return programStrength;
 };
 
@@ -31,41 +50,35 @@ const ProductDetail = () => {
   const product = products.find((p) => p.sku === sku);
 
   const handleBuyNow = async () => {
-    console.log("[BuyNow] Button clicked, user:", user?.id, "product:", product?.sku);
-    
     if (!user) {
-      console.log("[BuyNow] No user, redirecting to signup");
-      toast.error(language === "el" ? "Πρέπει να συνδεθείτε για να αγοράσετε" : "You must be logged in to purchase");
+      toast.error(
+        language === "el"
+          ? "Πρέπει να συνδεθείτε για να αγοράσετε"
+          : "You must be logged in to purchase"
+      );
       navigate("/signup");
       return;
     }
 
     setIsCheckingOut(true);
-    console.log("[BuyNow] Starting checkout for product:", product?.sku);
-    
     try {
-      console.log("[BuyNow] Invoking create-checkout-session...");
-      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
-        body: { productSku: product?.sku },
-      });
-
-      console.log("[BuyNow] Response:", { data, error });
-
-      if (error) {
-        console.error("[BuyNow] Error from function:", error);
-        throw error;
-      }
-
+      const { data, error } = await supabase.functions.invoke(
+        "create-checkout-session",
+        { body: { productSku: product?.sku } }
+      );
+      if (error) throw error;
       if (data?.url) {
-        console.log("[BuyNow] Opening checkout URL:", data.url);
         window.open(data.url, "_blank");
       } else {
-        console.error("[BuyNow] No checkout URL returned");
         throw new Error("No checkout URL returned");
       }
     } catch (error: any) {
       console.error("[BuyNow] Checkout error:", error);
-      toast.error(language === "el" ? "Σφάλμα κατά τη δημιουργία πληρωμής" : "Error creating checkout session");
+      toast.error(
+        language === "el"
+          ? "Σφάλμα κατά τη δημιουργία πληρωμής"
+          : "Error creating checkout session"
+      );
     } finally {
       setIsCheckingOut(false);
     }
@@ -88,29 +101,69 @@ const ProductDetail = () => {
     );
   }
 
-  // Get language-specific content
-  const currencySymbol = language === "el" ? "€" : "$";
-  const productName = language === "en" ? product.nameEn : product.name;
-  const productBenefit = language === "en" ? product.shortBenefitEn : product.shortBenefit;
-  const productDescription = language === "en" ? product.descriptionEn : product.description;
-  const productDeliverables = language === "en" ? product.deliverablesEn : product.deliverables;
-  const productTargetAudience = language === "en" ? product.targetAudienceEn : product.targetAudience;
+  const isGreek = language === "el";
+  const currencySymbol = "€";
+  const productName = isGreek ? product.name : product.nameEn;
+  const productBenefit = isGreek ? product.shortBenefit : product.shortBenefitEn;
+  const productDescription = isGreek ? product.description : product.descriptionEn;
+  const productDeliverables = isGreek ? product.deliverables : product.deliverablesEn;
+  const productTarget = isGreek ? product.targetAudience : product.targetAudienceEn;
+  const productLevel = isGreek ? product.level : product.levelEn;
+  const productEquipment = isGreek ? product.equipment : product.equipmentEn;
+  const productWorkoutTime = isGreek ? product.workoutTime : product.workoutTimeEn;
+  const productDaysPerWeek = isGreek ? product.daysPerWeek : product.daysPerWeekEn;
+  const productDuration = isGreek ? product.duration : product.durationEn;
+  const productDelivery = isGreek ? product.delivery : product.deliveryEn;
+  const productSupport = isGreek ? product.support : product.supportEn;
+
+  const specs = [
+    { icon: BarChart3, label: t("level_label"), value: productLevel },
+    { icon: Clock, label: t("duration_label"), value: productDuration },
+    { icon: Dumbbell, label: t("equipment_label"), value: productEquipment },
+    { icon: Clock, label: t("workout_time_label"), value: productWorkoutTime },
+    { icon: CalendarDays, label: t("days_per_week_label"), value: productDaysPerWeek },
+    { icon: Truck, label: t("delivery_label"), value: productDelivery },
+    { icon: Headphones, label: t("support_label"), value: productSupport },
+  ];
+
+  const faqItems = product.faq.map((item) => ({
+    question: isGreek ? item.question : item.questionEn,
+    answer: isGreek ? item.answer : item.answerEn,
+  }));
+
+  const formatLabels: Record<string, string> = {
+    pdf: "PDF Download",
+    video: "Video Course",
+    coach: "1:1 Coaching",
+    custom: "Custom Program",
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
-      <main className="flex-1 py-8">
-        <div className="container mx-auto px-4 lg:px-8">
-          <Link to="/programs" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8">
-            <ArrowLeft className="h-4 w-4" />
-            {t("back_to_programs_link")}
-          </Link>
 
-          <div className="grid md:grid-cols-2 gap-12 mb-16">
-            {/* Product Image */}
+      <main className="flex-1 py-6">
+        <div className="container mx-auto px-4 lg:px-8">
+          {/* Breadcrumbs */}
+          <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-8">
+            <Link to="/" className="hover:text-foreground transition-colors">
+              {t("breadcrumb_home")}
+            </Link>
+            <ChevronRight className="h-3.5 w-3.5" />
+            <Link to="/programs" className="hover:text-foreground transition-colors">
+              {t("breadcrumb_programs")}
+            </Link>
+            <ChevronRight className="h-3.5 w-3.5" />
+            <span className="text-foreground font-medium truncate max-w-[200px]">
+              {productName}
+            </span>
+          </nav>
+
+          {/* Hero Grid */}
+          <div className="grid md:grid-cols-2 gap-10 mb-16">
+            {/* Image */}
             <div className="space-y-4">
-              <div className="aspect-square rounded-lg overflow-hidden">
+              <div className="aspect-[4/3] rounded-xl overflow-hidden bg-muted">
                 <img
                   src={getImageForProduct(product)}
                   alt={productName}
@@ -120,158 +173,139 @@ const ProductDetail = () => {
             </div>
 
             {/* Product Info */}
-            <div>
-              <div className="flex items-start justify-between gap-4 mb-4">
-                <h1 className="text-4xl font-bold">{productName}</h1>
-                <Badge variant="secondary" className="text-2xl py-2 px-4">
-                  {currencySymbol}{product.price}
-                </Badge>
-              </div>
-              
-              <p className="text-xl text-muted-foreground mb-6">
+            <div className="flex flex-col">
+              <Badge variant="outline" className="w-fit mb-3 text-xs">
+                {formatLabels[product.format]}
+              </Badge>
+
+              <h1 className="text-3xl md:text-4xl font-bold mb-2 leading-tight">
+                {productName}
+              </h1>
+
+              <p className="text-lg text-muted-foreground mb-4">
                 {productBenefit}
               </p>
 
-              <div className="space-y-4 mb-8">
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="font-semibold">{t("duration_label")}</span>
-                  <span className="text-muted-foreground">{product.duration}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="font-semibold">{t("format_label")}</span>
-                  <Badge variant="outline">
-                    {product.format === "pdf" && "PDF Download"}
-                    {product.format === "video" && "Video Course"}
-                    {product.format === "coach" && "1:1 Coaching"}
-                    {product.format === "custom" && "Custom Program"}
-                  </Badge>
-                </div>
+              <div className="flex items-baseline gap-2 mb-6">
+                <span className="text-4xl font-bold text-primary">
+                  {currencySymbol}{product.price}
+                </span>
               </div>
 
-              <Button 
-                size="lg" 
-                className="w-full md:w-auto bg-primary hover:bg-primary-glow text-lg px-12 mb-4"
+              {/* CTA */}
+              <Button
+                size="lg"
+                className="w-full bg-primary hover:bg-primary-glow text-lg px-8 font-semibold mb-3"
                 onClick={handleBuyNow}
                 disabled={isCheckingOut || authLoading}
               >
                 {isCheckingOut ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {language === "el" ? "Φόρτωση..." : "Loading..."}
+                    {isGreek ? "Φόρτωση..." : "Loading..."}
                   </>
                 ) : (
-                  <>{t("buy_now_price")} - {currencySymbol}{product.price}</>
+                  <>
+                    {t("buy_program_cta")} — {currencySymbol}{product.price}
+                  </>
                 )}
               </Button>
 
-              <p className="text-sm text-muted-foreground">
-                {t("secure_payment")}
-              </p>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+                <ShieldCheck className="h-4 w-4 text-primary/70" />
+                <span>{t("secure_payment")}</span>
+              </div>
+
+              <Separator className="mb-6" />
+
+              {/* Who is this for */}
+              <div>
+                <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground mb-2">
+                  {t("who_is_this_for")}
+                </h3>
+                <p className="text-sm text-foreground/80">{productTarget}</p>
+              </div>
             </div>
           </div>
 
-          {/* Description */}
-          <div className="max-w-4xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold mb-6">{t("about_program")}</h2>
-            <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-              {productDescription}
-            </p>
-
-            <h3 className="text-2xl font-bold mb-4">{t("whats_included")}</h3>
-            <div className="grid md:grid-cols-2 gap-4 mb-8">
-              {productDeliverables.map((item, index) => (
-                <div key={index} className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
-                  <span>{item}</span>
+          {/* Specs Grid */}
+          <section className="max-w-4xl mx-auto mb-16">
+            <h2 className="text-2xl font-bold mb-6">{t("program_specs")}</h2>
+            <div className="grid sm:grid-cols-2 gap-4">
+              {specs.map((spec, i) => (
+                <div
+                  key={i}
+                  className="flex items-start gap-3 p-4 rounded-lg bg-muted/40"
+                >
+                  <spec.icon className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {spec.label}
+                    </p>
+                    <p className="text-sm text-foreground">{spec.value}</p>
+                  </div>
                 </div>
               ))}
             </div>
+          </section>
 
-            <Card className="bg-muted/30">
-              <CardContent className="pt-6">
-                <h3 className="font-bold text-lg mb-2">{t("who_is_this_for")}</h3>
-                <p className="text-muted-foreground">{productTargetAudience}</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* FAQ */}
-          <div className="max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold mb-6 text-center">{t("faq_title_detail")}</h2>
-            <Accordion type="single" collapsible>
-              <AccordionItem value="item-1">
-                <AccordionTrigger>{t("faq_detail_q1")}</AccordionTrigger>
-                <AccordionContent>
-                  {t("faq_detail_a1")}
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-2">
-                <AccordionTrigger>{t("faq_detail_q2")}</AccordionTrigger>
-                <AccordionContent>
-                  {t("faq_detail_a2")}
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-3">
-                <AccordionTrigger>{t("faq_detail_q3")}</AccordionTrigger>
-                <AccordionContent>
-                  {t("faq_detail_a3")}
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-4">
-                <AccordionTrigger>{t("faq_detail_q4")}</AccordionTrigger>
-                <AccordionContent>
-                  {t("faq_detail_a4")}
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
-
-          {/* Testimonials */}
-          <div className="max-w-5xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold mb-8 text-center">{t("what_clients_say")}</h2>
-            <div className="grid md:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => (
-                <Card key={i}>
-                  <CardContent className="pt-6">
-                    <div className="flex gap-1 mb-4">
-                      {[...Array(5)].map((_, index) => (
-                        <Star key={index} className="h-4 w-4 fill-secondary text-secondary" />
-                      ))}
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      "Απίστευτο πρόγραμμα! Είδα αποτελέσματα μέσα σε λίγες εβδομάδες. Η Stefania ξέρει τι κάνει!"
-                    </p>
-                    <p className="text-sm font-semibold">— Χρήστης {i}</p>
-                  </CardContent>
-                </Card>
+          {/* What's Included */}
+          <section className="max-w-4xl mx-auto mb-16">
+            <h2 className="text-2xl font-bold mb-4">{t("whats_included")}</h2>
+            <p className="text-muted-foreground mb-6 leading-relaxed">
+              {productDescription}
+            </p>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {productDeliverables.map((item, index) => (
+                <div key={index} className="flex items-start gap-2.5">
+                  <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <span className="text-sm">{item}</span>
+                </div>
               ))}
             </div>
-          </div>
+          </section>
 
-          {/* CTA */}
-          <Card className="max-w-4xl mx-auto bg-gradient-to-r from-primary/10 to-secondary/10 border-primary">
-            <CardContent className="pt-12 pb-12 text-center">
-              <h2 className="text-3xl font-bold mb-4">
-                {language === "el" ? "Έτοιμος/η να Ξεκινήσεις;" : "Ready to Get Started?"}
-              </h2>
-              <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-                {language === "el" 
-                  ? "Μην χάσεις την ευκαιρία να επενδύσεις στον εαυτό σου. Ξεκίνα το ταξίδι μεταμόρφωσης σήμερα!"
-                  : "Don't miss the opportunity to invest in yourself. Start your transformation journey today!"}
+          {/* FAQ */}
+          <section className="max-w-3xl mx-auto mb-16">
+            <h2 className="text-2xl font-bold mb-6 text-center">
+              {t("faq_title_detail")}
+            </h2>
+            <Accordion type="single" collapsible className="w-full">
+              {faqItems.map((faq, i) => (
+                <AccordionItem key={i} value={`faq-${i}`}>
+                  <AccordionTrigger>{faq.question}</AccordionTrigger>
+                  <AccordionContent>{faq.answer}</AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+            <p className="text-xs text-muted-foreground text-center mt-4">
+              {t("refund_note")}{" "}
+              <Link to="/terms" className="underline hover:text-foreground">
+                {t("refund_link")}
+              </Link>
+            </p>
+          </section>
+
+          {/* Bottom CTA */}
+          <Card className="max-w-4xl mx-auto bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/30">
+            <CardContent className="py-10 text-center">
+              <h2 className="text-2xl font-bold mb-2">{productName}</h2>
+              <p className="text-4xl font-bold text-primary mb-6">
+                {currencySymbol}{product.price}
               </p>
-              <Button 
-                size="lg" 
-                className="bg-primary hover:bg-primary-glow text-lg px-12"
+              <Button
+                size="lg"
+                className="bg-primary hover:bg-primary-glow text-lg px-12 font-semibold"
                 onClick={handleBuyNow}
                 disabled={isCheckingOut || authLoading}
               >
                 {isCheckingOut ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {language === "el" ? "Φόρτωση..." : "Loading..."}
+                    {isGreek ? "Φόρτωση..." : "Loading..."}
                   </>
                 ) : (
-                  <>{language === "el" ? "Αγόρασε Τώρα" : "Buy Now"} - {currencySymbol}{product.price}</>
+                  t("buy_program_cta")
                 )}
               </Button>
             </CardContent>
