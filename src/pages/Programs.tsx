@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { products } from "@/data/products";
 import { useLanguage } from "@/contexts/LanguageContext";
+import HowItWorksSection from "@/components/HowItWorksSection";
 
 const Programs = () => {
   const { t } = useLanguage();
@@ -36,6 +37,8 @@ const Programs = () => {
             </div>
           </div>
         </section>
+
+        <HowItWorksSection />
 
         {/* FAQ Section */}
         <section className="py-16 bg-muted/30">
