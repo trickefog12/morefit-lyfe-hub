@@ -283,6 +283,27 @@ export type Database = {
         }
         Relationships: []
       }
+      meal_plan_waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          goal: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          goal?: string | null
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          goal?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       pending_checkouts: {
         Row: {
           created_at: string
