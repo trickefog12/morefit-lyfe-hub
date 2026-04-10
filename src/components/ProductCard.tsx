@@ -58,7 +58,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground line-clamp-2">{productBenefit}</p>
-        <p className="text-xs text-muted-foreground mt-2">{product.duration}</p>
+        <p className="text-xs text-muted-foreground mt-2">{language === "el" ? product.duration : product.durationEn}</p>
       </CardContent>
       <CardFooter>
         <Link to={`/programs/${product.sku}`} className="w-full">

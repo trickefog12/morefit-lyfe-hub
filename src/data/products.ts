@@ -107,7 +107,7 @@ export const products: Product[] = [
   },
   {
     sku: "MFL-COACH",
-    name: "1:1 Online Coaching Session",
+    name: "1:1 Online Coaching — Προσωπική Συνεδρία",
     nameEn: "1:1 Online Coaching Session",
     price: 45,
     shortBenefit: "Προσωπική καθοδήγηση από έμπειρη coach",
@@ -115,12 +115,12 @@ export const products: Product[] = [
     description: "Μια ωριαία συνεδρία 1:1 coaching μαζί μου! Θα αναλύσουμε τους στόχους σου, θα δημιουργήσουμε στρατηγική, και θα απαντήσω σε όλες τις ερωτήσεις σου. Ιδανικό για εξατομικευμένη καθοδήγηση.",
     descriptionEn: "A one-hour 1:1 coaching session with me! We'll analyze your goals, create a strategy, and I'll answer all your questions. Perfect for personalized guidance.",
     deliverables: [
-      "60 λεπτά live video call",
+      "60 λεπτά live video κλήση",
       "Ανάλυση στόχων και προκλήσεων",
       "Εξατομικευμένες συμβουλές",
-      "Form check (αν χρειάζεται)",
-      "Action plan",
-      "Follow-up email με notes",
+      "Έλεγχος τεχνικής (αν χρειάζεται)",
+      "Πλάνο δράσης",
+      "Follow-up email με σημειώσεις",
     ],
     deliverablesEn: [
       "60-minute live video call",
@@ -182,10 +182,10 @@ export const products: Product[] = [
     deliverables: [
       "12 εβδομάδες εξειδικευμένης προπόνησης",
       "Συνδυασμός δύναμης και υπερτροφίας",
-      "Λεπτομερή workout plans",
+      "Λεπτομερή πλάνα προπόνησης",
       "Καθοδήγηση progressive overload",
       "Γενικές συμβουλές διατροφής",
-      "PDF με video links",
+      "PDF με συνδέσμους βίντεο",
     ],
     deliverablesEn: [
       "12 weeks of specialized training",
@@ -248,8 +248,8 @@ export const products: Product[] = [
       "20+ ασκήσεις με βάρος σώματος",
       "Προπονήσεις 20–45 λεπτών",
       "3 επίπεδα δυσκολίας",
-      "Video demonstrations",
-      "Οδηγίες progression",
+      "Επίδειξη ασκήσεων σε βίντεο",
+      "Οδηγίες εξέλιξης",
       "Άμεση λήψη PDF",
     ],
     deliverablesEn: [
@@ -312,8 +312,8 @@ export const products: Product[] = [
     deliverables: [
       "8 εβδομάδες προγράμματος kettlebell",
       "Τεχνική για 15+ ασκήσεις",
-      "Workouts για όλο το σώμα",
-      "Video tutorials",
+      "Προπονήσεις για όλο το σώμα",
+      "Βίντεο επίδειξης",
       "Οδηγίες ασφάλειας",
       "PDF με εικόνες και οδηγίες",
     ],
@@ -375,11 +375,11 @@ export const products: Product[] = [
     description: "Ειδικά σχεδιασμένο για όσους περνούν πολλές ώρες καθιστοί. Βελτίωσε την κινητικότητα, μείωσε τους πόνους στην πλάτη και τον αυχένα, και αισθάνσου πιο ενεργός/ή κάθε μέρα.",
     descriptionEn: "Specially designed for those who spend many hours sitting. Improve mobility, reduce back and neck pain, and feel more energized every day.",
     deliverables: [
-      "6 εβδομάδες mobility routines",
+      "6 εβδομάδες ρουτίνες κινητικότητας",
       "Ασκήσεις για γραφείο (5–10 λεπτά)",
-      "Stretching routines",
+      "Ρουτίνες διατάσεων",
       "Διορθωτικές ασκήσεις",
-      "Video demonstrations",
+      "Βίντεο επίδειξης",
       "Συμβουλές για καλύτερη στάση",
     ],
     deliverablesEn: [
