@@ -44,13 +44,18 @@ const translations = {
     
     // How It Works
     how_it_works: "Πώς Λειτουργεί",
-    how_it_works_subtitle: "Τρία απλά βήματα για να ξεκινήσεις το ταξίδι σου",
-    step1_title: "1. Αξιολόγηση",
-    step1_description: "Επίλεξε το πρόγραμμα που ταιριάζει στους στόχους και το επίπεδό σου.",
-    step2_title: "2. Προπόνηση",
-    step2_description: "Ακολούθησε το δομημένο πρόγραμμα με σαφείς οδηγίες και υποστήριξη.",
-    step3_title: "3. Μεταμόρφωση",
-    step3_description: "Δες πραγματικά αποτελέσματα και γίνε η καλύτερη έκδοση του εαυτού σου.",
+    how_it_works_subtitle: "Από την επιλογή μέχρι την πρώτη προπόνηση — σε 4 απλά βήματα.",
+    step1_title: "Διαλέγεις πρόγραμμα",
+    step1_description: "Περιηγήσου στα προγράμματα και βρες αυτό που ταιριάζει στο επίπεδο και τους στόχους σου.",
+    step2_title: "Ολοκληρώνεις πληρωμή",
+    step2_description: "Ασφαλής πληρωμή με κάρτα μέσω Stripe. Δεν αποθηκεύουμε στοιχεία κάρτας.",
+    step3_title: "Παίρνεις άμεσα πρόσβαση",
+    step3_description: "Μετά την πληρωμή, λαμβάνεις email επιβεβαίωσης και κατεβάζεις το PDF αμέσως.",
+    step4_title: "Ξεκινάς προπόνηση + υποστήριξη",
+    step4_description: "Ακολούθησε το πρόγραμμα βήμα-βήμα. Αν χρειαστείς βοήθεια, στείλε email ή κλείσε 1:1 session.",
+    how_it_works_time: "Χρόνος ανά εβδομάδα: 3–5 προπονήσεις × 45–75 λεπτά, ανάλογα με το πρόγραμμα.",
+    how_it_works_contact: "Έχεις ερωτήσεις;",
+    how_it_works_contact_link: "Στείλε μας μήνυμα",
     
     // Social Proof
     social_proof_title: "Αποτελέσματα από Πραγματικούς Ανθρώπους",
@@ -661,13 +666,18 @@ const translations = {
     
     // How It Works
     how_it_works: "How It Works",
-    how_it_works_subtitle: "Three simple steps to start your journey",
-    step1_title: "1. Assessment",
-    step1_description: "Choose the program that matches your goals and fitness level.",
-    step2_title: "2. Train",
-    step2_description: "Follow the structured program with clear instructions and support.",
-    step3_title: "3. Transform",
-    step3_description: "See real results and become the best version of yourself.",
+    how_it_works_subtitle: "From choosing a program to your first workout — in 4 simple steps.",
+    step1_title: "Choose a program",
+    step1_description: "Browse our programs and find the one that matches your level and goals.",
+    step2_title: "Complete payment",
+    step2_description: "Secure card payment via Stripe. We never store your card details.",
+    step3_title: "Get instant access",
+    step3_description: "After payment, you'll receive a confirmation email and can download the PDF immediately.",
+    step4_title: "Start training + support",
+    step4_description: "Follow the program step by step. If you need help, email us or book a 1:1 session.",
+    how_it_works_time: "Weekly time commitment: 3–5 workouts × 45–75 min, depending on the program.",
+    how_it_works_contact: "Have questions?",
+    how_it_works_contact_link: "Send us a message",
     
     // Social Proof
     social_proof_title: "Real Results from Real People",
