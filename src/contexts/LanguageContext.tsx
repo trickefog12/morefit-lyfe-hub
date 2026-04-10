@@ -632,6 +632,35 @@ const translations = {
     password_compromised_desc: "Αυτός ο κωδικός έχει εμφανιστεί σε διαρροές δεδομένων. Επιλέξτε έναν διαφορετικό.",
     password_checking_breach: "Έλεγχος ασφαλείας κωδικού...",
     password_times_seen: "φορές εντοπισμένος",
+    
+    // Contact Page
+    contact_title: "Επικοινωνία",
+    contact_subtitle: "Έχεις απορίες ή χρειάζεσαι βοήθεια; Είμαστε εδώ για εσένα.",
+    contact_form_title: "Στείλε μας μήνυμα",
+    contact_name: "Όνομα",
+    contact_name_placeholder: "Το όνομά σου",
+    contact_email_placeholder: "Το email σου",
+    contact_message: "Μήνυμα",
+    contact_message_placeholder: "Γράψε το μήνυμά σου εδώ...",
+    contact_send: "Αποστολή",
+    contact_sending: "Αποστολή...",
+    contact_success_title: "Ευχαριστούμε!",
+    contact_success_desc: "Το μήνυμά σου στάλθηκε. Θα απαντήσουμε εντός 24–48 ωρών.",
+    contact_info_title: "Στοιχεία Επικοινωνίας",
+    contact_response_time_label: "Χρόνος Απάντησης",
+    contact_response_time: "Εντός 24–48 ωρών, Δευτέρα–Παρασκευή",
+    contact_useful_links: "Χρήσιμοι Σύνδεσμοι",
+    contact_link_faq: "Συχνές Ερωτήσεις",
+    contact_link_terms: "Όροι Χρήσης & Επιστροφές",
+    contact_link_privacy: "Πολιτική Απορρήτου",
+    
+    // Need Help Block
+    need_help_title: "Χρειάζεσαι βοήθεια;",
+    need_help_desc: "Αν έχεις ερωτήσεις για κάποιο πρόγραμμα ή χρειάζεσαι υποστήριξη, μη διστάσεις να επικοινωνήσεις μαζί μας.",
+    need_help_cta: "Επικοινώνησε μαζί μας",
+    
+    // Footer extra
+    faq: "Συχνές Ερωτήσεις",
   },
   en: {
     // Navigation
@@ -1254,6 +1283,35 @@ const translations = {
     password_compromised_desc: "This password has appeared in data breaches. Please choose a different one.",
     password_checking_breach: "Checking password security...",
     password_times_seen: "times seen",
+    
+    // Contact Page
+    contact_title: "Contact",
+    contact_subtitle: "Have questions or need help? We're here for you.",
+    contact_form_title: "Send us a message",
+    contact_name: "Name",
+    contact_name_placeholder: "Your name",
+    contact_email_placeholder: "Your email",
+    contact_message: "Message",
+    contact_message_placeholder: "Write your message here...",
+    contact_send: "Send",
+    contact_sending: "Sending...",
+    contact_success_title: "Thank you!",
+    contact_success_desc: "Your message was sent. We'll reply within 24–48 hours.",
+    contact_info_title: "Contact Information",
+    contact_response_time_label: "Response Time",
+    contact_response_time: "Within 24–48 hours, Monday–Friday",
+    contact_useful_links: "Useful Links",
+    contact_link_faq: "Frequently Asked Questions",
+    contact_link_terms: "Terms of Service & Refunds",
+    contact_link_privacy: "Privacy Policy",
+    
+    // Need Help Block
+    need_help_title: "Need help?",
+    need_help_desc: "If you have questions about a program or need support, don't hesitate to contact us.",
+    need_help_cta: "Contact us",
+    
+    // Footer extra
+    faq: "FAQ",
   },
 };
 
