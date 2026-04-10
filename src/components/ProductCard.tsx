@@ -31,7 +31,7 @@ interface ProductCardProps {
 export const ProductCard = ({ product }: ProductCardProps) => {
   const Icon = formatIcons[product.format];
   const { language } = useLanguage();
-  const currencySymbol = language === "el" ? "€" : "$";
+  const currencySymbol = "€";
   const productName = language === "el" ? product.name : product.nameEn;
   const productBenefit = language === "el" ? product.shortBenefit : product.shortBenefitEn;
 

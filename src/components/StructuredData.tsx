@@ -15,7 +15,7 @@ export const ProductStructuredData = ({ product }: ProductStructuredDataProps) =
     "offers": {
       "@type": "Offer",
       "url": `https://morefitlyfe.com/programs/${product.sku}`,
-      "priceCurrency": "USD",
+      "priceCurrency": "EUR",
       "price": product.price,
       "availability": "https://schema.org/InStock",
       "seller": {

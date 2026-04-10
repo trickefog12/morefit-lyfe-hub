@@ -2,224 +2,233 @@ import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CheckCircle, Mail, Sparkles } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import mealGuide from "@/assets/meal-guide.jpg";
 
 const MealPlans = () => {
-  const { t } = useLanguage();
-  const [weight, setWeight] = useState<string>("");
-  const [activity, setActivity] = useState<string>("");
+  const { language, t } = useLanguage();
+  const [email, setEmail] = useState("");
+  const [goal, setGoal] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
-  const getRecommendedPrice = () => {
-    if (!weight || !activity) return null;
-    
-    // Simple pricing logic based on weight and activity
-    const basePrice = weight === "light" ? 49 : weight === "medium" ? 59 : 69;
-    const activityMultiplier = activity === "high" ? 1.2 : activity === "moderate" ? 1.1 : 1;
-    return Math.round(basePrice * activityMultiplier);
+  const isGreek = language === "el";
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const trimmed = email.trim().toLowerCase();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      toast.error(isGreek ? "Παρακαλώ εισάγετε ένα έγκυρο email." : "Please enter a valid email.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from("meal_plan_waitlist" as any)
+        .insert({ email: trimmed, goal: goal || null } as any);
+
+      if (error) {
+        if (error.code === "23505") {
+          // Duplicate — still treat as success
+          setSubmitted(true);
+          return;
+        }
+        throw error;
+      }
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Waitlist error:", err);
+      toast.error(isGreek ? "Κάτι πήγε στραβά. Δοκίμασε ξανά." : "Something went wrong. Try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const recommendedPrice = getRecommendedPrice();
+  const bullets = isGreek
+    ? [
+        "Εξατομικευμένο πρόγραμμα διατροφής βασισμένο στους στόχους σου",
+        "Εβδομαδιαίες λίστες αγορών και εύκολες συνταγές",
+        "Καθοδήγηση μακροθρεπτικών συστατικών ανά γεύμα",
+        "Εναλλακτικές επιλογές για αλλεργίες και προτιμήσεις",
+      ]
+    : [
+        "Personalized nutrition plan based on your goals",
+        "Weekly grocery lists and easy recipes",
+        "Macronutrient guidance per meal",
+        "Alternative options for allergies and preferences",
+      ];
+
+  const goalOptions = isGreek
+    ? [
+        { value: "fat_loss", label: "Απώλεια λίπους" },
+        { value: "muscle_gain", label: "Μυϊκή ανάπτυξη" },
+        { value: "maintenance", label: "Διατήρηση βάρους" },
+        { value: "performance", label: "Αθλητική απόδοση" },
+      ]
+    : [
+        { value: "fat_loss", label: "Fat loss" },
+        { value: "muscle_gain", label: "Muscle gain" },
+        { value: "maintenance", label: "Weight maintenance" },
+        { value: "performance", label: "Athletic performance" },
+      ];
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1">
         {/* Hero */}
         <section className="relative py-20 overflow-hidden">
           <div className="absolute inset-0 z-0">
             <img
               src={mealGuide}
-              alt="Υγιεινές επιλογές γευμάτων"
+              alt={isGreek ? "Υγιεινά γεύματα" : "Healthy meals"}
               className="h-full w-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-foreground/90 to-foreground/70" />
           </div>
           <div className="container relative z-10 mx-auto px-4 lg:px-8">
             <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 bg-primary/20 text-primary-foreground rounded-full px-4 py-1.5 text-sm font-medium mb-4">
+                <Sparkles className="h-4 w-4" />
+                {isGreek ? "Σύντομα Διαθέσιμο" : "Coming Soon"}
+              </div>
               <h1 className="text-4xl md:text-5xl font-bold text-primary-foreground mb-4">
-                {t("meal_plans_title")}
+                {isGreek ? "Εξατομικευμένα Διαιτολόγια" : "Personalized Meal Plans"}
               </h1>
               <p className="text-lg text-primary-foreground/90">
-                {t("meal_plans_subtitle")}
+                {isGreek
+                  ? "Ετοιμάζουμε κάτι ειδικό για εσένα. Γράψου στη λίστα και θα ειδοποιηθείς πρώτος/η."
+                  : "We're preparing something special for you. Join the waitlist and be the first to know."}
               </p>
             </div>
           </div>
         </section>
 
-        {/* Coming Soon Banner */}
+        {/* Waitlist Form */}
         <section className="py-16">
           <div className="container mx-auto px-4 lg:px-8">
-            <div className="max-w-4xl mx-auto">
-              <Card className="bg-muted/50 border-2 border-primary/20">
-                <CardContent className="pt-12 pb-12 text-center">
-                  <div className="inline-block px-6 py-2 bg-primary/10 rounded-full mb-6">
-                    <span className="text-2xl font-bold text-primary">{t("coming_soon")}</span>
-                  </div>
-                  <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                    {t("coming_soon_description")}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        {/* Meal Plan Selector - Hidden until available */}
-        <section className="py-16 hidden">
-          <div className="container mx-auto px-4 lg:px-8">
-            <div className="max-w-4xl mx-auto">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-2xl">{t("find_ideal_plan")}</CardTitle>
-                  <p className="text-muted-foreground">
-                    {t("find_ideal_plan_description")}
-                  </p>
-                </CardHeader>
-                <CardContent className="space-y-8">
-                  {/* Weight Selection */}
-                  <div className="space-y-4">
-                    <Label className="text-base font-semibold">{t("body_weight")}</Label>
-                    <RadioGroup value={weight} onValueChange={setWeight}>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="light" id="light" />
-                        <Label htmlFor="light" className="cursor-pointer">
-                          {t("under_60kg")}
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="medium" id="medium" />
-                        <Label htmlFor="medium" className="cursor-pointer">
-                          {t("weight_60_80kg")}
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="heavy" id="heavy" />
-                        <Label htmlFor="heavy" className="cursor-pointer">
-                          {t("over_80kg")}
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-
-                  {/* Activity Selection */}
-                  <div className="space-y-4">
-                    <Label htmlFor="activity" className="text-base font-semibold">
-                      {t("activity_level")}
-                    </Label>
-                    <Select value={activity} onValueChange={setActivity}>
-                      <SelectTrigger id="activity">
-                        <SelectValue placeholder={t("select_activity")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="sedentary">{t("sedentary")}</SelectItem>
-                        <SelectItem value="moderate">{t("moderate")}</SelectItem>
-                        <SelectItem value="high">{t("high")}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Recommended Plan */}
-                  {recommendedPrice && (
-                    <div className="mt-8 p-6 bg-primary/10 rounded-lg border-2 border-primary">
-                      <div className="flex items-start gap-3 mb-4">
-                        <CheckCircle className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                        <div>
-                          <h3 className="font-bold text-xl mb-2">{t("recommended_plan")}</h3>
-                          <p className="text-muted-foreground mb-4">
-                            {t("recommended_plan_description")}
-                          </p>
-                          <ul className="space-y-2 mb-4">
-                            <li className="flex items-center gap-2">
-                              <CheckCircle className="h-4 w-4 text-primary" />
-                              <span>{t("daily_calories")}</span>
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <CheckCircle className="h-4 w-4 text-primary" />
-                              <span>{t("recipes_tips")}</span>
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <CheckCircle className="h-4 w-4 text-primary" />
-                              <span>{t("grocery_lists")}</span>
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <CheckCircle className="h-4 w-4 text-primary" />
-                              <span>{t("meal_alternatives")}</span>
-                            </li>
-                          </ul>
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-sm text-muted-foreground">{t("recommended_price")}</p>
-                              <p className="text-3xl font-bold text-primary">${recommendedPrice}</p>
-                            </div>
-                            <Button size="lg" className="bg-primary hover:bg-primary-glow">
-                              {t("buy_now_btn")}
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
+            <div className="max-w-lg mx-auto">
+              {submitted ? (
+                <Card className="border-primary/30">
+                  <CardContent className="py-12 text-center space-y-4">
+                    <div className="mx-auto w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center">
+                      <CheckCircle className="h-7 w-7 text-primary" />
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                    <h2 className="text-2xl font-bold">
+                      {isGreek ? "Είσαι στη λίστα!" : "You're on the list!"}
+                    </h2>
+                    <p className="text-muted-foreground">
+                      {isGreek
+                        ? "Θα ειδοποιηθείς πρώτος/η όταν ανοίξουν τα εξατομικευμένα διαιτολόγια."
+                        : "You'll be the first to know when personalized meal plans launch."}
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card>
+                  <CardContent className="pt-8 pb-8 space-y-6">
+                    <div className="text-center space-y-2">
+                      <Mail className="h-8 w-8 text-primary mx-auto" />
+                      <h2 className="text-xl font-bold">
+                        {isGreek ? "Γράψου στη Λίστα Αναμονής" : "Join the Waitlist"}
+                      </h2>
+                      <p className="text-sm text-muted-foreground">
+                        {isGreek
+                          ? "Θα ειδοποιηθείς πρώτος/η όταν ανοίξουν τα εξατομικευμένα διαιτολόγια."
+                          : "You'll be the first to know when personalized meal plans launch."}
+                      </p>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="waitlist-email">Email *</Label>
+                        <Input
+                          id="waitlist-email"
+                          type="email"
+                          required
+                          maxLength={255}
+                          placeholder={isGreek ? "to-email-sou@example.com" : "your-email@example.com"}
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="waitlist-goal">
+                          {isGreek ? "Στόχος (προαιρετικό)" : "Goal (optional)"}
+                        </Label>
+                        <Select value={goal} onValueChange={setGoal}>
+                          <SelectTrigger id="waitlist-goal">
+                            <SelectValue
+                              placeholder={isGreek ? "Επέλεξε στόχο" : "Select a goal"}
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {goalOptions.map((opt) => (
+                              <SelectItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button
+                        type="submit"
+                        className="w-full bg-primary hover:bg-primary-glow font-semibold"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting
+                          ? isGreek
+                            ? "Αποστολή..."
+                            : "Submitting..."
+                          : isGreek
+                          ? "Θέλω να ειδοποιηθώ"
+                          : "Notify Me"}
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         </section>
 
-        {/* Transformation Program CTA */}
+        {/* What Will Be Included */}
         <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-4 lg:px-8">
-            <Card className="max-w-4xl mx-auto border-secondary">
-              <CardContent className="pt-8">
-                <div className="flex flex-col md:flex-row gap-8 items-center">
-                  <div className="flex-1">
-                    <h2 className="text-2xl font-bold mb-4">
-                      {t("looking_for_package")}
-                    </h2>
-                    <p className="text-muted-foreground mb-4">
-                      {t("transformation_description")}
-                    </p>
-                    <ul className="space-y-2 mb-6">
-                      <li className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-primary" />
-                        <span>{t("weeks_training")}</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-primary" />
-                        <span>{t("custom_meal_plan")}</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-primary" />
-                        <span>{t("monthly_checkins")}</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-primary" />
-                        <span>{t("email_support")}</span>
-                      </li>
-                    </ul>
-                    <div className="flex items-center gap-4">
-                      <span className="text-3xl font-bold text-primary">$199</span>
-                      <Button size="lg" className="bg-secondary hover:bg-secondary/90">
-                        {t("learn_more")}
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="w-full md:w-64 h-64 rounded-lg overflow-hidden">
-                    <img
-                      src={mealGuide}
-                      alt="Transformation program meal guide"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
+            <div className="max-w-2xl mx-auto text-center mb-10">
+              <h2 className="text-2xl font-bold mb-2">
+                {isGreek ? "Τι θα περιλαμβάνει" : "What Will Be Included"}
+              </h2>
+              <p className="text-muted-foreground text-sm">
+                {isGreek
+                  ? "Η τελική μορφή μπορεί να αλλάξει — αυτά είναι τα σχέδιά μας."
+                  : "The final format may change — here's what we're planning."}
+              </p>
+            </div>
+            <div className="max-w-lg mx-auto space-y-3">
+              {bullets.map((text, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <span className="text-sm">{text}</span>
                 </div>
-              </CardContent>
-            </Card>
+              ))}
+            </div>
           </div>
         </section>
       </main>
