@@ -6,6 +6,7 @@ import FeaturedProductsSection from "@/components/FeaturedProductsSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import ReviewsSection from "@/components/ReviewsSection";
 import CallToActionSection from "@/components/CallToActionSection";
+import NeedHelpBlock from "@/components/NeedHelpBlock";
 
 const Index = () => {
 
@@ -23,6 +24,8 @@ const Index = () => {
       <ReviewsSection />
 
       <CallToActionSection />
+
+      <NeedHelpBlock />
 
       <Footer />
     </div>

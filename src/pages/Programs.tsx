@@ -4,6 +4,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { products } from "@/data/products";
 import { useLanguage } from "@/contexts/LanguageContext";
 import HowItWorksSection from "@/components/HowItWorksSection";
+import NeedHelpBlock from "@/components/NeedHelpBlock";
 
 const Programs = () => {
   const { t } = useLanguage();
@@ -78,6 +79,8 @@ const Programs = () => {
             </div>
           </div>
         </section>
+
+        <NeedHelpBlock />
       </main>
 
       <Footer />
