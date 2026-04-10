@@ -8,7 +8,7 @@ export const Footer = () => {
   return (
     <footer className="border-t border-border/40 bg-muted/30 mt-20">
       <div className="container mx-auto px-4 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div>
             <h3 className="font-bold text-lg mb-4">MoreFitLyfe</h3>
@@ -33,8 +33,27 @@ export const Footer = () => {
               <Link to="/meal-plans" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 {t("nutrition")}
               </Link>
-              <Link to="/signup" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                {t("signup")}
+              <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                {t("contact")}
+              </Link>
+            </nav>
+          </div>
+
+          {/* Support */}
+          <div>
+            <h3 className="font-bold text-lg mb-4">{t("need_help_title")}</h3>
+            <nav className="flex flex-col gap-2">
+              <Link to="/programs#faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                {t("faq")}
+              </Link>
+              <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                {t("terms_of_service")}
+              </Link>
+              <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                {t("privacy_policy")}
+              </Link>
+              <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                {t("contact")}
               </Link>
             </nav>
           </div>
@@ -53,12 +72,8 @@ export const Footer = () => {
                 href="https://www.instagram.com/mariastefaniameraklis?igsh=eG93bjdjcDNoZGQ1"
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.open('https://www.instagram.com/mariastefaniameraklis?igsh=eG93bjdjcDNoZGQ1', '_blank', 'noopener,noreferrer');
-                }}
-                className="text-muted-foreground hover:text-primary transition-colors cursor-pointer"
-                aria-label="Visit our Instagram page"
+                className="text-muted-foreground hover:text-primary transition-colors"
+                aria-label="Instagram"
               >
                 <Instagram className="h-5 w-5" />
               </a>
@@ -66,12 +81,8 @@ export const Footer = () => {
                 href="https://www.tiktok.com/@maria.meraklis"
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.open('https://www.tiktok.com/@maria.meraklis', '_blank', 'noopener,noreferrer');
-                }}
-                className="text-muted-foreground hover:text-primary transition-colors cursor-pointer"
-                aria-label="Visit our TikTok page"
+                className="text-muted-foreground hover:text-primary transition-colors"
+                aria-label="TikTok"
               >
                 <Music className="h-5 w-5" />
               </a>
