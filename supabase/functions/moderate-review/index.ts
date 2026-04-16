@@ -201,11 +201,18 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { comment } = body as { comment: unknown };
+    const { comment, rating } = body as { comment: unknown; rating: unknown };
     
     if (!comment || typeof comment !== 'string') {
       return new Response(
         JSON.stringify({ approved: false, reason: 'invalid_input' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (typeof rating !== 'number' || !Number.isInteger(rating) || rating < 1 || rating > 5) {
+      return new Response(
+        JSON.stringify({ approved: false, reason: 'invalid_rating' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -226,6 +233,27 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ approved: false, reason: result.reason }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Content passed moderation — insert as approved using service role
+    const adminClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    const { error: insertError } = await adminClient.from('reviews').insert({
+      user_id: user.id,
+      rating,
+      comment: sanitizedComment,
+      approved: true,
+    });
+
+    if (insertError) {
+      console.error('Review insert failed');
+      return new Response(
+        JSON.stringify({ approved: false, reason: 'server_error' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
