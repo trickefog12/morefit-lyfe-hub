@@ -1,73 +1,45 @@
-# MoreFitLyfe — Fitness Programs & Membership Platform
+# MoreFitLyfe Hub
 
-## Project info
+A fitness & training web app for beginners, focused on helping users follow simple plans and stay consistent.
 
-**URL**: https://morefitlyfe.com
+> Built with the Lovable platform and then refined in code. Frontend: Vite + React + TypeScript. Backend: Supabase (Auth + Postgres).
 
-## How can I edit this code?
+## Why this exists (problem → solution)
+Many beginners quit because they don’t know what to do next. MoreFitLyfe provides a simple, guided experience:
+- browse beginner-friendly training content/plans
+- (optional) sign in to personalize the experience
+- (optional) collect feedback/reviews
 
-There are several ways of editing your application.
+## Tech stack
+- **Frontend:** Vite, React, TypeScript
+- **UI:** Tailwind CSS, shadcn/ui
+- **Backend:** Supabase (Auth, Postgres)
+- **Tooling:** ESLint / Prettier (TODO: keep only if configured)
 
-**Use Lovable**
+## What I built / contributed (be honest)
+- Prompted and iterated the initial app structure using **Lovable**
+- Implemented/refined UI components and page flows in React + TypeScript
+- Integrated Supabase client and environment-based configuration
+- Repository hygiene improvements: removed committed `.env`, added `.env.example`, updated `.gitignore` (if you did it—otherwise don’t claim it)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/64298811-1ba7-49c4-8d3f-955402e50443) and start prompting.
+## Features (delete anything that’s not implemented)
+- [ ] Supabase Auth: sign up / sign in / sign out
+- [ ] User profiles (Supabase table: `profiles`)
+- [ ] Role-based access (table: `user_roles`)
+- [ ] Products / plans listing (table: `products`)
+- [ ] Reviews / testimonials (table: `reviews` or `reviews_public`)
+- [ ] Analytics events/page views (tables: `analytics_events`, `analytics_page_views`)
+- [ ] Payments (Stripe) (tables: `pending_checkouts`, `purchases`)
 
-Changes made via Lovable will be committed automatically to this repo.
+> IMPORTANT: Only check features you can demonstrate running locally or in production.
 
-**Use your preferred IDE**
+## Getting started (local)
+### Prerequisites
+- Node.js (LTS recommended)
+- A Supabase project (or access to the existing one)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/64298811-1ba7-49c4-8d3f-955402e50443) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### Setup
+1) Clone:
+```bash
+git clone https://github.com/trickefog12/morefit-lyfe-hub.git
+cd morefit-lyfe-hub
