@@ -42,9 +42,9 @@ export function ReviewForm() {
 
     setIsSubmitting(true);
     try {
-      // Check content moderation before saving
+      // Server-side moderation also performs the insert atomically
       const moderationResponse = await supabase.functions.invoke('moderate-review', {
-        body: { comment: data.comment }
+        body: { comment: data.comment, rating: data.rating }
       });
 
       if (moderationResponse.error) {
@@ -74,15 +74,6 @@ export function ReviewForm() {
         }
         return;
       }
-
-      // Content is clean - save the review (will be auto-approved)
-      const { error } = await supabase.from("reviews").insert({
-        user_id: user.id,
-        rating: data.rating,
-        comment: data.comment,
-      });
-
-      if (error) throw error;
 
       toast.success(t("toast_review_submitted"));
       form.reset();
