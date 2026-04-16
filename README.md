@@ -1,8 +1,8 @@
-# Welcome to your Lovable project
+# MoreFitLyfe — Fitness Programs & Membership Platform
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/64298811-1ba7-49c4-8d3f-955402e50443
+**URL**: https://morefitlyfe.com
 
 ## How can I edit this code?
 
