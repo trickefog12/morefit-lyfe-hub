@@ -661,6 +661,10 @@ const translations = {
     
     // Footer extra
     faq: "Συχνές Ερωτήσεις",
+    cookie_text: "Χρησιμοποιούμε cookies για τη βελτίωση της εμπειρίας σας. Διαβάστε περισσότερα στην",
+    cookie_privacy_link: "Πολιτική Απορρήτου",
+    cookie_accept: "Αποδοχή",
+    cookie_decline: "Απόρριψη",
   },
   en: {
     // Navigation
@@ -1312,6 +1316,10 @@ const translations = {
     
     // Footer extra
     faq: "FAQ",
+    cookie_text: "We use cookies to improve your experience. Learn more in our",
+    cookie_privacy_link: "Privacy Policy",
+    cookie_accept: "Accept",
+    cookie_decline: "Decline",
   },
 };
 

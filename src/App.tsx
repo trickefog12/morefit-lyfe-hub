@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SplashScreenManager } from "@/components/SplashScreen";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
+import { CookieConsent } from "@/components/CookieConsent";
 import { AdminRoute } from "@/components/AdminRoute";
 import { useDeepLinking } from "@/hooks/useDeepLinking";
 import { useStatusBar } from "@/hooks/useStatusBar";
@@ -52,6 +53,7 @@ const AppContent = () => {
   return (
     <>
       <OfflineIndicator />
+      <CookieConsent />
       <Toaster />
       <Sonner />
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
