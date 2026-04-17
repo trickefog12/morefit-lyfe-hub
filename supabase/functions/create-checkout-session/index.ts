@@ -164,7 +164,10 @@ serve(async (req) => {
       }
     );
   } catch (error: any) {
-    console.error("Error in create-checkout-session");
+    console.error("Error in create-checkout-session:", error?.message ?? error);
+    if (error?.type) console.error("Stripe error type:", error.type);
+    if (error?.code) console.error("Stripe error code:", error.code);
+    if (error?.raw?.message) console.error("Stripe raw message:", error.raw.message);
     
     // Never expose internal errors to clients
     return new Response(
