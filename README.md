@@ -43,3 +43,17 @@ Many beginners quit because they don’t know what to do next. MoreFitLyfe provi
 ```bash
 git clone https://github.com/trickefog12/morefit-lyfe-hub.git
 cd morefit-lyfe-hub
+
+## Features
+- **Authentication:** Full Supabase Auth integration (Sign-up, Login, JWT session persistence).
+- **Database:** PostgreSQL (via Supabase) managing user profiles, products, and roles.
+- **Payments:** Integrated **Stripe Checkout** for secure transactions.
+- **Order Management:** Automated flow to track purchases and pending checkouts in the DB.
+- **Analytics:** Custom event tracking and page view logging within Supabase tables.
+- **Responsive UI:** Built with Tailwind CSS and shadcn/ui for a premium mobile-first experience.
+
+## Technical Contribution & Implementation
+- **Full-stack Integration:** Managed the data flow between React (frontend), Supabase (database), and Stripe (payments).
+- **TypeScript & Schema:** Utilized generated TypeScript types for deep integration with the Supabase PostgreSQL schema.
+- **Environment Management:** Secured sensitive configuration using Vite environment variables.
+- **Prompt Engineering & Iteration:** Leveraged AI (Lovable) to architect the initial MVP, followed by manual code refinements in TypeScript to fix bugs and polish the Stripe integration.
