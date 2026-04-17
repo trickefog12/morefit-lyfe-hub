@@ -47,8 +47,9 @@ cd morefit-lyfe-hub
 ## Features
 - **Authentication:** Full Supabase Auth integration (Sign-up, Login, JWT session persistence).
 - **Database:** PostgreSQL (via Supabase) managing user profiles, products, and roles.
-- **Payments:** Integrated **Stripe Checkout** for secure transactions.
-- **Order Management:** Automated flow to track purchases and pending checkouts in the DB.
+- **Payments:** Stripe integration via Lovable managed backend (hosted checkout flow)- **Order Management:** Automated flow to track purchases and pending checkouts in the DB.
+- Worked with a managed backend (Lovable Cloud) built on Supabase for authentication, database, and integrations
+- Configured application features (auth, database, payments) through platform-level integrations rather than custom backend code
 - **Analytics:** Custom event tracking and page view logging within Supabase tables.
 - **Responsive UI:** Built with Tailwind CSS and shadcn/ui for a premium mobile-first experience.
 
