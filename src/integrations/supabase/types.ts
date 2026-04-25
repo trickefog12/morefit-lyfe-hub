@@ -53,7 +53,7 @@ export type Database = {
           referrer: string | null
           session_id: string | null
           user_agent: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           created_at?: string | null
@@ -66,7 +66,7 @@ export type Database = {
           referrer?: string | null
           session_id?: string | null
           user_agent?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           created_at?: string | null
@@ -79,7 +79,7 @@ export type Database = {
           referrer?: string | null
           session_id?: string | null
           user_agent?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -92,7 +92,7 @@ export type Database = {
           page_title: string | null
           referrer: string | null
           session_id: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           created_at?: string | null
@@ -102,7 +102,7 @@ export type Database = {
           page_title?: string | null
           referrer?: string | null
           session_id?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           created_at?: string | null
@@ -112,7 +112,7 @@ export type Database = {
           page_title?: string | null
           referrer?: string | null
           session_id?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
