@@ -2,6 +2,8 @@
 
 A modern, AI-assisted fitness platform designed for beginners to track workflows and achieve health goals. Built with a focus on performance, clean UI, and scalable cloud architecture.
 
+🌐 **Live Demo:** [https://morefitlyfe.com/](https://morefitlyfe.com/)
+
 ## 🚀 Technical Stack
 
 *   **Frontend:** React 18 with TypeScript
@@ -9,7 +11,6 @@ A modern, AI-assisted fitness platform designed for beginners to track workflows
 *   **Styling:** Tailwind CSS & shadcn/ui (Modern, accessible component library)
 *   **Backend/Database:** Supabase (PostgreSQL with Real-time capabilities)
 *   **Authentication:** Managed via Supabase Auth
-*   **Deployment:** Integrated CI/CD workflow
 
 ## 🛠️ Key Features
 
