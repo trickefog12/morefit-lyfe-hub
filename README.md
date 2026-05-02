@@ -1,60 +1,35 @@
-# MoreFitLyfe Hub
+# MoreFitLyfe Hub 🏋️‍♂️
 
-A fitness & training web app for beginners, focused on helping users follow simple plans and stay consistent.
+A modern, AI-assisted fitness platform designed for beginners to track workflows and achieve health goals. Built with a focus on performance, clean UI, and scalable cloud architecture.
 
-> Built with the Lovable platform and then refined in code. Frontend: Vite + React + TypeScript. Backend: Supabase (Auth + Postgres).
+## 🚀 Technical Stack
 
-## Why this exists (problem → solution)
-Many beginners quit because they don’t know what to do next. MoreFitLyfe provides a simple, guided experience:
-- browse beginner-friendly training content/plans
-- (optional) sign in to personalize the experience
-- (optional) collect feedback/reviews
+*   **Frontend:** React 18 with TypeScript
+*   **Build Tool:** Vite (Optimized for fast development & deployment)
+*   **Styling:** Tailwind CSS & shadcn/ui (Modern, accessible component library)
+*   **Backend/Database:** Supabase (PostgreSQL with Real-time capabilities)
+*   **Authentication:** Managed via Supabase Auth
+*   **Deployment:** Integrated CI/CD workflow
 
-## Tech stack
-- **Frontend:** Vite, React, TypeScript
-- **UI:** Tailwind CSS, shadcn/ui
-- **Backend:** Supabase (Auth, Postgres)
-- **Tooling:** ESLint / Prettier (TODO: keep only if configured)
+## 🛠️ Key Features
 
-## What I built / contributed (be honest)
-- Prompted and iterated the initial app structure using **Lovable**
-- Implemented/refined UI components and page flows in React + TypeScript
-- Integrated Supabase client and environment-based configuration
-- Repository hygiene improvements: removed committed `.env`, added `.env.example`, updated `.gitignore` (if you did it—otherwise don’t claim it)
+*   **Personalized Training Workflows:** Dynamic interfaces to help beginners stay consistent.
+*   **Cloud Integration:** Real-time data persistence using Supabase.
+*   **Responsive Design:** Fully optimized for mobile and desktop viewing.
+*   **Managed Environment:** Secure configuration using Environment Variables (VITE_SUPABASE_URL / KEY).
 
-## Features (delete anything that’s not implemented)
-- [ ] Supabase Auth: sign up / sign in / sign out
-- [ ] User profiles (Supabase table: `profiles`)
-- [ ] Role-based access (table: `user_roles`)
-- [ ] Products / plans listing (table: `products`)
-- [ ] Reviews / testimonials (table: `reviews` or `reviews_public`)
-- [ ] Analytics events/page views (tables: `analytics_events`, `analytics_page_views`)
-- [ ] Payments (Stripe) (tables: `pending_checkouts`, `purchases`)
+## 🧠 The "AI + Human" Engineering Process
 
-> IMPORTANT: Only check features you can demonstrate running locally or in production.
+This project demonstrates my ability to leverage **AI-driven development (Lovable, Prompt Engineering)** to accelerate the software lifecycle. 
 
-## Getting started (local)
-### Prerequisites
-- Node.js (LTS recommended)
-- A Supabase project (or access to the existing one)
+Instead of just "generating code", I actively managed:
+*   **Architecture Decisions:** Choosing the right data structures for the fitness modules.
+*   **Troubleshooting & Debugging:** Resolving environment injection issues and Supabase initialization errors.
+*   **Refactoring:** Transitioning from hardcoded configurations to secure environment variable management.
 
-### Setup
-1) Clone:
-```bash
-git clone https://github.com/trickefog12/morefit-lyfe-hub.git
-cd morefit-lyfe-hub
+## 🏁 Getting Started
 
-## Features
-- **Authentication:** Full Supabase Auth integration (Sign-up, Login, JWT session persistence).
-- **Database:** PostgreSQL (via Supabase) managing user profiles, products, and roles.
-- **Payments:** Stripe integration via Lovable managed backend (hosted checkout flow)- **Order Management:** Automated flow to track purchases and pending checkouts in the DB.
-- Worked with a managed backend (Lovable Cloud) built on Supabase for authentication, database, and integrations
-- Configured application features (auth, database, payments) through platform-level integrations rather than custom backend code
-- **Analytics:** Custom event tracking and page view logging within Supabase tables.
-- **Responsive UI:** Built with Tailwind CSS and shadcn/ui for a premium mobile-first experience.
-
-## Technical Contribution & Implementation
-- **Full-stack Integration:** Managed the data flow between React (frontend), Supabase (database), and Stripe (payments).
-- **TypeScript & Schema:** Utilized generated TypeScript types for deep integration with the Supabase PostgreSQL schema.
-- **Environment Management:** Secured sensitive configuration using Vite environment variables.
-- **Prompt Engineering & Iteration:** Leveraged AI (Lovable) to architect the initial MVP, followed by manual code refinements in TypeScript to fix bugs and polish the Stripe integration.
+1. Clone the repository.
+2. Install dependencies: `npm install`
+3. Create a `.env` file with your `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
+4. Run locally: `npm run dev`
