@@ -1,0 +1,18 @@
+
+CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role app_role)
+RETURNS boolean
+LANGUAGE sql
+STABLE SECURITY DEFINER
+SET search_path TO 'public'
+AS $function$
+  SELECT CASE
+    WHEN _user_id IS NULL THEN false
+    ELSE EXISTS (
+      SELECT 1 FROM public.user_roles
+      WHERE user_id = _user_id AND role = _role
+    )
+  END
+$function$;
+
+REVOKE EXECUTE ON FUNCTION public.is_ip_whitelisted(text) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.is_ip_whitelisted(text) TO authenticated, service_role;
