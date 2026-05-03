@@ -97,7 +97,16 @@ const handler = async (req: Request): Promise<Response> => {
       .eq("template_type", "welcome")
       .single();
 
-    const origin = req.headers.get("origin") || "https://morefitlyfe.com";
+    // Validate Origin against allowlist to prevent phishing link injection
+    const ALLOWED_ORIGINS = new Set([
+      "https://morefitlyfe.lovable.app",
+      "https://morefitlyfe.com",
+      "https://www.morefitlyfe.com",
+    ]);
+    const rawOrigin = req.headers.get("origin") ?? "";
+    const origin = ALLOWED_ORIGINS.has(rawOrigin)
+      ? rawOrigin
+      : (Deno.env.get("SITE_URL") ?? "https://morefitlyfe.com");
     const programsUrl = `${origin}/programs`;
 
     // Use custom template values or defaults
