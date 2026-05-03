@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.prevent_purchase_field_tampering() FROM PUBLIC, anon, authenticated;
